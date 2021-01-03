@@ -21,11 +21,14 @@
     "@types/react-dom": "^17.0.0",
     "@types/react-resizable": "^1.7.2",
     "@types/react-textarea-autosize": "^4.3.5",
+    "node-fetch": "^2.6.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-draggable": "^4.4.3",
     "react-hot-loader": "^4.13.0",
+    "react-reflex": "^3.1.0",
     "react-resizable": "^1.11.0",
+    "react-simple-resizer": "^2.1.0",
     "react-textarea-autosize": "^8.3.0"
   },
   "devDependencies": {
