@@ -106,16 +106,18 @@ function valueOr(x, other) {
 function reducer(state, action) {
     switch (action.type) {
         case 'submit': {
-	    submit();
-	    return { task_type: null,
-		     result_status: null,
-		     input: null,
-		     output: null,
-		     expected: null,
-		     msg_compile_error: null,
-		     msg_runtime_error: null,
-		     msg_debug: null
-	    };
+	    console.log('action payload');
+	    console.log(action.payload);
+	    return action.payload;
+	    /* return { task_type: null,
+	       result_status: null,
+	       input: null,
+	       output: null,
+	       expected: null,
+	       msg_compile_error: "haha",
+	       msg_runtime_error: null,
+	       msg_debug: null
+	       }; */
         }
         case 'run_custom_case' : {
 	    /* return handleUpdate(); */
@@ -143,7 +145,7 @@ function reducer(state, action) {
     }
 }
 
-function DialogComponent(props) {
+ function DialogComponent(props) {
     const [open, setOpen] = React.useState(false);
     const [value, setValue] = React.useState(0);
     const textRef = useRef();
@@ -154,7 +156,7 @@ function DialogComponent(props) {
 	input: null,
 	output: null,
 	expected: null,
-	msg_compile_error: null,
+	msg_compile_error: "init",
 	msg_runtime_error: null,
 	msg_debug: null
     };
@@ -247,7 +249,9 @@ function DialogComponent(props) {
                     <TabPanel value={value} index={1}
                               style = {{height:"100%", width:"100%"}}>
 			<textarea
-			    value = {"error message"}
+			    value = {(() => {
+				return state.msg_compile_error;
+			    })() }
 			    key="error_message_text_area_key"
                    	    readOnly = {true}
 			    style={{resize: "none",
@@ -271,8 +275,11 @@ function DialogComponent(props) {
 		<Button onClick={() => dispatch({type : 'run_custom'})} color="primary">
 	            Run
 		</Button>
-		<Button onClick={() => {
-		    dispatch({type : 'submit'});
+		<Button onClick={async () => {
+		    const res = await submit(state);
+		    console.log('res is d  d asdsaasddasdasd: ');
+		    console.log(res);
+		    dispatch({type: 'submit', payload: res});
 		}}
 		    color="primary">
 	            Submit

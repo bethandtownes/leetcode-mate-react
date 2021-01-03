@@ -3,7 +3,7 @@ import { DEBUG }  from "./debug.js"
 import * as UtilSubmissionPane from "./submit_pane_util.jsx";
 
 
-export async function submit() {
+export async function submit(prevState) {
     DEBUG("submit called");
     const task = await acquire.TaskInfo();
     const data = {
@@ -14,12 +14,15 @@ export async function submit() {
     const submitURL = "/problems/" + task.question_slug + "/submit/";
     
     return makeSubmitRequest(data, submitURL).then(res => {
+	console.log("to json");
 	return res.json();
     }).then( res => {
+	console.log("get submision");
 	return acquire.SubmissionDetail(res['submission_id']);
     }).then( res => {
+	console.log("get display");
 	/* console.log(res); */
-	return UtilSubmissionPane.makeDisplayState(res);
+	return UtilSubmissionPane.makeDisplayState(prevState, res);
     });
 }
 

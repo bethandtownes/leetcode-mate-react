@@ -8,13 +8,12 @@
  * 	 msg_debug: null
  * }; */
 
+import { ResultType, TaskType } from "./typings.js"
 
-
-import { ResultType, TaskType } from "./typings"
-
-export const makeDisplayState = (prevState, submitResult) => {
+export const makeDisplayState = async (prevState, submitResult) => {
     switch (submitResult.status_msg) {
 	case 'Compile Error': {
+	    console.log('got compiled error');
 	    return {
 		task_type: TaskType.submit,
 		result_status: ResultType.compile_error,
@@ -35,15 +34,3 @@ export const makeDisplayState = (prevState, submitResult) => {
 };
 
 
-//
-** at runtime **
-call(object, fcn) {
-    if (run_time_type_pool.contains(object) == false) {
-	throw exception;
-    }
-    else {
-	
-	return with_current_context(std::invoke(child_or_LCA(run_time_function_pool[object][fcn])));
-    }
-}
-//
