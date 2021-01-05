@@ -17,7 +17,8 @@ export const TaskType = {
 export const T = {
     action: {
 	update: 'update',
-	update_input: 'update_input'
+	update_input: 'update_input',
+	reinitialize: 'reinitialize'
     },
     result: {
 	accepted: "Accepted",

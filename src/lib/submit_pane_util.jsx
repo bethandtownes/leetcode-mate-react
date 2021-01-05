@@ -109,6 +109,10 @@ export const makeDisplayState = async (prevState, submitResult) => {
 		input: null,
 		output: null,
 		expected: null,
+		runtime_percentile: submitResult.runtime_percentile,
+		memory_percentile: submitResult.memory_percentile,
+		status_memory: submitResult.status_memory,
+		status_runtime: submitResult.status_runtime,
 		msg_compile_error: null,
 		msg_runtime_error: null,
 		msg_debug: null

@@ -1,10 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-
-
 const viewport = document.getElementById('app');
-
 const app = document.createElement('div');
 
 app.id = 'root';
@@ -22,9 +19,7 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import Paper, { PaperProps } from '@material-ui/core/Paper'
 import { makeStyles, Theme } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
-// import React from 'react'
 import Draggable from 'react-draggable'
-// import TextareaAutosize from 'react-textarea-autosize'
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 
 import { ResizableBox } from 'react-resizable';
@@ -37,7 +32,7 @@ import Typography from '@material-ui/core/Typography';
 
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-import { useReducer, useRef } from 'react';
+import { useReducer, useRef, useEffect } from 'react';
 
 
 import { DEBUG } from "../../lib/debug.js";
@@ -47,9 +42,51 @@ import * as acquire from "../../lib/acquire.js";
 import { submit, runtest } from "../../lib/action.js";
 import {T, ResultType, TaskType } from "../../lib/typings.js";
 import LinearProgress from '@material-ui/core/LinearProgress';
+import { ThemeProvider } from "@material-ui/styles";
+import { createMuiTheme, CssBaseline} from "@material-ui/core";
+import { Container, Section, Bar } from 'react-simple-resizer';
+
+
+
+import HashLoader from "react-spinners/HashLoader";
+
+import InputOutputExpectedPane from "./modules/InputOutputExpectedPane.js";
 
 
 injectJSListener();
+
+
+function valueOr(x, other) {
+    if (x == null || x == undefined) {
+	return other;
+    }
+    else {
+	return x;
+    }
+}
+
+function LinearProgressWithLabel(props) {
+  return (
+    <Box display="flex" alignItems="center">
+      <Box width="100%" mr={1}>
+        <LinearProgress variant="determinate" {...props} />
+      </Box>
+      <Box minWidth={35}>
+          <Typography style = {{color: "white"}}>
+	      {`${Math.round(props.value,)}%`}
+	  </Typography>
+      </Box>
+    </Box>
+  );
+}
+
+LinearProgressWithLabel.propTypes = {
+  /**
+   * The value of the progress indicator for the determinate and buffer variants.
+   * Value between 0 and 100.
+   */
+  value: PropTypes.number.isRequired,
+};
 
 const PaperComponent = (props: PaperProps) => {
     return (
@@ -96,22 +133,22 @@ function a11yProps(index) {
     };
 }
 
-const rndtyle = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  border: "solid 1px #ddd",
-  background: "#f0f0f0"
-};
 
-function valueOr(x, other) {
-    if (x == null || x == undefined) {
-	return other;
-    }
-    else {
-	return x;
-    }
-}
+
+const initialState = {
+    task_type: null,
+    result_status: null,
+    input: "",
+    output: "",
+    expected: "",
+    status_runtime: null,
+    status_memory: null,
+    runtime_percentile: null,
+    memory_percentile: null,
+    msg_compile_error: "init",
+    msg_runtime_error: null,
+    msg_debug: null
+};
 
 function reducer(state, action) {
     switch (action.type) {
@@ -133,11 +170,22 @@ function reducer(state, action) {
         case T.action.run_default_case : {
 	    return ;
 	}
+	case T.action.reinitialize: {
+	    return initialState;
+	}
         default: {
 	    return state;
         }
     }
 }
+
+
+const theme = createMuiTheme({
+  palette: {
+    type: "dark"
+  }
+});
+
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -151,26 +199,93 @@ const useStyles = makeStyles((theme) => ({
 function DialogComponent(props) {
     const [open, setOpen] = React.useState(false);
     const [mode, setMode] = React.useState(null);
+    const [barPos, setBarPos] = React.useState(250);
     const [value, setValue] = React.useState(0);
+    const [row, setRow] = React.useState(10);
     const textRef = useRef();
+    const barRef = useRef();
+    const inputBoxRef = useRef();
+    const submitButtonRef = useRef();
+    const runButtonRef = useRef();
+    const runDefaultButtonRef = useRef();
+    
     const [judge, setJudge] = React.useState(false);
-
-    const initialState = {
-	task_type: null,
-        result_status: null,
-	input: "",
-	output: "",
-	expected: "",
-	msg_compile_error: "init",
-	msg_runtime_error: null,
-	msg_debug: null
-    };
+ 
     
     const [state, dispatch] = useReducer(reducer, initialState);
 
+
+    useEffect(() => {
+	const memorizeBarPos = () => {
+	    try {
+		if (open) {
+		    setBarPos(barRef.current.clientWidth);
+		}
+	    }
+	    catch (e) {
+		// do nothing
+	    }
+	};
+	window.addEventListener('click', memorizeBarPos);
+	return () => {
+	    window.removeEventListener('click', memorizeBarPos);
+	}
+    });
+
+
+    useEffect(() => {
+	const toggle = (e) => {
+	    if (e.altKey && e.key == 'i') {
+		if (open) {
+		    dispatch({type: T.action.update_input, payload: textRef.current.value});
+		    setOpen(false);
+		}
+		else {
+		    setOpen(true);
+		}
+	    }
+	    if (e.ctrlKey && e.key == 'Enter') {
+		if (open == false) {
+		    setOpen(true);
+		}
+		submitButtonRef.current.click();
+	    }
+	    if (e.altKey && e.key == 'Enter') {
+		if (open == false) {
+		    setOpen(true);
+		}
+		if (textRef.current == null || textRef.current.value.trim() == "") {
+		    runDefaultButtonRef.current.click();
+		}
+		else {
+		    runButtonRef.current.click();
+		}
+	    }
+	    if (e.altKey && e.ctrlKey && e.key == 'Enter') {
+		if (open == false) {
+		    setOpen(true);
+		}
+		runDefaultButtonRef.current.click();
+	    }
+	};
+	window.addEventListener('keydown', toggle);
+	return () => {
+	    window.removeEventListener('keydown', toggle);
+	}
+    });
+
+
+    useEffect(() => {
+	
+    });
     
     const handleClickOpen = () => {
-        setOpen(true)
+	if (open == false) {
+            setOpen(true)
+	}
+	else {
+	    setOpen(false);
+	}
     }
     
     const handleClose = () => {
@@ -178,6 +293,7 @@ function DialogComponent(props) {
     }
 
     const handleChange = (event, newValue) => {
+	console.log(barRef);
 	const v = textRef.current.value;
         setValue(newValue);
 	dispatch({ type: T.action.update_input, payload: textRef.current.value });
@@ -186,51 +302,7 @@ function DialogComponent(props) {
     const classes = useStyles();
     
 
-    const InputOutputExpectedPane = () => {
-        return  (
-	    <Box display = "flex" flexDirection ="column" style = {{width: "30%"}}>
-		<TextField
-		    id="input_text_area"
-		    key = {"input_text_area_key"}
-		    label="Input"
-		    defaultValue = { state.input }
-		    multiline = { true }
-		    inputRef = { textRef }
-		    readOnly = { false }
-		    rows = {10}
-		    variant = "filled"
-		    style = {{width:"100%", height:"100%", backgroundColor: 'rgba(255,255,255,0.8)', overflow: 'auto'}}
-		>
-		</TextField>
-		<Divider/>
-		<TextField
-		    id = "outlined-multiline-static"
-		    key = {"output_text_area_key"}
-		    label = "Output"
-		    value = {valueOr(state.output, "")}
-		    multiline = {true}
-		    rows = {10}
-		    variant = "filled"
-          	    readOnly = {true}
-		    style = {{width:"100%", height:"100%", backgroundColor: 'rgba(255,255,255,0.8)', overflow: 'auto'}}
-		/>
-		<Divider/>
-		<TextField
-                    id="outlined-multiline-static"
-		    key = {"expected_text_area_key"}
-                    label="Expected"
-		    value = {valueOr(state.expected, "")}
-		    readOnly = {true}
-                    multiline = {true}
-                    rows = {10}
-                    variant = "filled"
-                    style = {{width:"100%", height:"100%", backgroundColor: 'rgba(255,255,255,0.8)', overflow: 'auto'}}
-		/>
-	    </Box>);
-    };
-
-    const DebugMessagePane = () => {
-	
+    const DebugMessagePane = () => {	
 	const renderErrorMsg = () => {
 	    switch (state.result_status) {
 		case ResultType.compile_error: {
@@ -244,10 +316,10 @@ function DialogComponent(props) {
 		}
 	    }
 	};
-	
+
         return (
             <>
-		<Box display = "flex" flexDirection ="column" style = {{width: "70%"}}>
+		<Box display = "flex" flexDirection ="column" style = {{height:"100%", width: "100%"}}>
                     <AppBar position="static" style={{ height:"30px", width: "100%"}}>
 			<Tabs value={value} onChange={handleChange}
                               variant='fullWidth'
@@ -283,7 +355,8 @@ function DialogComponent(props) {
                    	    readOnly = {true}
 			    style={{resize: "none",
 				    height:"100%",
-				    backgroundColor: 'rgba(255,255,255,0.7)', width: "100%"}}/>
+				    color: 'rgb(233, 30, 99)',
+				    backgroundColor: 'rgba(252, 228, 236, 0.9)', width: "100%"}}/>
                     </TabPanel>
 		</Box>
             </>
@@ -296,12 +369,14 @@ function DialogComponent(props) {
 
     
     const Actions = () => {
+	
 	const handleRunCustom = async () => {
 	    if (state.result_status == T.result.accepted) {
 		setMode("test");
+		dispatch({ type: T.action.reinitialize });
 		return;
 	    }
-	    if (textRef.current.value.trim() == "") {
+	    if (textRef.current == null || textRef.current == undefined || textRef.current.value.trim() == "") {
 		return;
 	    }
 	    
@@ -312,6 +387,15 @@ function DialogComponent(props) {
 	    res.input = textRef.current.value;
 	    setJudge(false);
 	    dispatch({ type: T.action.update, payload: res });
+	    if (res.result_status == T.result.compile_error) {
+		setValue(1);
+	    }
+	    else if (res.result_status == T.result.runtime_error) {
+		setValue(1);
+	    }
+	    else {
+		setValue(0);
+	    }
 	};
 
 	const handleSubmit = async () => {
@@ -321,6 +405,15 @@ function DialogComponent(props) {
 	    const res = await submit(state);
 	    setJudge(false);
 	    dispatch({type: T.action.update, payload: res});
+	    if (res.result_status == T.result.compile_error) {
+		setValue(1);
+	    }
+	    else if (res.result_status == T.result.runtime_error) {
+		setValue(1);
+	    }
+	    else {
+		setValue(0);
+	    }
 	};
 
 	const handleRunDefault = async () => {
@@ -337,7 +430,20 @@ function DialogComponent(props) {
 	    res.input = textRef.current.value;
 	    setJudge(false);
 	    dispatch({ type: T.action.update, payload: res });
+	    if (res.result_status == T.result.compile_error) {
+		setValue(1);
+	    }
+	    else if (res.result_status == T.result.runtime_error) {
+		setValue(1);
+	    }
+	    else {
+		setValue(0);
+	    }
 	};
+
+	const handleReset = () => {
+	    dispatch({ type: T.action.reinitialize });
+	}
 
 	const loadingBar = () => {
 	    if (judge == true) {
@@ -354,51 +460,46 @@ function DialogComponent(props) {
 	
         return (
             <>
-		{loadingBar()}
-		<Button onClick = { handleRunDefault } color="primary"> Run Default </Button>
-		<Button onClick = { handleRunCustom } color="primary"> Run </Button>
-		<Button onClick = { handleSubmit } color="primary"> Submit </Button>
+		<Button ref = { runDefaultButtonRef } onClick =  { handleRunDefault } color="primary"> Run Default </Button>
+		<Button ref = { runButtonRef } onClick = { handleRunCustom } color="primary"> Run </Button>
+		<Button ref = { submitButtonRef } onClick = { handleSubmit } color="primary"> Submit </Button>
 		<Button onClick={() => dispatch({type : 'cancel'})} color="primary">
 	            Close
 		</Button>
+		<Button onClick = { handleReset } color="primary"> Reset </Button>
             </>
         );
     };
 
 
-    const SubmissionDetails = () => {
-	if (state.result_status != T.result.accepted) {
-	    return null;
-	}
-	return (
-	    <>
-		
-	    </>
-	);
-    };
-
-
     const PaneTitle = () => {
 	const renderStatus = () => {
-	    if (mode == null) {
+	    if (judge == true) {
+		return "Juding";
+	    }
+	    if (mode == null || state.result_status == null) {
 		return "Run or Submit";
 	    }
 	    if (mode == "submit") {
 		return state.result_status;
 	    }
-
 	    else {
 		return state.result_status;
 	    }
 	};
 
 	const makeBackgroundColor = () => {
-	    if (state.result_status == T.result.accepted) {
-		return "green";
+	    if (judge == true) {
+		return '#ffeb3b';
+	    }	    
+	    if (state.result_status == T.result.accepted || state.result_status == "Test Passed") {
+		return "#b2ff59";
 	    }
-	    else {
-		return "pink";
+	    if (state.result_status == null) {
+		return '#ffeb3b';
 	    }
+	    return "pink";
+
 	};
 	    
 
@@ -419,8 +520,11 @@ function DialogComponent(props) {
 		    style={{ cursor: 'move' , backgroundColor: makeBackgroundColor(), width: "800"}}
 		    id="draggable-dialog-title"
 		>
-		    {renderStatus()}
-		    {renderMode()}
+		    <Box display = "flex" flexDirection = "row">
+			{renderStatus()}
+			<p/>
+			<HashLoader size = {25} loading = {judge} style = {{marginLeft: 10}}/>
+		    </Box>
 		</DialogTitle>  
 	    </>
 	);
@@ -436,18 +540,72 @@ function DialogComponent(props) {
     };
 
     const MiddleContent = () => {
-	if (state.result_status == T.result.accepted && mode == "submit") {
+	if ((mode == 'submit' && judge == true) ||state.result_status == T.result.accepted && mode == "submit") {
+	    const RuntimePercentileBar = () => {
+		if (judge == true) {
+		    return (
+			<>
+			    <Typography style={{ marginTop: 0 , color: "white"}}>
+				Runtime
+			    </Typography>
+			    <LinearProgress  style = {{ height: "20px"}}/>
+			</>
+		    );
+		}
+		else {
+		    return (
+			<>
+			    <Typography style={{ marginTop: 0 , color: "white"}}>
+				Runtime
+			    </Typography>
+			    <LinearProgressWithLabel value = {state.runtime_percentile} style = {{ height: "20px"}}/>
+			</>
+		    );
+		}
+	    };
+
+	    const MemoryPercentileBar = () => {
+		if (judge == true) {
+		    return (
+			<>
+			    <Typography style={{ marginTop: 0 , color: "white"}}>
+				Memory
+			    </Typography>
+			    <LinearProgress  style = {{ height: "20px"}}/>
+			</>
+		    );
+		}
+		else {
+		    return (
+			<>
+			    <Typography style={{ marginTop: 0 , color: "white"}}>
+				Memory
+			    </Typography>
+			    <LinearProgressWithLabel value = {state.memory_percentile} style = {{ height: "20px"}}/>
+			</>
+		    );
+		}
+	    };
+	    
 	    return (
 		<ResizableBox
-		    height = {150}
+		    height = {180}
 		    width = {800}
-		    minConstraints = {[800, 150]}
+		    minConstraints = {[800, 180]}
 		>
-		    <PaneTitle />
-		    
+		    <>
+			<PaneTitle />
+			<Divider />
+			<DialogContent style = {{height: "90%"}}>
+			    <Box display = "flex" flexDirection = "column" style = {{height: "100%", alignItems: "stretch"}}>
+				<RuntimePercentileBar />
+				<p/>
+				<MemoryPercentileBar />
+			    </Box>
+			</DialogContent>
+		    </>
 		</ResizableBox>
 	    );
-	    /* return null; */
 	}
 	else {
 	    return (
@@ -460,10 +618,27 @@ function DialogComponent(props) {
 			<PaneTitle />
 			<Divider />
 			<DialogContent style = {{height: "90%"}}>
-			    <Box display = "flex" flexDirection = "row" style = {{height: "100%", alignItems: "stretch"}}>
-				<InputOutputExpectedPane/>
-				<DebugMessagePane/>
-			    </Box> 
+			    {/* <Box display = "flex" flexDirection = "row" style = {{height: "100%", alignItems: "stretch"}}> */}
+				<Container style = {{height: "100%", width:"100%"}}>
+				    <Section
+					key = "section1"
+					defaultSize = {barPos}
+					minSize = {250}
+					disableResponsive = {true}
+					style = {{height: "100%", width:"100%"}}
+					innerRef = {barRef}
+				    >
+					<InputOutputExpectedPane state = {state} inputRef = {textRef} />
+				    </Section>
+				    <Bar size={10} style={{ background: '#888888', cursor: 'col-resize' }} />
+
+				    <Section style = {{height: "100%", width:"100%"}}
+					key = "section2"
+				    >
+					<DebugMessagePane/>
+				    </Section>
+				</Container>
+				{/* </Box>  */}
 			</DialogContent>
 		    </>
 		</ResizableBox>
@@ -472,9 +647,9 @@ function DialogComponent(props) {
     }
     return (
         <div>
-	    <Button onClick={handleClickOpen}>Open dd form dialog</Button>
 	    {open && (
 		<Dialog
+		    id={"submission_pane"}
 		    open={true}
 		    /* BackdropComponent = {document} */
 		    hideBackdrop = {true}
