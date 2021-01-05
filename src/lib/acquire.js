@@ -1,6 +1,8 @@
 import { DEBUG } from "./debug.js";
 import { make_slug } from "./utils.jsx";
 
+import { T } from "./typings.js";
+
 
 const LANG_CODEMAP = {
     "C++": "cpp",
@@ -65,7 +67,7 @@ export const CurrentRunStatus = async (id) => {
 export const SubmissionDetail = async (id) => {
     DEBUG("get submission detail:" + id);
     let requestURL = "https://leetcode.com/submissions/detail/" + id + "/check";
-    for (let i = 0; i < 20; ++i) {
+    for (let i = 0; i < 50; ++i) {
 	const curst = await CurrentRunStatus(id);
 	DEBUG(curst);
 	if (curst['state'] == "SUCCESS") {
@@ -149,11 +151,83 @@ export async function EditorValue(waitTime = 200, attempt = 1) {
     }
 };
 
-export const DefaultTestCase = () => {
-    const e = document.getElementsByClassName("ace_layer ace_text-layer")[0];
-    if (e == undefined) {
-	// DEBUG("no text case input area found");
-	return;
+
+
+
+
+export async function DefaultTestCase() {
+    const LOCATOR_CONSOLE_BUTTON = "custom-testcase__2ah7";
+    const LOCATOR_CONSOLE_PANE = "result__1UhQ";
+    const LOCATOR_TESTCASE_EDITOR = " ace_editor ace-github testcase-editor__3Tbb";
+
+    function testcaseEditor() { 
+	return document.getElementsByClassName(LOCATOR_TESTCASE_EDITOR)[0]   
     }
-    return Array.from(e.children).map(x => x.textContent).join('\n')
+
+    function consoleButton() {
+	return document.getElementsByClassName(LOCATOR_CONSOLE_BUTTON)[0];
+    }
+
+    function consolePane() {
+	return document.getElementsByClassName(LOCATOR_CONSOLE_PANE)[0];
+    }
+
+    function maskConsolePane() {
+	consolePane().style.height = "0px"
+    }
+
+    function unmaskConsolePane() {
+	consolePane().style.height = "inherit";
+    }
+
+    
+    const getDefaultTestCase = () => {
+	const e = document.getElementsByClassName("ace_layer ace_text-layer")[0];
+	if (e == undefined) {
+	    return;
+	}
+	return Array.from(e.children).map(x => x.textContent).join('\n')
+    };
+    
+    const consolePaneAlreadyOpened = testcaseEditor() != undefined;
+
+    if (consolePaneAlreadyOpened == false) {
+	maskConsolePane();	
+	consoleButton().click();
+	consolePane().style.display = "none"
+    }
+
+    return new Promise((resolve, fail) => {
+	setTimeout(() => {
+	    resolve(getDefaultTestCase());
+	}, 100)
+    }).then((res) => {
+	if (consolePaneAlreadyOpened == false) {
+	    consoleButton().click();
+	    setTimeout(() => {
+		consolePane().style.display = "";
+		consolePane().style.height = "inherit";
+	    }, 200);
+	}
+	return res;
+    });
+};
+
+
+
+export const DebugPrint = (mode, result) => {
+    switch (mode) {
+	case T.task_type.run_testcase : {
+	    if (typeof(result.code_output) == "string") {
+		return result.code_output;
+	    }
+	    else {
+		return result.code_output.join('\n');
+	    }
+	}
+	default: {
+	    return null;
+	}
+    }
+    
 };

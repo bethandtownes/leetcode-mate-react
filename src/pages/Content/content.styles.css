@@ -2,9 +2,9 @@
   position: relative;
 }
 .react-resizable-handle {
-  position: absolute;
-  width: 20px;
-  height: 20px;
+    position: absolute;
+  width: 40px;
+  height: 60px;
   background-repeat: no-repeat;
   background-origin: content-box;
   box-sizing: border-box;
@@ -19,7 +19,7 @@
   transform: rotate(90deg);
 }
 .react-resizable-handle-se {
-  bottom: 0;
+  bottom: -45px;
   right: 0;
   cursor: se-resize;
 }

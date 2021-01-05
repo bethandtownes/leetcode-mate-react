@@ -1,5 +1,5 @@
 import { submit } from "./submit.js";
-
+import { runtest } from "./runtest.js";
 
 
 /* async function acquireEditorValue(waitTime = 200, attempt = 1) {
@@ -51,4 +51,4 @@ import { submit } from "./submit.js";
 /* export { acquireEditorValue, acquireCsrftoken }; */
 
 
-export { submit };
+export { submit, runtest };

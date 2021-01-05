@@ -3,21 +3,22 @@ import { DEBUG }  from "./debug.js"
 import * as UtilSubmissionPane from "./submit_pane_util.jsx";
 
 
-export async function submit(prevState) {
+export async function runtest(testInput) {
     const task = await acquire.TaskInfo();
     const data = {
+	data_input: testInput,
 	lang: acquire.ProgrammingLanguage(),
 	question_id: task.question_id,
 	typed_code: await acquire.EditorValue(), 
     };
-    const submitURL = "/problems/" + task.question_slug + "/submit/";
+    const submitURL = "/problems/" + task.question_slug + "/interpret_solution/";
     
     return makeSubmitRequest(data, submitURL).then(res => {
 	return res.json();
     }).then( res => {
-	return acquire.SubmissionDetail(res['submission_id']);
+	return acquire.SubmissionDetail(res['interpret_id']);
     }).then( res => {
-	return UtilSubmissionPane.makeDisplayState(prevState, res);
+	return UtilSubmissionPane.makeTestDisplayState(res);
     });
 }
 
@@ -29,4 +30,3 @@ async function makeSubmitRequest(task, submitURL) {
         body: JSON.stringify(task)
     });
 };
-
