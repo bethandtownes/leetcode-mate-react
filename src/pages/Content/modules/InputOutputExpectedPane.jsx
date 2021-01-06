@@ -1,25 +1,34 @@
-
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Divider, Box, TextField } from '@material-ui/core';
-import { valueOr } from "./utility.js"
+import { valueOr } from "./utility.js";
+import { T } from "../../../lib/typings.js";
 
-
-export default function InputOutputExpectedPane(props) {
+export const InputOutputExpectedPane = (props) => {
+    
+    const renderLabel = () => {
+	if (props.mode == T.mode.test) {
+	    return "Input (Test)";
+	}
+	if (props.state.result_status == T.result.wrong_answer) {
+	    return "Input (Failed Case)";
+	}
+	return "Input";
+    };
+    
     return  (
 	<Box display = "flex" flexDirection ="column" style = {{height: "100%", width: "100%"}} >
-	<TextField
-	id="input_text_area"
-	key = {"input_text_area_key"}
-		label="Input"
-		defaultValue = { props.state.input }
-		multiline = { true }
+	    <TextField
+		id="input_text_area"
+		key = {"input_text_area_key"}
+		label = { renderLabel() }
+	        defaultValue = { props.state.input }
 		inputRef = { props.inputRef }
+		multiline = { true }
 		readOnly = { false }
 		rows = {20}
 		variant = "filled"
 		style = {{width:"100%", height:"34%", backgroundColor: 'rgba(255,255,255,0.8)', overflow: 'auto'}}
-		{...props}
 	    >
 	    </TextField>
 	    <Divider/>
@@ -33,7 +42,6 @@ export default function InputOutputExpectedPane(props) {
 		variant = "filled"
           	readOnly = {true}
 		style = {{width:"100%", height:"33%", backgroundColor: 'rgba(255,255,255,0.8)', overflow: 'auto'}}
-  	        {...props}
 	    />
 	    <Divider/>
 	    <TextField
@@ -46,7 +54,6 @@ export default function InputOutputExpectedPane(props) {
                 rows = {20}
                 variant = "filled"
                 style = {{width:"100%", height:"33%", backgroundColor: 'rgba(255,255,255,0.8)', overflow: 'auto'}}
-                {...props}
 	    />
 	</Box>);
 };

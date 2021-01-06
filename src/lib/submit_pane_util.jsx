@@ -76,11 +76,9 @@ export const makeTestDisplayState = async (result) => {
 }
 
 export const makeDisplayState = async (prevState, submitResult) => {
-
     switch (submitResult.status_msg) {
 	case 'Compile Error': {
 	    return {
-		task_type: TaskType.submit,
 		result_status: ResultType.compile_error,
 		input: null,
 		output: null,
@@ -92,7 +90,6 @@ export const makeDisplayState = async (prevState, submitResult) => {
 	}
 	case 'Wrong Answer': {
 	    return {
-		task_type: TaskType.submit,
 		result_status: ResultType.wrong_answer,
 		input: submitResult.input,
 		output: submitResult.code_output,
@@ -104,7 +101,6 @@ export const makeDisplayState = async (prevState, submitResult) => {
 	}
 	case 'Accepted': {
 	    return {
-		task_type: TaskType.submit,
 		result_status: ResultType.accepted,
 		input: null,
 		output: null,
@@ -120,7 +116,6 @@ export const makeDisplayState = async (prevState, submitResult) => {
 	}
 	case 'Runtime Error': {
 	    return {
-		task_type: TaskType.submit,
 		result_status: ResultType.runtime_error,
 		input: submitResult.last_testcase,
 		output: null,
@@ -132,7 +127,6 @@ export const makeDisplayState = async (prevState, submitResult) => {
 	}
 	case 'Memory Limit Exceeded': {
 	    return {
-		task_type: TaskType.submit,
 		result_status: ResultType.memory_limit_exceeded,
 		input: submitResult.input,
 		output: submitResult.code_output,
@@ -144,7 +138,6 @@ export const makeDisplayState = async (prevState, submitResult) => {
 	}
 	case 'Time Limit Exceeded': {
 	    return {
-		task_type: TaskType.submit,
 		result_status: ResultType.time_limit_exceeded,
 		input: submitResult.input,
 		output: submitResult.code_output,

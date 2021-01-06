@@ -1,3 +1,5 @@
+
+/* @deprecated */
 export const ResultType = {
     accepted: "Accepted",
     compile_error: "Compile Error",
@@ -7,7 +9,7 @@ export const ResultType = {
     memory_limit_exceeded: "Memory Limit Exceeded"
 };
 
-
+/* @deprecated */
 export const TaskType = {
     submit: "submit",
     run_testcase: "run_testcase"
@@ -31,5 +33,9 @@ export const T = {
     task_type: {
 	submit: "submit",
 	run_testcase: "run_testcase"
+    },
+    mode: {
+	test: "test",
+	submit: "submit"
     }
 };
