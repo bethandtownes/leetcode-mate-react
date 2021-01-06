@@ -17,7 +17,7 @@ export default function ProgressBarMemory(props) {
 	return (
 	    <>
 		<Typography style={{ marginTop: 0 , color: "white"}}>
-		    { "Memory: "  + props.state.status_runtime.toString() }
+		    { "Memory: "  + props.state.status_memory.toString() }
 		</Typography>
 		<LinearProgressWithLabel value = {props.state.memory_percentile} style = {{ height: "20px"}}/>
 	    </>

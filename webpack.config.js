@@ -36,10 +36,7 @@ if (fileSystem.existsSync(secretsPath)) {
 var options = {
     mode: process.env.NODE_ENV || 'development',
     entry: {
-        newtab: path.join(__dirname, 'src', 'pages', 'Newtab', 'index.jsx'),
-        options: path.join(__dirname, 'src', 'pages', 'Options', 'index.tsx'),
-        popup: path.join(__dirname, 'src', 'pages', 'Popup', 'index.jsx'),
-        background: path.join(__dirname, 'src', 'pages', 'Background', 'index.js'),
+       
         contentScript: path.join(__dirname, 'src', 'pages', 'Content', 'index.jsx'),
     },
     chromeExtensionBoilerplate: {
@@ -154,6 +151,33 @@ var options = {
         new CopyWebpackPlugin({
             patterns: [
                 {
+                    from: 'src/assets/img/icon-34.png',
+                    to: path.join(__dirname, 'build'),
+                    force: true,
+                },
+            ],
+        }),
+        new CopyWebpackPlugin({
+            patterns: [
+                {
+                    from: 'src/assets/img/icon-128.png',
+                    to: path.join(__dirname, 'build'),
+                    force: true,
+                },
+            ],
+        }),
+        new CopyWebpackPlugin({
+            patterns: [
+                {
+                    from: 'src/assets/img/logo.svg',
+                    to: path.join(__dirname, 'build'),
+                    force: true,
+                },
+            ],
+        }),
+        new CopyWebpackPlugin({
+            patterns: [
+                {
                     from: 'src/assets/cache.json',
                     to: path.join(__dirname, 'build'),
                     force: true,
@@ -169,36 +193,7 @@ var options = {
                 },
             ],
         }),
-        new HtmlWebpackPlugin({
-            template: path.join(__dirname, 'src', 'pages', 'Newtab', 'index.html'),
-            filename: 'newtab.html',
-            chunks: ['newtab'],
-            cache: false,
-        }),
-        new HtmlWebpackPlugin({
-            template: path.join(__dirname, 'src', 'pages', 'Options', 'index.html'),
-            filename: 'options.html',
-            chunks: ['options'],
-            cache: false,
-        }),
-        new HtmlWebpackPlugin({
-            template: path.join(__dirname, 'src', 'pages', 'Popup', 'index.html'),
-            filename: 'popup.html',
-            chunks: ['popup'],
-            cache: false,
-        }),
-        new HtmlWebpackPlugin({
-            template: path.join(
-                __dirname,
-                'src',
-                'pages',
-                'Background',
-                'index.html'
-            ),
-            filename: 'background.html',
-            chunks: ['background'],
-            cache: false,
-        }),
+       
     ],
     infrastructureLogging: {
         level: 'info',
