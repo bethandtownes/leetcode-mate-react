@@ -4,10 +4,54 @@ import HashLoader from "react-spinners/HashLoader";
 import Box from '@material-ui/core/Box';
 import { T } from "../../../lib/typings.js";
 import BuildIcon from '@material-ui/icons/Build';
+import Alert from '@material-ui/lab/Alert';
+import { CountdownCircleTimer } from "react-countdown-circle-timer";
+
+
+const timerProps = {
+  isPlaying: true,
+  size: 40,
+  strokeWidth: 3
+};
+
+const renderTime = (time) => {
+  return (
+      <div className = "time-wrapper">
+	  <div> {time} </div>
+      </div>
+  );
+};
+
+const getTimeSeconds = (r, time) => (r - time / 1000) | 0;
+
+function CooldownTimer() {
+  const stratTime = Date.now() ; // use UNIX timestamp in seconds
+  const endTime = stratTime + 3; // use UNIX timestamp in seconds
+
+  const remainingTime = endTime - stratTime;
+  return (
+    <div>
+      <CountdownCircleTimer
+        {...timerProps}
+        colors={[["#218380"]]}
+        duration={remainingTime}
+        initialRemainingTime={3}
+        onComplete={(totalElapsedTime) => [
+          remainingTime - totalElapsedTime > 0
+        ]}
+      >
+      </CountdownCircleTimer>
+    </div>
+  );
+}
+
 
 export default function PaneTitle(props) {
     const renderStatus = () => {
 	const state = props.state;
+	if (props.failed == true) {
+	    return "Submission Failed, try again in 3 seconds";
+	}
 	if (props.loading == true) {
 	    return "Juding";
 	}
@@ -26,6 +70,9 @@ export default function PaneTitle(props) {
 
     const makeBackgroundColor = () => {
 	const state = props.state;
+	if (props.failed == true) {
+	    return "pink";
+	}
 	if (props.loading == true) {
 	    return '#ffeb3b';
 	}	    
@@ -42,6 +89,13 @@ export default function PaneTitle(props) {
     const ModeIcon = () => {
 	if (props.mode == T.mode.test) {
 	    return <BuildIcon style = {{marginTop: "4px", marginLeft: "auto"}}/>;
+	}
+	if (props.failed == true) {
+	    return (
+		<Box ml={"auto"}> 
+		    <CooldownTimer style = {{marginTop: "4px"}}/>
+		</Box>
+	    );
 	}
 	return null;
     }

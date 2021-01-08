@@ -1,4 +1,4 @@
-const DEBUG_MODE = true;
+const DEBUG_MODE = false;
 function DEBUG(s) {
     if (DEBUG_MODE == true) {
 	if (typeof(s) == "object") {

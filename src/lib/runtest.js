@@ -15,10 +15,19 @@ export async function runtest(testInput) {
     
     return makeSubmitRequest(data, submitURL).then(res => {
 	return res.json();
+    }).catch((e) => {
+	throw new EvalError();
     }).then( res => {
 	return acquire.SubmissionDetail(res['interpret_id']);
     }).then( res => {
 	return UtilSubmissionPane.makeTestDisplayState(res);
+    }).catch((e) => {
+	if (e instanceof EvalError) {
+	    return null;
+	}
+	else {
+	    next(e);
+	}
     });
 }
 

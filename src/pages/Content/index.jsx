@@ -108,8 +108,11 @@ function LeetCodeMateSubmissionPanel(props) {
     const [mode, setMode] = React.useState(null);
     const [barPos, setBarPos] = React.useState(220);
     const [value, setValue] = React.useState(0);
-    const [row, setRow] = React.useState(10);
+    const [failed, setFail] = React.useState(false);
     const [judge, setJudge] = React.useState(false);
+
+    const [W, setW] = React.useState(800);
+    const [H, setH] = React.useState(500);
     
     const textRef = useRef();
     const barRef = useRef();
@@ -124,6 +127,12 @@ function LeetCodeMateSubmissionPanel(props) {
     const onInputChange = (e) => {
 	dispatch({type: T.action.update_input, payload: e.target.value});
     };
+
+    useEffect(async() => {
+	if (failed) {
+	    setTimeout(() => { setFail(false) }, 3000);
+	}
+    }, [failed]);
     
     useEffect(() => {
 	const memorizeBarPos = () => {
@@ -139,7 +148,7 @@ function LeetCodeMateSubmissionPanel(props) {
 	window.addEventListener('click', memorizeBarPos);
 	return () => {
 	    window.removeEventListener('click', memorizeBarPos);
-	}
+	};
     });
 
     const focusInput = () => {
@@ -156,8 +165,21 @@ function LeetCodeMateSubmissionPanel(props) {
 
 
     useEffect(() => {
+	const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
 	const toggle = (e) => {
 	    if (e.altKey && e.key == 'i') {
+		if (open) {
+		    if (!judge && state.result_status != T.result.accepted) {
+			dispatch({type: T.action.update_input, payload: textRef.current.value});
+		    }
+		    setOpen(false);
+		}
+		else {
+		    setOpen(true);
+		    focusInput();
+		}
+	    }
+	    if (isMac && e.metaKey && e.key == 'i') {
 		if (open) {
 		    if (!judge && state.result_status != T.result.accepted) {
 			dispatch({type: T.action.update_input, payload: textRef.current.value});
@@ -188,6 +210,21 @@ function LeetCodeMateSubmissionPanel(props) {
 		    runButtonRef.current.click();
 		}
 	    }
+	    
+
+	    if (isMac && e.metaKey && e.key == 'Enter') {
+		if (open == false) {
+		    setOpen(true);
+		}
+		if (judge) return;
+		if (textRef.current == null || textRef.current.value.trim() == "") {
+		    runDefaultButtonRef.current.click();
+		}
+		else {
+		    runButtonRef.current.click();
+		}
+	    }
+	    
 	    if (e.altKey && e.ctrlKey && e.key == 'Enter') {
 		if (judge) return;
 		if (open == false) {
@@ -250,7 +287,13 @@ function LeetCodeMateSubmissionPanel(props) {
 	    setMode(T.mode.test); 
 	    setJudge(true);
 	    const inputTextCase = textRef.current.value.trim();
-	    let res = await runtest(inputTextCase); res.input = inputTextCase;
+	    let res = await runtest(inputTextCase);
+	    if (res == null) {
+		handleReset();
+		setFail(true);
+		return;
+	    }
+	    res.input = inputTextCase;
 	    setOpen(true);
 	    dispatch({ type: T.action.update, payload: res });
 	    setJudge(false);
@@ -262,6 +305,11 @@ function LeetCodeMateSubmissionPanel(props) {
 	    setMode(T.mode.submit);
 	    setJudge(true);
 	    const res = await submit(state);
+	    if (res == null) {
+		handleReset();
+		setFail(true);
+		return;
+	    }
 	    dispatch({type: T.action.update, payload: res});
 	    setJudge(false);
 	    updateMessagePaneTabStatus(res);
@@ -278,6 +326,11 @@ function LeetCodeMateSubmissionPanel(props) {
 	    setMode(T.mode.test); 
 	    setJudge(true);
 	    let res = await runtest(textRef.current.value.trim());
+	    if (res == null) {
+		handleReset();
+		setFail(true);
+		return;
+	    }
 	    setOpen(true);
 	    res.input = defaultCase;
 	    dispatch({ type: T.action.update, payload: res });
@@ -299,14 +352,19 @@ function LeetCodeMateSubmissionPanel(props) {
 
 	const handleReset = () => {
 	    dispatch({ type: T.action.reinitialize });
+	    setMode(null);
+	    setJudge(false);
 	}
+
 
         return (
             <>
 		<ThemeProvider theme={theme}>
-		    <Button ref = { runDefaultButtonRef } onClick =  { handleRunDefault } disabled = { judge } color="primary"> Run Default </Button>
-		    <Button ref = { runButtonRef } onClick = { handleRunCustom } disabled = { judge } color="primary"> Run </Button>
-		    <Button ref = { submitButtonRef } onClick = { handleSubmit } disabled = { judge } color="primary"> Submit </Button>
+		    <Button ref = { runDefaultButtonRef }
+			    onClick =  { handleRunDefault }
+			    disabled = { judge || failed } color="primary"> Run Default </Button>
+		    <Button ref = { runButtonRef } onClick = { handleRunCustom } disabled = { judge || failed } color="primary"> Run </Button>
+		    <Button ref = { submitButtonRef } onClick = { handleSubmit } disabled = { judge || failed } color="primary"> Submit </Button>
 		    <Button onClick = { handleButtonClose } color="primary"> Close </Button>
 		    <Button onClick = { handleReset } disabled = { false } color="primary"> Reset </Button>
 		</ThemeProvider>
@@ -314,18 +372,28 @@ function LeetCodeMateSubmissionPanel(props) {
         );
     };
 
+    
+	const XX = (e, d) => { console.log(e);
+					console.log(d);
+					setH(d.size.height);
+					setW(d.size.width);
+	};
 
+    
     const MiddleContent = () => {
 	if ((mode == T.mode.submit && judge == true) || (state.result_status == T.result.accepted && mode == T.mode.submit)) {
 	    return (
-		<ContentViewSubmitOrAccepted loading = { judge } state = { state } mode = { mode } />
+		<ContentViewSubmitOrAccepted loading = { judge }
+					     state = { state }
+					     mode = { mode } />
 	    );
 	}
 	else {
 	    return (
 		<ContentViewDefault loading = { judge } state = { state } mode = { mode }
 		                    barPos = { barPos } barRef = {barRef}
-		                    inputRef = { textRef }
+   		                    H = {H} W = {W} XX = {XX} 
+		                    inputRef = { textRef } failed = { failed }
 		                    tabID = { value } handleTabChange = { handleChange }
 	        />
 	    );

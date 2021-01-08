@@ -14,10 +14,20 @@ export async function submit(prevState) {
     
     return makeSubmitRequest(data, submitURL).then(res => {
 	return res.json();
+    }).catch((e) => {
+	throw new EvalError();
     }).then( res => {
 	return acquire.SubmissionDetail(res['submission_id']);
     }).then( res => {
 	return UtilSubmissionPane.makeDisplayState(prevState, res);
+    }).catch((e) => {
+	if (e instanceof EvalError) {
+	    
+	    return null;
+	}
+	else {
+	    next(e);
+	}
     });
 }
 

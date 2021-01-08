@@ -6,10 +6,6 @@ import { Container, Section, Bar, Resizer} from 'react-simple-resizer';
 import { InputOutputExpectedPane } from "./InputOutputExpectedPane.jsx";
 import { DebugMessagePane } from "./DebugMessagePane.jsx";
 
-
-
-
-
 const MIN_SIZE = 220;
 
 function beforeApplyResizer(resizer: Resizer): void {
@@ -19,7 +15,6 @@ function beforeApplyResizer(resizer: Resizer): void {
     resizer.resizeSection(0, { toSize: MIN_SIZE });
   }
 }
-
 export const ContentViewDefault = (props) => {
     const containerRef = React.useRef();
 
@@ -32,19 +27,20 @@ export const ContentViewDefault = (props) => {
 	    if (resizer.getSectionSize(0) === 0) {
 		resizer.resizeSection(0, { toSize: MIN_SIZE });
 	    }
-
 	    container.applyResizer(resizer);
 	}
     };
 
     return (
 	<ResizableBox
-	    height = {500}
-	    width = {800}
+	    height = {props.H}
+	    width = {props.W}
 	    minConstraints = {[800, 500]}
+	    onResizeStop ={ props.XX }
 	>
 	    <>
-		<PaneTitle state = { props.state } loading = { props.loading } mode = { props.mode }/>
+		<PaneTitle state = { props.state } loading = { props.loading }
+			   mode = { props.mode } failed = { props.failed } />
 		<Divider />
 		<DialogContent style = {{height: "90%"}}>
 		    <Container style = {{height: "100%", width:"100%"}}
