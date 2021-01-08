@@ -43,7 +43,7 @@ export const ContentViewDefault = (props) => {
 			   mode = { props.mode } failed = { props.failed } />
 		<Divider />
 		<DialogContent style = {{height: "90%"}}>
-		    <Container style = {{height: "100%", width:"100%"}}
+		    <Container style = {{height: "98%", width:"100%"}}
 			       ref = {containerRef}
 			       beforeApplyResizer = { beforeApplyResizer }
 		    >

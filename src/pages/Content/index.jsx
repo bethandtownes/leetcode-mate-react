@@ -25,7 +25,7 @@ import * as acquire from "../../lib/acquire.js";
 import { submit, runtest } from "../../lib/action.js";
 import {T, ResultType, TaskType } from "../../lib/typings.js";
 import { ThemeProvider } from "@material-ui/styles";
-import { createMuiTheme, CssBaseline } from "@material-ui/core";
+import { createMuiTheme, CssBaseline, Typography, Box} from "@material-ui/core";
 
 import ContentViewSubmitOrAccepted from "./modules/ContentViewSubmitOrAccepted.jsx";
 import { ContentViewDefault }  from "./modules/ContentViewDefault.jsx";
@@ -96,12 +96,26 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const theme = createMuiTheme({
-  palette: {
-    action: {
-      disabled: '#bdbdbd'
+    palette: {
+ 	action: {
+ 	    disabled: '#bdbdbd'
+ 	}
     }
-  }
 });
+
+
+/* const theme = createMuiTheme({
+ *   palette: {
+ *     primary: "blue",
+ *   },
+ *   overrides: {
+ *     MuiButton: {
+ *       raisedPrimary: {
+ *         color: 'white',
+ *       },
+ *     },
+ *   }
+ * }); */
 
 function LeetCodeMateSubmissionPanel(props) {
     const [open, setOpen] = React.useState(false);
@@ -110,6 +124,7 @@ function LeetCodeMateSubmissionPanel(props) {
     const [value, setValue] = React.useState(0);
     const [failed, setFail] = React.useState(false);
     const [judge, setJudge] = React.useState(false);
+    const [defaultCase, setDefaultCase] = React.useState(null);
 
     const [W, setW] = React.useState(800);
     const [H, setH] = React.useState(500);
@@ -128,6 +143,12 @@ function LeetCodeMateSubmissionPanel(props) {
 	dispatch({type: T.action.update_input, payload: e.target.value});
     };
 
+    useEffect(async() => {
+	setTimeout(async() => {
+	    setDefaultCase(await acquire.DefaultTestCase());
+	}, 6000);
+    }, []);
+    
     useEffect(async() => {
 	if (failed) {
 	    setTimeout(() => { setFail(false) }, 3000);
@@ -320,7 +341,10 @@ function LeetCodeMateSubmissionPanel(props) {
 	    if (state.result_status == T.result.accepted) {
 		setMode(T.mode.test);
 	    }
-	    const defaultCase = await acquire.DefaultTestCase();
+	    if (defaultCase == null) {
+		// this could have been avoided but for now it is good
+		setDefaultCase(await acquire.DefaultTestCase());
+	    }
 	    textRef.current.value = defaultCase;
 	    dispatch({ type: T.action.update_input, payload: textRef.current.value });
 	    setMode(T.mode.test); 
@@ -361,12 +385,24 @@ function LeetCodeMateSubmissionPanel(props) {
             <>
 		<ThemeProvider theme={theme}>
 		    <Button ref = { runDefaultButtonRef }
+   			    variant = "contained"
+			    size = "small"
 			    onClick =  { handleRunDefault }
-			    disabled = { judge || failed } color="primary"> Run Default </Button>
-		    <Button ref = { runButtonRef } onClick = { handleRunCustom } disabled = { judge || failed } color="primary"> Run </Button>
-		    <Button ref = { submitButtonRef } onClick = { handleSubmit } disabled = { judge || failed } color="primary"> Submit </Button>
-		    <Button onClick = { handleButtonClose } color="primary"> Close </Button>
-		    <Button onClick = { handleReset } disabled = { false } color="primary"> Reset </Button>
+			    disabled = { judge || failed } color="primary">
+			Run Default
+		    </Button>
+		    <Button   variant = "contained"
+			      size = "small"
+			      ref = { runButtonRef } onClick = { handleRunCustom } disabled = { judge || failed } color="primary"> Run </Button>
+		    <Button   variant = "contained"
+			      size = "small"
+			      ref = { submitButtonRef } onClick = { handleSubmit } disabled = { judge || failed } color="primary"> Submit </Button>
+		    <Button   variant = "contained"
+			      size = "small"
+			      onClick = { handleButtonClose } color="primary"> Close </Button>
+		    <Button   variant = "contained"
+			      size = "small"
+			      onClick = { handleReset } disabled = { false } color="primary"> Reset </Button>
 		</ThemeProvider>
             </>
         );
@@ -418,9 +454,11 @@ function LeetCodeMateSubmissionPanel(props) {
 		    aria-labelledby="draggable-dialog-title"
 		>
 		    <MiddleContent />
-		    <DialogActions >
-			<Actions />
-		    </DialogActions>
+		    <Box mb={0.5}>
+			<DialogActions>
+			    <Actions />
+			</DialogActions>
+		    </Box>
 		</Dialog>
 	    )}
         </div>
