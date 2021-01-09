@@ -1,14 +1,16 @@
 console.log("[status]: page_script fired")
 
 
-const EMACS_ENHANCE = true;
+const EMACS_ENHANCE = false;
 
 
 function makeEmacsEnhancement() {
     try {
-	document.querySelector(".CodeMirror").CodeMirror.setOption("autoCloseBrackets", false);
-	document.querySelector(".CodeMirror").CodeMirror.setOption("cursorBlinkRate", 0);
-	console.log("emacs enhancement made");
+	if (EMACS_ENHANCE) {
+	    document.querySelector(".CodeMirror").CodeMirror.setOption("autoCloseBrackets", false);
+	    document.querySelector(".CodeMirror").CodeMirror.setOption("cursorBlinkRate", 0);
+	    console.log("emacs enhancement made");
+	}
     }
     catch (e) {
 	// do nothing

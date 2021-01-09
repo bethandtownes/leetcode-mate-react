@@ -3,12 +3,9 @@
 > A Chrome extension to improve your LeetCode Experience! 
 
 ### Usage
-
-* Use `Ctrl + Enter` to submission and display submission result
-* Use `Alt + Enter` to enter test cases and run test cases
-* Use `Alt + Escape` to toggle LeetCode Mate UI
-* Use `Alt + p` to toggle problem description panel
-* Use `Alt + backtick (key left to 1)` to toggle problem picker panel
+* Use `Ctrl + Enter` to submit current code and display submission result
+* Use `Alt + Enter` to test run default test cases and run test cases (Mac users use `Cmd + i`)
+* Use `Alt + i` to toggle LeetCode Mate UI (Mac users use `Cmd +i`)
 
  
 ### Installation (Build from scratch)
