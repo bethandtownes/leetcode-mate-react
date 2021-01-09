@@ -8,11 +8,12 @@
 * The same dialog can also be used to run tests. 
 * Supports both `LeetCode` and `LeetCode-CN`
 
+
 ### Usage
 * Use `Ctrl + Enter` to submit current code and display submission result
 * Use `Alt + Enter` to test run default test cases and run test cases (Mac users use `Cmd + Enter`)
 * Use `Alt + i` to toggle LeetCode Mate UI (Mac users use `Cmd +i`)
-
+* To use it in LeetCode-CN, please disable the default `ctrl-enter` shortcuts and choose `CodeMirror` as your editor. Support for Monaco Editor on the way.
 
 
 ### Demo
