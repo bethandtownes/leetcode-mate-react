@@ -137,12 +137,16 @@ function LeetCodeMateSubmissionPanel(props) {
 		dispatch({type: T.action.update_input, payload: textRef.current.value});
 	    }
 	    if (CN == true) {
-		setDefaultCase(await acquire.DefaultTestCase());
+		const inputCase = await acquire.DefaultTestCaseCN();
+		setDefaultCase(inputCase);
+		dispatch({type: T.action.update_input, payload: inputCase})
 	    }
 	    else {
-		setDefaultCase(await acquire.DefaultTestCaseCN());
+		const inputCase = await acquire.DefaultTestCase();
+		setDefaultCase(inputCase);
+		dispatch({type: T.action.update_input, payload: inputCase})
 	    }
-	}, 6000);
+	}, 4000);
     }, []);
     
     useEffect(async() => {
