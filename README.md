@@ -17,7 +17,8 @@
 
 
 ### Demo
-[Youtube](https://youtu.be/-EERA_JScJE)
+[YouTube](https://youtu.be/-EERA_JScJE)
+[Bilibili](https://www.bilibili.com/video/BV1p54y147zK/)
 
  <img src="demo.gif" style="width:600px;height:479px">
  
