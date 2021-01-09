@@ -110,6 +110,7 @@ function LeetCodeMateSubmissionPanel(props) {
     const [value, setValue] = React.useState(0);
     const [failed, setFail] = React.useState(false);
     const [judge, setJudge] = React.useState(false);
+    const [mini, setMini] = React.useState(false);
     const [defaultCase, setDefaultCase] = React.useState(null);
     const [CN, setCN] = React.useState(isCN());
 
@@ -373,16 +374,47 @@ function LeetCodeMateSubmissionPanel(props) {
 	    }
 	};
 
+	const handleMini = () => {
+	    if (mini == false) {
+		setW(520);
+		setH(300);
+		setBarPos(130);
+		setMini(true);
+	    }
+	    else {
+		setW(800);
+		setH(500);
+		setBarPos(220);
+		setMini(false);
+	    }
+	};
+
+	const renderMini = () => {
+	    if (mini == true) {
+		return "Unminify";
+	    }
+	    else {
+		return "Minify";
+	    }
+	}
+
 	const handleReset = () => {
 	    dispatch({ type: T.action.reinitialize });
 	    setMode(null);
 	    setJudge(false);
-	}
+	};
 
 
         return (
             <>
 		<ThemeProvider theme={theme}>
+		    <Button 
+   			    variant = "contained"
+			    size = "small"
+			    onClick =  { handleMini }
+			    color="primary">
+			{renderMini()}
+		    </Button>
 		    <Button ref = { runDefaultButtonRef }
    			    variant = "contained"
 			    size = "small"
