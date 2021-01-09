@@ -193,6 +193,15 @@ var options = {
                 },
             ],
         }),
+	new CopyWebpackPlugin({
+            patterns: [
+                {
+                    from: 'src/assets/cache_cn.json',
+                    to: path.join(__dirname, 'build'),
+                    force: true,
+                },
+            ],
+        }),
         new CopyWebpackPlugin({
             patterns: [
                 {

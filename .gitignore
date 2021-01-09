@@ -16,5 +16,8 @@
 .env.test.local
 .env.production.local
 
+
 # secrets
 secrets.*.js
+
+make_clean_production_build.sh

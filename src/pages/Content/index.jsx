@@ -13,7 +13,8 @@ import Dialog from '@material-ui/core/Dialog'
 import DialogActions from '@material-ui/core/DialogActions'
 import Paper, { PaperProps } from '@material-ui/core/Paper'
 import { makeStyles, Theme } from '@material-ui/core/styles'
-import Draggable from 'react-draggable'
+import Draggable from 'react-draggable';
+import { isCN } from "../../lib/acquire.js";
 
 import { useReducer, useRef, useEffect } from 'react';
 
@@ -22,7 +23,7 @@ import { DEBUG } from "../../lib/debug.js";
 import { injectJSListener } from "../../lib/utils.jsx";
 
 import * as acquire from "../../lib/acquire.js";
-import { submit, runtest } from "../../lib/action.js";
+import { submit, submitCN, runtest, runtestCN } from "../../lib/action.js";
 import {T, ResultType, TaskType } from "../../lib/typings.js";
 import { ThemeProvider } from "@material-ui/styles";
 import { createMuiTheme, CssBaseline, Typography, Box} from "@material-ui/core";
@@ -31,7 +32,6 @@ import ContentViewSubmitOrAccepted from "./modules/ContentViewSubmitOrAccepted.j
 import { ContentViewDefault }  from "./modules/ContentViewDefault.jsx";
 
 injectJSListener();
-
 
 const PaperComponent = (props: PaperProps) => {
     return (
@@ -103,20 +103,6 @@ const theme = createMuiTheme({
     }
 });
 
-
-/* const theme = createMuiTheme({
- *   palette: {
- *     primary: "blue",
- *   },
- *   overrides: {
- *     MuiButton: {
- *       raisedPrimary: {
- *         color: 'white',
- *       },
- *     },
- *   }
- * }); */
-
 function LeetCodeMateSubmissionPanel(props) {
     const [open, setOpen] = React.useState(false);
     const [mode, setMode] = React.useState(null);
@@ -125,6 +111,7 @@ function LeetCodeMateSubmissionPanel(props) {
     const [failed, setFail] = React.useState(false);
     const [judge, setJudge] = React.useState(false);
     const [defaultCase, setDefaultCase] = React.useState(null);
+    const [CN, setCN] = React.useState(isCN());
 
     const [W, setW] = React.useState(800);
     const [H, setH] = React.useState(500);
@@ -145,7 +132,15 @@ function LeetCodeMateSubmissionPanel(props) {
 
     useEffect(async() => {
 	setTimeout(async() => {
-	    setDefaultCase(await acquire.DefaultTestCase());
+	    if (textRef.current != null || textRef.current != undefined) {
+		dispatch({type: T.action.update_input, payload: textRef.current.value});
+	    }
+	    if (CN == true) {
+		setDefaultCase(await acquire.DefaultTestCase());
+	    }
+	    else {
+		setDefaultCase(await acquire.DefaultTestCaseCN());
+	    }
 	}, 6000);
     }, []);
     
@@ -308,7 +303,7 @@ function LeetCodeMateSubmissionPanel(props) {
 	    setMode(T.mode.test); 
 	    setJudge(true);
 	    const inputTextCase = textRef.current.value.trim();
-	    let res = await runtest(inputTextCase);
+	    let res = CN == true ? await runtestCN(inputTextCase) : await runtest(inputTextCase);
 	    if (res == null) {
 		handleReset();
 		setFail(true);
@@ -325,7 +320,9 @@ function LeetCodeMateSubmissionPanel(props) {
 	    dispatch({ type: T.action.update_input, payload: "" });
 	    setMode(T.mode.submit);
 	    setJudge(true);
-	    const res = await submit(state);
+	    
+	    const res = CN == true ? await submitCN(state) : await submit(state);
+
 	    if (res == null) {
 		handleReset();
 		setFail(true);
@@ -349,7 +346,9 @@ function LeetCodeMateSubmissionPanel(props) {
 	    dispatch({ type: T.action.update_input, payload: textRef.current.value });
 	    setMode(T.mode.test); 
 	    setJudge(true);
-	    let res = await runtest(textRef.current.value.trim());
+	    /* let res = CN ? await runtestCN : await runtest(inputTextCase); */
+	    /* let res = await runtest(textRef.current.value.trim()); */
+	    let res = CN == true ? await runtestCN(textRef.current.value.trim()) : await runtest(textRef.current.value.trim());
 	    if (res == null) {
 		handleReset();
 		setFail(true);

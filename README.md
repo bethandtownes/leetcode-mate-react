@@ -2,10 +2,17 @@
 
 > A Chrome extension to improve your LeetCode Experience! 
 
+
+### Main Feature
+* A draggable, resizable submission dialog to make submission and get submission results.
+* The same dialog can also be used to run tests. 
+* Supports both `LeetCode` and `LeetCode-CN`
+
 ### Usage
 * Use `Ctrl + Enter` to submit current code and display submission result
-* Use `Alt + Enter` to test run default test cases and run test cases (Mac users use `Cmd + i`)
+* Use `Alt + Enter` to test run default test cases and run test cases (Mac users use `Cmd + Enter`)
 * Use `Alt + i` to toggle LeetCode Mate UI (Mac users use `Cmd +i`)
+
 
 
 ### Demo
