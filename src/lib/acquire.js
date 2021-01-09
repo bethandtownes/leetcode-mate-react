@@ -12,6 +12,7 @@ const LANG_CODEMAP = {
     "C": "c",
     "C#": "csharp",
     "JavaScript": "javascript",
+    "TypeScript": "typescript",
     "Ruby": "ruby",
     "Swift": "swift",
     "Go": "go",
