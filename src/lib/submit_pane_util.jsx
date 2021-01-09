@@ -11,6 +11,83 @@ const makeComparison = (result) => {
     }
 };
 
+const makeComparisonCN = (expected, result) => {
+    if (expected.code_answer.join('/n') != result.code_answer.join('/n')) {
+	return "Test Didn't Pass";
+    }
+    else {
+	return "Test Passed";
+    }
+};
+
+
+
+export const makeTestDisplayStateCN = async (expected_p, result_p) => {
+    const expected = await expected_p;
+    const result = await result_p;
+    switch (result.status_msg) {
+	    case 'Compile Error': {
+	    return {
+		result_status: T.result.compile_error,
+		input: null,
+		output: null,
+		expected: null,
+		msg_compile_error: result.full_compile_error,
+		msg_runtime_error: null,
+		msg_debug: null
+	    };
+	}
+	case 'Accepted': {
+	    return {
+		result_status: makeComparisonCN(result, expected),
+		input: null,
+		output: result.code_answer,
+		expected: result.expected_code_answer,
+		msg_compile_error: null,
+		msg_runtime_error: null,
+		msg_debug: acquire.DebugPrint(T.task_type.run_testcase, result)
+	    };
+	}
+	case 'Time Limit Exceeded': {
+	    return {
+		result_status: T.result.time_limit_exceeded,
+		input: null,
+		output: result.code_answer,
+		expected: result.expected_code_answer,
+		msg_compile_error: null,
+		msg_runtime_error: null,
+		msg_debug: acquire.DebugPrint(T.task_type.run_testcase, result)
+	    };
+	}
+	case 'Memory Limit Exceeded': {
+	    return {
+		result_status: T.result.memory_limit_exceeded,
+		input: null,
+		output: result.code_answer,
+		expected: result.expected_code_answer,
+		msg_compile_error: null,
+		msg_runtime_error: null,
+		msg_debug: acquire.DebugPrint(T.task_type.run_testcase, result)
+	    };
+	}
+	case 'Runtime Error': {
+	    return {
+		result_status: T.result.runtime_error,
+		input: null,
+		output: result.code_answer,
+		expected: null,
+		msg_compile_error: null,
+		msg_runtime_error: result.full_runtime_error,
+		msg_debug: acquire.DebugPrint(T.task_type.run_testcase, result)
+	    };
+	}
+	default: {
+	    return null;
+	}
+    };
+}
+
+
 
 export const makeTestDisplayState = async (result) => {
     switch (result.status_msg) {

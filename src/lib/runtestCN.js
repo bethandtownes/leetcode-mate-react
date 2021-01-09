@@ -20,16 +20,19 @@ export async function runtestCN(testInput) {
 	return res.json();
     }).catch((e) => {
 	throw new EvalError();
+    }).then( res => { 
+	return [acquire.SubmissionDetailCN(res['interpret_expected_id']), acquire.SubmissionDetailCN(res['interpret_id'])];
     }).then( res => {
-	return acquire.SubmissionDetailCN(res['interpret_id']);
-    }).then( res => {
-	return UtilSubmissionPane.makeTestDisplayState(res);
+	return UtilSubmissionPane.makeTestDisplayStateCN(res[0], res[1]);
     }).catch((e) => {
 	if (e instanceof EvalError) {
 	    return null;
 	}
 	else {
-	    next(e);
+	    console.log(e);
+	    return null;
+	    /* console.log(e);
+	       next(e); */
 	}
     });
 }
@@ -37,8 +40,8 @@ export async function runtestCN(testInput) {
 async function makeTestRequestCN(task, submitURL) {
     return fetch(submitURL, { 
         method: "POST",
-        headers: acquire.RequestHeader(),
+        headers: acquire.RequestHeaderCN(),
         credentials: 'same-origin',
-        body: JSON.stringify(task)
-    });
+	body: JSON.stringify(task)
+	});
 };

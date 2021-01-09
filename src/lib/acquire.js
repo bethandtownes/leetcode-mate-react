@@ -109,7 +109,12 @@ export const CurrentRunStatusCN = async (id) => {
     var curst = fetch(requestURL, {
 	method: "GET",
 	credentials: 'same-origin'
-    }).then(res => { return res.json()}).then(res => { return res;}); 
+    }).then(res => {
+	console.log(res);
+	return res.json()})
+      .then(res => {
+	  return res;
+      }); 
     return curst;    
 };
 
@@ -118,6 +123,9 @@ export const SubmissionDetailCN = async (id) => {
     let requestURL = "https://leetcode-cn.com/submissions/detail/" + id + "/check";
     for (let i = 0; i < 50; ++i) {
 	const curst = await CurrentRunStatusCN(id);
+	console.log("curst");
+	console.log(curst);
+	
 	if (curst['state'] == "SUCCESS") {
             return curst; 
             break;
