@@ -1,6 +1,5 @@
 console.log("[status]: page_script fired")
 
-
 const EMACS_ENHANCE = false;
 
 
@@ -21,7 +20,18 @@ function makeEmacsEnhancement() {
 setTimeout(() => { makeEmacsEnhancement() }, 4000);
 
 
+const useMonaco = () => {
+    return document.getElementsByClassName("css-1jwxfyp-IndicatorButton e8k12jq1")[0] != undefined;
+};
+
 window.addEventListener("EDITOR_GRAB", function test() {
     console.log("[status]: event listener [EDITOR GRAB] injected");
-    window.postMessage({action: 'EDITOR_VALUE', payout: document.querySelector(".CodeMirror").CodeMirror.getValue()});
+    if (useMonaco()) {
+	/* console.log("detected Monaco"); */
+	window.postMessage({action: 'EDITOR_VALUE', payout: monaco.editor.getModels()[0].getValue()});
+    }
+    else {
+	/* console.log("detected codemirror"); */
+	window.postMessage({action: 'EDITOR_VALUE', payout: document.querySelector(".CodeMirror").CodeMirror.getValue()});
+    }
 });
