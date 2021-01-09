@@ -42,7 +42,7 @@ export const makeTestDisplayStateCN = async (expected_p, result_p) => {
 		result_status: makeComparisonCN(result, expected),
 		input: null,
 		output: result.code_answer,
-		expected: result.expected_code_answer,
+		expected: expected.code_answer,
 		msg_compile_error: null,
 		msg_runtime_error: null,
 		msg_debug: acquire.DebugPrint(T.task_type.run_testcase, result)
@@ -53,7 +53,7 @@ export const makeTestDisplayStateCN = async (expected_p, result_p) => {
 		result_status: T.result.time_limit_exceeded,
 		input: null,
 		output: result.code_answer,
-		expected: result.expected_code_answer,
+		expected: expected.code_answer,
 		msg_compile_error: null,
 		msg_runtime_error: null,
 		msg_debug: acquire.DebugPrint(T.task_type.run_testcase, result)
@@ -64,7 +64,7 @@ export const makeTestDisplayStateCN = async (expected_p, result_p) => {
 		result_status: T.result.memory_limit_exceeded,
 		input: null,
 		output: result.code_answer,
-		expected: result.expected_code_answer,
+		expected: expected.code_answer,
 		msg_compile_error: null,
 		msg_runtime_error: null,
 		msg_debug: acquire.DebugPrint(T.task_type.run_testcase, result)
