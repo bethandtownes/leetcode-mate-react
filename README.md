@@ -7,6 +7,11 @@
 * Use `Alt + Enter` to test run default test cases and run test cases (Mac users use `Cmd + i`)
 * Use `Alt + i` to toggle LeetCode Mate UI (Mac users use `Cmd +i`)
 
+
+### Demo
+[Youtube](https://youtu.be/-EERA_JScJE)
+
+ <img src="demo.gif" style="width:600px;height:479px">
  
 ### Installation (Build from scratch)
 * Clone this repo.
