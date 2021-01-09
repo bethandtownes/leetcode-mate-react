@@ -1,11 +1,11 @@
 {
-  "name": "chrome-extension-boilerplate-react",
-  "version": "3.2.1",
-  "description": "A chrome extension boilerplate built with React 17 and Webpack 5",
+  "name": "leetcode-mate",
+  "version": "1.0.0",
+  "description": "A Chrome Plugin to enhance your leetcode experience",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/lxieyang/chrome-extension-boilerplate-react.git"
+    "url": "https://github.com/bethandtownes/leetcode-mate-react"
   },
   "scripts": {
     "build": "node utils/build.js",
