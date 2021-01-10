@@ -3,8 +3,8 @@ import { DEBUG }  from "./debug.js"
 import * as UtilSubmissionPane from "./submit_pane_util.jsx";
 
 
-export async function runtest(testInput) {
-    const task = await acquire.TaskInfo();
+export async function runtest(testInput, task) {
+    /* const task = await acquire.TaskInfo(); */
     const data = {
 	data_input: testInput,
 	lang: acquire.ProgrammingLanguage(),

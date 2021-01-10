@@ -20,8 +20,6 @@ const makeComparisonCN = (expected, result) => {
     }
 };
 
-
-
 export const makeTestDisplayStateCN = async (expected_p, result_p) => {
     const expected = await expected_p;
     const result = await result_p;

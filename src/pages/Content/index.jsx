@@ -113,6 +113,7 @@ function LeetCodeMateSubmissionPanel(props) {
     const [mini, setMini] = React.useState(false);
     const [defaultCase, setDefaultCase] = React.useState(null);
     const [CN, setCN] = React.useState(isCN());
+    const [problemSlug, setProblemSlug] = React.useState(null);
 
     const [W, setW] = React.useState(800);
     const [H, setH] = React.useState(500);
@@ -145,6 +146,19 @@ function LeetCodeMateSubmissionPanel(props) {
 		const inputCase = await acquire.DefaultTestCase();
 		setDefaultCase(inputCase);
 		dispatch({type: T.action.update_input, payload: inputCase})
+	    }
+	}, 4000);
+    }, []);
+
+    useEffect(async() => {
+	setTimeout(async() => {
+	    if (CN == false) {
+		setProblemSlug(await acquire.TaskInfo());
+		console.log("slug Set");
+	    }
+	    else {
+		setProblemSlug(await acquire.TaskInfoCN());
+		console.log("slug CN Set");
 	    }
 	}, 4000);
     }, []);
@@ -308,7 +322,7 @@ function LeetCodeMateSubmissionPanel(props) {
 	    setMode(T.mode.test); 
 	    setJudge(true);
 	    const inputTextCase = textRef.current.value.trim();
-	    let res = CN == true ? await runtestCN(inputTextCase) : await runtest(inputTextCase);
+	    let res = CN == true ? await runtestCN(inputTextCase, problemSlug) : await runtest(inputTextCase, problemSlug);
 	    if (res == null) {
 		handleReset();
 		setFail(true);
@@ -326,7 +340,7 @@ function LeetCodeMateSubmissionPanel(props) {
 	    setMode(T.mode.submit);
 	    setJudge(true);
 	    
-	    const res = CN == true ? await submitCN(state) : await submit(state);
+	    const res = CN == true ? await submitCN(state, problemSlug) : await submit(state, problemSlug);
 
 	    if (res == null) {
 		handleReset();
@@ -353,7 +367,7 @@ function LeetCodeMateSubmissionPanel(props) {
 	    setJudge(true);
 	    /* let res = CN ? await runtestCN : await runtest(inputTextCase); */
 	    /* let res = await runtest(textRef.current.value.trim()); */
-	    let res = CN == true ? await runtestCN(textRef.current.value.trim()) : await runtest(textRef.current.value.trim());
+	    let res = CN == true ? await runtestCN(textRef.current.value.trim(), problemSlug) : await runtest(textRef.current.value.trim(), problemSlug);
 	    if (res == null) {
 		handleReset();
 		setFail(true);

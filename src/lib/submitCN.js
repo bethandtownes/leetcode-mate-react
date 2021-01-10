@@ -5,8 +5,8 @@ import * as UtilSubmissionPane from "./submit_pane_util.jsx";
 import { isCN } from "./acquire.js";
 
 
-export async function submitCN(prevState) {
-    const task = await acquire.TaskInfoCN();
+export async function submitCN(prevState, task) {
+    /* const task = await acquire.TaskInfoCN(); */
     const data = {
 	lang: acquire.ProgrammingLanguageCN(),
 	questionSlug: task.question_title_slug,

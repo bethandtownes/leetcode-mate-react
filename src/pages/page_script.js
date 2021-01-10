@@ -1,6 +1,6 @@
-console.log("[status]: page_script fired")
+/* console.log("[status]: page_script fired") */
 
-const EMACS_ENHANCE = false;
+const EMACS_ENHANCE = true;
 
 
 function makeEmacsEnhancement() {
@@ -25,7 +25,7 @@ const useMonaco = () => {
 };
 
 window.addEventListener("EDITOR_GRAB", function test() {
-    console.log("[status]: event listener [EDITOR GRAB] injected");
+    /* console.log("[status]: event listener [EDITOR GRAB] injected"); */
     if (useMonaco()) {
 	/* console.log("detected Monaco"); */
 	window.postMessage({action: 'EDITOR_VALUE', payout: monaco.editor.getModels()[0].getValue()});

@@ -81,7 +81,6 @@ export const ProgrammingLanguageCN = () => {
 };
 
 
-
 export const CurrentRunStatus = async (id) => {
     let requestURL = "https://leetcode.com/submissions/detail/" + id + "/check";
     var curst = fetch(requestURL, {

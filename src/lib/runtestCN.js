@@ -3,8 +3,8 @@ import { DEBUG }  from "./debug.js"
 import * as UtilSubmissionPane from "./submit_pane_util.jsx";
 
 
-export async function runtestCN(testInput) {
-    const task = await acquire.TaskInfoCN();
+export async function runtestCN(testInput, task) {
+    /* const task = await acquire.TaskInfoCN(); */
     const data = {
 	data_input: testInput,
 	judge_type: "large",

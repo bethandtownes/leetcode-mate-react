@@ -6,8 +6,8 @@ import { isCN } from "./acquire.js";
 
 
 
-export async function submit(prevState) {
-    const task = await acquire.TaskInfo();
+export async function submit(prevState, task) {
+    /* const task = await acquire.TaskInfo(); */
     const data = {
 	lang: acquire.ProgrammingLanguage(),
 	question_id: task.question_id,
