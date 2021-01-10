@@ -164,6 +164,8 @@ export const makeDisplayState = async (prevState, submitResult) => {
 	    };
 	}
 	case 'Wrong Answer': {
+	    const A = submitResult.total_correct.toString();
+	    const B = submitResult.total_testcases.toString();
 	    return {
 		result_status: ResultType.wrong_answer,
 		input: submitResult.input,
@@ -171,7 +173,9 @@ export const makeDisplayState = async (prevState, submitResult) => {
 		expected: submitResult.expected_output,
 		msg_compile_error: null,
 		msg_runtime_error: null,
-		msg_debug: submitResult.std_output
+		msg_debug: submitResult.std_output,
+		total_correct: submitResult.total_correct,
+		total_testcases: submitResult.total_testcases
 	    };
 	}
 	case 'Accepted': {
@@ -190,6 +194,8 @@ export const makeDisplayState = async (prevState, submitResult) => {
 	    };
 	}
 	case 'Runtime Error': {
+	    const A = submitResult.total_correct.toString();
+	    const B = submitResult.total_testcases.toString();
 	    return {
 		result_status: ResultType.runtime_error,
 		input: submitResult.last_testcase,
@@ -197,7 +203,9 @@ export const makeDisplayState = async (prevState, submitResult) => {
 		expected: submitResult.expected_output,
 		msg_compile_error: null,
 		msg_runtime_error: submitResult.full_runtime_error,
-		msg_debug: submitResult.std_output
+		msg_debug: submitResult.std_output,
+		total_correct: submitResult.total_correct,
+		total_testcases: submitResult.total_testcases
 	    };
 	}
 	case 'Memory Limit Exceeded': {
@@ -208,10 +216,14 @@ export const makeDisplayState = async (prevState, submitResult) => {
 		expected: submitResult.expected_output,
 		msg_compile_error: null,
 		msg_runtime_error: null,
-		msg_debug: null
+		msg_debug: null,
+		total_correct: submitResult.total_correct,
+		total_testcases: submitResult.total_testcases
 	    };
 	}
 	case 'Time Limit Exceeded': {
+	    const A = submitResult.total_correct.toString();
+	    const B = submitResult.total_testcases.toString();
 	    return {
 		result_status: ResultType.time_limit_exceeded,
 		input: submitResult.input,
@@ -219,7 +231,9 @@ export const makeDisplayState = async (prevState, submitResult) => {
 		expected: submitResult.expected_output,
 		msg_compile_error: null,
 		msg_runtime_error: null,
-		msg_debug: submitResult.std_output
+		msg_debug: submitResult.std_output,
+		total_correct: submitResult.total_correct,
+		total_testcases: submitResult.total_testcases
 	    };
 	}
 	default: {

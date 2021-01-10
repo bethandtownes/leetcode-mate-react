@@ -133,34 +133,50 @@ function LeetCodeMateSubmissionPanel(props) {
     };
 
     useEffect(async() => {
-	setTimeout(async() => {
-	    if (textRef.current != null || textRef.current != undefined) {
-		dispatch({type: T.action.update_input, payload: textRef.current.value});
-	    }
+
+	const getConsoleButtom = () => {
 	    if (CN == true) {
-		const inputCase = await acquire.DefaultTestCaseCN();
-		setDefaultCase(inputCase);
-		dispatch({type: T.action.update_input, payload: inputCase})
+		return document.getElementsByClassName("custom-testcase__2YgB")[0];
 	    }
 	    else {
-		const inputCase = await acquire.DefaultTestCase();
-		setDefaultCase(inputCase);
-		dispatch({type: T.action.update_input, payload: inputCase})
+		return document.getElementsByClassName("custom-testcase__2ah7")[0];
 	    }
-	}, 4000);
+	};
+	
+	for (let i = 0; i < 40; ++i) {
+	    const consoleButton = await new Promise((resolve, fail) => {
+		setTimeout(() => { resolve(getConsoleButtom()); }, 400);
+	    });
+	    if (consoleButton != undefined) {
+		setTimeout(async() => {
+		    if (textRef.current != null || textRef.current != undefined) {
+			dispatch({type: T.action.update_input, payload: textRef.current.value});
+		    }
+		    if (CN == true) {
+			const inputCase = await acquire.DefaultTestCaseCN();
+			setDefaultCase(inputCase);
+			dispatch({type: T.action.update_input, payload: inputCase})
+		    }
+		    else {
+			const inputCase = await acquire.DefaultTestCase();
+			setDefaultCase(inputCase);
+			dispatch({type: T.action.update_input, payload: inputCase})
+		    }
+		}, 300);
+		break;
+	    }
+	}
     }, []);
 
     useEffect(async() => {
 	setTimeout(async() => {
 	    if (CN == false) {
 		setProblemSlug(await acquire.TaskInfo());
-		console.log("slug Set");
 	    }
 	    else {
 		setProblemSlug(await acquire.TaskInfoCN());
-		console.log("slug CN Set");
 	    }
-	}, 4000);
+	}, 1000);
     }, []);
     
     useEffect(async() => {
@@ -341,7 +357,8 @@ function LeetCodeMateSubmissionPanel(props) {
 	    setJudge(true);
 	    
 	    const res = CN == true ? await submitCN(state, problemSlug) : await submit(state, problemSlug);
-
+	    console.log(res);
+	    
 	    if (res == null) {
 		handleReset();
 		setFail(true);

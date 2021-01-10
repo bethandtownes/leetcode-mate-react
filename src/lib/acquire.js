@@ -133,11 +133,20 @@ export const SubmissionDetailCN = async (id) => {
     return null;
 };
 
-
-
-
 export const TaskInfo = async () =>{
-    const info = document.getElementsByClassName("css-v3d350")[0].innerText.split('.');
+    let info_banner;
+    for (let i = 0; i < 40; i++) {
+	const banner = await new Promise((resolve, fail) => {
+	    setTimeout(() => {
+		resolve(document.getElementsByClassName("css-v3d350")[0]);
+	    }, 400)}
+	);
+	if (banner != undefined) {
+	    info_banner = banner;
+	    break;
+	}
+    }
+    const info = info_banner.innerText.split('.');
     const slug = make_slug(info[1]);
     const id = await QuestionID(slug);
     return {
@@ -148,12 +157,21 @@ export const TaskInfo = async () =>{
 
 
 export const TaskInfoCN = async () => {
-    const regex = /(?<=problems\/)(.*)?(?=\/)/g;
-    const elmHref = document.getElementsByClassName("css-10c1h40-Title eugt34i1")[0].getElementsByTagName('a')[0].href;
+    let elm;
+    for (let i = 0; i < 40; ++i) {
+	const banner = await new Promise((resolve, faile) => {
+	    setTimeout(()=> {
+		resolve(document.getElementsByClassName("css-10c1h40-Title eugt34i1")[0]);
+	    }, 400);
+	});
+	if (banner != undefined) {
+	    elm = banner;
+	    break;
+	}
+    }
+    const elmHref = elm.getElementsByTagName('a')[0].href;
+    const regex = /(?<=problems\/)(.*)?(?=\/)/g;    
     const slug = elmHref.match(regex)[0];
-    /* const info = document.getElementsByClassName("css-10c1h40-Title eugt34i1")[0].innerText.split('.');
-     * console.log(info); */
-
     const id = await QuestionIDCN(slug);
     return {
 	question_id : id,
@@ -402,109 +420,6 @@ export async function DefaultTestCase() {
 	});
     }
 };
-
-/*
-export async function DefaultTestCase() {
-    console.log(isCN());
-    const CN = isCN();
-    
-    const LOCATOR_CONSOLE_BUTTON = "custom-testcase__2ah7";
-    const LOCATOR_CONSOLE_PANE = "result__1UhQ";
-    const LOCATOR_TESTCASE_EDITOR = " ace_editor ace-github testcase-editor__3Tbb";
-
-    function testcaseEditor() {
-	if (CN) {
-	    return document.getElementsByClassName("testcase-editor__lA_R")[0];
-	}
-	else {
-	    return document.getElementsByClassName(LOCATOR_TESTCASE_EDITOR)[0]
-	}
-    }
-
-    function consoleButton() {
-	if (CN) {
-	    return document.getElementsByClassName("custom-testcase__2YgB")[0];
-	}
-	else {
-	    return document.getElementsByClassName(LOCATOR_CONSOLE_BUTTON)[0];
-	}
-    }
-
-    function consolePane() {
-	if (CN) {
-	    return document.getElementsByClassName("panel__2jUF closable__1NwJ")[0];
-	}
-	else {
-	    return document.getElementsByClassName(LOCATOR_CONSOLE_PANE)[0];
-	}
-    }
-
-    function maskConsolePane() {
-	consolePane().style.height = "0px"
-    }
-
-    function unmaskConsolePane() {
-	consolePane().style.height = "inherit";
-    }
-
-    
-    const getDefaultTestCase = () => {
-	if (CN) {
-	    return testcaseEditor().value;
-	}
-	else {
-	    const e = document.getElementsByClassName("ace_layer ace_text-layer")[0];
-	    if (e == undefined) {
-		return;
-	    }
-	    return Array.from(e.children).map(x => x.textContent).join('\n')
-	}
-    };
-    const consolePaneAlreadyOpened = testcaseEditor() != undefined;    
-
-    if (isCN == false) {
-	if (consolePaneAlreadyOpened == false) {
-	    maskConsolePane();	
-	    consoleButton().click();
-	    consolePane().style.display = "none"
-	}
-
-	return new Promise((resolve, fail) => {
-	    setTimeout(() => {
-		resolve(getDefaultTestCase());
-	    }, 100)
-	}).then((res) => {
-	    if (consolePaneAlreadyOpened == false) {
-		consoleButton().click();
-		setTimeout(() => {
-		    consolePane().style.display = "";
-		    consolePane().style.height = "inherit";
-		}, 200);
-	    }
-	    return res;
-	});
-    }
-    else {
-	if (consolePaneAlreadyOpened == false) {
-	    consoleButton().click();
-	    consolePane().style.display = "none"
-	}
-
-	return new Promise((resolve, fail) => {
-	    setTimeout(() => {
-		resolve(getDefaultTestCase());
-	    }, 500)
-	}).then((res) => {
-	    if (consolePaneAlreadyOpened == false) {
-		consolePane().style.display = ""
-		consoleButton().click();
-	    }
-	    return res;
-	});
-    }
-};
-*/
-
 
 
 export const DebugPrint = (mode, result) => {

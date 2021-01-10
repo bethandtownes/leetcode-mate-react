@@ -59,6 +59,14 @@ export default function PaneTitle(props) {
 	    return "Run or Submit";
 	}
 	if (props.mode == "submit") {
+	    if (state.result_status == T.result.runtime_error
+		|| state.result_status == T.result.time_limit_exceeded
+		|| state.result_status == T.result.wrong_answer
+		|| state.result_status == T.result.memory_limit_exceeded) {
+		const A = state.total_correct.toString();
+		const B = state.total_testcases.toString();
+		return state.result_status + " (" + A + "/" + B + ")";
+	    }
 	    return state.result_status;
 	}
 	if (props.mode == "test") {
