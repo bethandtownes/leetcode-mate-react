@@ -39,4 +39,4 @@
 
 
 ### Installation (Chrome Web Store)
-> Pending Official Review
+> Pending Official Review. Will be out shortly.
