@@ -41,4 +41,4 @@
 
 
 ### Installation (Chrome Web Store)
-> Pending Official Review. Will be out shortly.
+> https://chrome.google.com/webstore/detail/leetcode-mate/phdjfdamgpemogokbkjeidpekchgmhem
