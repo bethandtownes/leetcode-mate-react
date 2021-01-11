@@ -44,10 +44,7 @@ export default function DraggableDialog(props) {
 		</DialogContent>
 		<DialogActions>
 		    <Button autoFocus onClick={handleClose} color="primary">
-			Cancel
-		    </Button>
-		    <Button onClick={handleClose} color="primary">
-			Subscribe
+			Done
 		    </Button>
 		</DialogActions>
 	    </Dialog>

@@ -2,6 +2,8 @@ import React from 'react';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import HashLoader from "react-spinners/HashLoader";
 import Box from '@material-ui/core/Box';
+
+import {Typography} from '@material-ui/core/';
 import { T } from "../../../lib/typings.js";
 import BuildIcon from '@material-ui/icons/Build';
 import Alert from '@material-ui/lab/Alert';
@@ -96,7 +98,7 @@ export default function PaneTitle(props) {
     
     const ModeIcon = () => {
 	if (props.mode == T.mode.test) {
-	    return <BuildIcon style = {{marginTop: "4px", marginLeft: "auto"}}/>;
+	    return <BuildIcon style = {{color:"black", marginTop: "4px", marginLeft: "auto"}}/>;
 	}
 	if (props.failed == true) {
 	    return (
@@ -111,11 +113,13 @@ export default function PaneTitle(props) {
     return (
 	<>
 	    <DialogTitle
-		style={{ cursor: 'move' , backgroundColor: makeBackgroundColor(), width: "800"}}
+		style={{ cursor: 'move' , backgroundColor: makeBackgroundColor(),  width: "800"}}
 		id="draggable-dialog-title"
 	    >
 		<Box display = "flex" flexDirection = "row">
-		    {renderStatus()}
+		    <Typography variant="h6" style = {{color: "black"}}>
+			{renderStatus()}
+		    </Typography>
 		    <p/>
 		    <Box ml={2} mt={2}>
 			<HashLoader size = {25} loading = {props.loading} style = {{marginLeft: "20px"}}/>

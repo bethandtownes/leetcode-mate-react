@@ -23,6 +23,22 @@ const LANG_CODEMAP = {
 };
 
 
+export async function LeetCodeEditorSettings() {
+    const p = new Promise((resolve, fail) => {
+	chrome.storage.local.get(['leetcodeEditorSettings'], function(result) {
+	    console.log("result");
+	    console.log(result);
+
+	    resolve(JSON.parse(result.leetcodeEditorSettings));
+	})
+    }).catch((e) => {
+	return undefined;
+    });
+    const r = await p;
+    return r;
+}
+
+
 async function QuestionID(slug) {
     var cache = chrome.runtime.getURL("./cache.json");
     DEBUG("loading question_id from slug")

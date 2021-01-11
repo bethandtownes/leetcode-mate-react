@@ -1,59 +1,49 @@
 console.log("[status]: page_script fired")
 
-
-const DESC_BUTTON = "react-codemirror2";
-
-// function makeEmacsEnhancement() {
-//     try {
-// 	if (EMACS_ENHANCE) {
-// 	    document.querySelector(".CodeMirror").CodeMirror.setOption("autoCloseBrackets", false);
-// 	    document.querySelector(".CodeMirror").CodeMirror.setOption("cursorBlinkRate", 0);
-// 	}
-//     }
-//     catch (e) {
-// 	// do nothing
-//     }
-// };
-
+const CN = document.getElementsByClassName("css-19dbiou-HomeWrapper e1925exm1")[0] != undefined;
 
 
 const useMonaco = () => {
     return document.getElementsByClassName("css-1jwxfyp-IndicatorButton e8k12jq1")[0] != undefined;
 };
 
+let editorConfig = {
+    bracketMatching: false,
+    blinkingCursor: false
+};
 
 
-window.addEventListener("BRACKET_MATCH_OFF", function() {
+function setEditor() {
     if (useMonaco() == false) {
-	document.querySelector(".CodeMirror").CodeMirror.setOption("autoCloseBrackets", false);
+	const editor = document.querySelector(".CodeMirror").CodeMirror;
+	if (editor == undefined || editor == null) return;
+	document.querySelector(".CodeMirror").CodeMirror.setOption("autoCloseBrackets", editorConfig.bracketMatching);
+	document.querySelector(".CodeMirror").CodeMirror.setOption("cursorBlinkRate", editorConfig.blinkingCursor ? 530 : 0);
     }
-    console.log("BON");
-});
+};
 
-window.addEventListener("BRACKET_MATCH_ON", function() {
-    if (useMonaco() == false) {
-	document.querySelector(".CodeMirror").CodeMirror.setOption("autoCloseBrackets", true);
-    }
-    console.log("BOFF");
-});
-			
 
-window.addEventListener("EMACS", function() {
-    if (useMonaco() == false) {
-	document.querySelector(".CodeMirror").CodeMirror.setOption("autoCloseBrackets", false);
-	document.querySelector(".CodeMirror").CodeMirror.setOption("cursorBlinkRate", 0);
+window.addEventListener("EDITOR_CONFIG_EVENT", function(event) {
+    if (event.detail.action == "INIT") {
+	editorConfig = event.detail.data;
+	setEditor();
     }
+    if (event.detail.action == "UPDATE") {
+	editorConfig = event.detail.data;
+	setEditor();
+    }
+}, false);
+
+window.addEventListener('click', function() {
+    setEditor();
 });
 
 
 window.addEventListener("EDITOR_GRAB", function test() {
-    /* console.log("[status]: event listener [EDITOR GRAB] injected"); */
     if (useMonaco()) {
-	/* console.log("detected Monaco"); */
 	window.postMessage({action: 'EDITOR_VALUE', payout: monaco.editor.getModels()[0].getValue()});
     }
     else {
-	/* console.log("detected codemirror"); */
 	window.postMessage({action: 'EDITOR_VALUE', payout: document.querySelector(".CodeMirror").CodeMirror.getValue()});
-    }
+}
 });

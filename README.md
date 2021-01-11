@@ -7,6 +7,8 @@
 * A draggable, resizable submission dialog to make submission and get submission results.
 * The same dialog can also be used to run tests. 
 * Supports both `LeetCode` and `LeetCode-CN`
+* Toggle cursor blinking (for CodeMirror only)
+* Toggel bracket matching (for CodeMirror only)
 
 
 ### Usage
