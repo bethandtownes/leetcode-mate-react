@@ -6,7 +6,7 @@ import { Container, Section, Bar, Resizer} from 'react-simple-resizer';
 import { InputOutputExpectedPane } from "./InputOutputExpectedPane.jsx";
 import { DebugMessagePane } from "./DebugMessagePane.jsx";
 
-const MIN_SIZE = 130;
+const MIN_SIZE = 150;
 
 function beforeApplyResizer(resizer: Resizer): void {
   if (resizer.getSectionSize(0) < MIN_SIZE / 2) {
@@ -32,7 +32,7 @@ export const ContentViewDefault = (props) => {
     };
 
     const percentageHfix = () => {
-	if (props.W < 550) {
+	if (props.W <= 620) {
 	    return "90%";
 	}
 	if (props.W < 650) {

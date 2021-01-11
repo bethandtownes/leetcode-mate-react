@@ -30,6 +30,7 @@ import { createMuiTheme, CssBaseline, Typography, Box} from "@material-ui/core";
 
 import ContentViewSubmitOrAccepted from "./modules/ContentViewSubmitOrAccepted.jsx";
 import { ContentViewDefault }  from "./modules/ContentViewDefault.jsx";
+import DraggableDialog from "./modules/Setting.jsx";
 
 injectJSListener();
 
@@ -105,6 +106,7 @@ const theme = createMuiTheme({
 
 function LeetCodeMateSubmissionPanel(props) {
     const [open, setOpen] = React.useState(false);
+    const [openSetting, setOpenSetting] = React.useState(false);
     const [mode, setMode] = React.useState(null);
     const [barPos, setBarPos] = React.useState(220);
     const [value, setValue] = React.useState(0);
@@ -168,6 +170,7 @@ function LeetCodeMateSubmissionPanel(props) {
 	}
     }, []);
 
+
     useEffect(async() => {
 	setTimeout(async() => {
 	    if (CN == false) {
@@ -178,13 +181,27 @@ function LeetCodeMateSubmissionPanel(props) {
 	    }
 	}, 1000);
     }, []);
+
     
     useEffect(async() => {
 	if (failed) {
 	    setTimeout(() => { setFail(false) }, 3000);
 	}
     }, [failed]);
-    
+
+    /* 
+     * useEffect(() => {
+       const enforceEmacsMode = () => {
+       let event = new CustomEvent('EMACS');
+       window.dispatchEvent(event);
+       };
+       
+       window.addEventListener('click', enforceEmacsMode);
+       return () => {
+       window.removeEventListener('click', enforceEmacsMode);
+       };
+     * });
+     *  */
     useEffect(() => {
 	const memorizeBarPos = () => {
 	    try {
@@ -215,6 +232,7 @@ function LeetCodeMateSubmissionPanel(props) {
     }, [state, open]);
 
 
+
     useEffect(() => {
 	const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
 	const toggle = (e) => {
@@ -226,6 +244,7 @@ function LeetCodeMateSubmissionPanel(props) {
 		    setOpen(false);
 		}
 		else {
+		    
 		    setOpen(true);
 		    focusInput();
 		}
@@ -411,9 +430,9 @@ function LeetCodeMateSubmissionPanel(props) {
 
 	const handleMini = () => {
 	    if (mini == false) {
-		setW(520);
+		setW(620);
 		setH(300);
-		setBarPos(130);
+		setBarPos(150);
 		setMini(true);
 	    }
 	    else {
@@ -439,15 +458,26 @@ function LeetCodeMateSubmissionPanel(props) {
 	    setJudge(false);
 	};
 
+	const handleSetting = () => {
+	    setOpenSetting(!openSetting);
+	}
+
 
         return (
             <>
 		<ThemeProvider theme={theme}>
 		    <Button 
-   			    variant = "contained"
-			    size = "small"
-			    onClick =  { handleMini }
-			    color="primary">
+   			variant = "contained"
+			size = "small"
+			onClick =  { handleSetting }
+			color="primary">
+			Setting
+		    </Button>
+		    <Button 
+   			variant = "contained"
+			size = "small"
+			onClick =  { handleMini }
+			color="primary">
 			{renderMini()}
 		    </Button>
 		    <Button ref = { runDefaultButtonRef }
@@ -504,28 +534,36 @@ function LeetCodeMateSubmissionPanel(props) {
     return (
         <div>
 	    {open && (
-		<Dialog
-		    id={"submission_pane"}
-		    open={true}
-		    /* BackdropComponent = {document} */
-		    hideBackdrop = {true}
-		    disableAutoFocus = {true}
-		    disableEnforceFocus
-		    style={{ pointerEvents: 'none'}}  
-		    disableBackdropClick = {true}
-		    onClose={handleClose}
-		    maxWidth={false}
-		    PaperComponent={PaperComponent}
-		    PaperProps={{ style: {backgroundColor: 'rgba(0,0,0,0.6)', pointerEvents: 'auto'}}}
-		    aria-labelledby="draggable-dialog-title"
-		>
-		    <MiddleContent />
-		    <Box mb={0.5}>
-			<DialogActions>
-			    <Actions />
-			</DialogActions>
-		    </Box>
-		</Dialog>
+		<>
+		    <>
+			<Dialog
+			    id={"submission_pane"}
+			    open={true}
+			    /* BackdropComponent = {document} */
+			    hideBackdrop = {true}
+			    disableAutoFocus = {true}
+			    disableEnforceFocus
+			    style={{ pointerEvents: 'none'}}  
+			    disableBackdropClick = {true}
+			    onClose={handleClose}
+			    maxWidth={false}
+			    PaperComponent={PaperComponent}
+			    PaperProps={{ style: {backgroundColor: 'rgba(0,0,0,0.6)', pointerEvents: 'auto'}}}
+			    aria-labelledby="draggable-dialog-title"
+			>
+			    <MiddleContent />
+			    <Box mb={0.5}>
+				<DialogActions>
+				    <Actions />
+				</DialogActions>
+			    </Box>
+			</Dialog>
+		    </>
+		    <>
+			<DraggableDialog open = {openSetting} onClose = {() => {setOpenSetting(false);}}>
+			</DraggableDialog>
+		    </>
+		</>
 	    )}
         </div>
     );
