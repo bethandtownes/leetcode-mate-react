@@ -55,7 +55,7 @@ export default function PaneTitle(props) {
 	    return "Submission Failed, try again in 3 seconds";
 	}
 	if (props.loading == true) {
-	    return "Juding";
+	    return "Judging";
 	}
 	if (props.mode == null || state.result_status == null) {
 	    return "Run or Submit";

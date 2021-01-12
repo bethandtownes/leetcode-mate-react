@@ -10,8 +10,15 @@
 	"js": ["contentScript.bundle.js"]
 
     }],
+    "background" : {
+	"scripts": [
+	    "background.bundle.js"
+	],
+	"persistent": false
+    },
     "permissions": [
-	"storage"
+	"storage",
+	"tabs"
     ],
     "web_accessible_resources": [
 	"page_script.js",

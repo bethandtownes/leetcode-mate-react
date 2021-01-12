@@ -36,8 +36,8 @@ if (fileSystem.existsSync(secretsPath)) {
 var options = {
     mode: process.env.NODE_ENV || 'development',
     entry: {
-       
-        contentScript: path.join(__dirname, 'src', 'pages', 'Content', 'index.jsx'),
+	background: path.join(__dirname, 'src', 'pages', 'Background', 'index.js'),
+        contentScript: path.join(__dirname, 'src', 'pages', 'Content', 'index.jsx')
     },
     chromeExtensionBoilerplate: {
         notHotReload: ['contentScript'],

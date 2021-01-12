@@ -10,6 +10,10 @@
 * Toggle cursor blinking (for CodeMirror only)
 * Toggel bracket matching (for CodeMirror only)
 
+### Feature(s) in development
+* Timer
+* Make use of Google Drive API to create personal repo.
+
 
 ### Usage
 * Use `Ctrl + Enter` to submit current code and display submission result

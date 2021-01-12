@@ -10,6 +10,7 @@ import Draggable from 'react-draggable';
 
 import { useReducer, useRef, useEffect } from 'react';
 import EditorSettings from "./EditorSettingGroup.jsx";
+import ShortcutsSettings from "./ShortcutSettings.jsx";
 
 function PaperComponent(props) {
     return (

@@ -132,46 +132,9 @@ function LeetCodeMateSubmissionPanel(props) {
 	dispatch({type: T.action.update_input, payload: e.target.value});
     };
 
-    useEffect(async() => {
-	const getConsoleButtom = () => {
-	    if (CN == true) {
-		return document.getElementsByClassName("custom-testcase__2YgB")[0];
-	    }
-	    else {
-		return document.getElementsByClassName("custom-testcase__2ah7")[0];
-	    }
-	};
-	
-	for (let i = 0; i < 40; ++i) {
-	    const consoleButton = await new Promise((resolve, fail) => {
-		setTimeout(() => { resolve(getConsoleButtom()); }, 400);
-	    });
-	    if (consoleButton != undefined) {
-		setTimeout(async() => {
-		    if (textRef.current != null || textRef.current != undefined) {
-			dispatch({type: T.action.update_input, payload: textRef.current.value});
-		    }
-		    if (CN == true) {
-			const inputCase = await acquire.DefaultTestCaseCN();
-			setDefaultCase(inputCase);
-			dispatch({type: T.action.update_input, payload: inputCase})
-		    }
-		    else {
-			const inputCase = await acquire.DefaultTestCase();
-			setDefaultCase(inputCase);
-			dispatch({type: T.action.update_input, payload: inputCase})
-		    }
-		}, 300);
-		break;
-	    }
-	}
-    }, []);
-
 
     useEffect(async () => {
 	const conf = await acquire.LeetCodeEditorSettings();
-	console.log("conf: ");
-	console.log(conf);
 	const A =  async () => window.dispatchEvent(new CustomEvent("EDITOR_CONFIG_EVENT", {detail : { action: "INIT", data: conf }}));
 	setTimeout(A, 500);
 	console.log("set storaged editor config");
@@ -181,10 +144,20 @@ function LeetCodeMateSubmissionPanel(props) {
     useEffect(async() => {
 	setTimeout(async() => {
 	    if (CN == false) {
-		setProblemSlug(await acquire.TaskInfo());
+		/* setProblemSlug(await acquire.TaskInfo()); */
+		const p = await acquire.TaskInfo();
+		console.log(p);
+		setProblemSlug(p);
+		const r = await acquire.QuestionDetailStats(p.question_title_slug);
+		const inputCase = r.data.question.sampleTestCase;
+		setDefaultCase(inputCase);
 	    }
 	    else {
-		setProblemSlug(await acquire.TaskInfoCN());
+		const p = await acquire.TaskInfoCN();
+		setProblemSlug(p);
+		const r = await acquire.QuestionDetailStatsCN(p.question_title_slug);
+		const inputCase = r.data.question.sampleTestCase;
+		setDefaultCase(inputCase);
 	    }
 	}, 1000);
     }, []);
@@ -428,9 +401,6 @@ function LeetCodeMateSubmissionPanel(props) {
 		if (!judge && state.result_status != T.result.accepted) {
 		    dispatch({type: T.action.update_input, payload: textRef.current.value});
 		}
-		if (judge) {
-		    dispatch({type: T.action.update_input, payload: textRef.current.value});
-		}
 		setOpen(false);
 	    }
 	};
@@ -469,10 +439,23 @@ function LeetCodeMateSubmissionPanel(props) {
 	    setOpenSetting(!openSetting);
 	}
 
+	// this s a test button for testing new features.
+	/* const handlePlay = async () => {
+	   const p = await acquire.QuestionDetailStats(problemSlug.question_title_slug);
+	   console.log(p.data.question.sampleTestCase);
+	   } */
 
+	
         return (
             <>
 		<ThemeProvider theme={theme}>
+		    {/* <Button 
+   			variant = "contained"
+			size = "small"
+			onClick =  { handlePlay }
+			color="primary">
+			Play
+			</Button> */}
 		    <Button 
    			variant = "contained"
 			size = "small"

@@ -26,15 +26,31 @@ const LANG_CODEMAP = {
 export async function LeetCodeEditorSettings() {
     const p = new Promise((resolve, fail) => {
 	chrome.storage.local.get(['leetcodeEditorSettings'], function(result) {
-	    console.log("result");
-	    console.log(result);
-
-	    resolve(JSON.parse(result.leetcodeEditorSettings));
+	    if (result.leetcodeEditorSettings == undefined) {
+		console.log('default');
+		resolve({
+		    bracketMatching: true,
+		    blinkingCursor: true
+		});
+	    }
+	    else {
+		resolve(JSON.parse(result.leetcodeEditorSettings));
+	    }
 	})
     }).catch((e) => {
+	console.log(e);
 	return undefined;
     });
     const r = await p;
+
+    if (r == undefined) {
+	return {
+	    bracketMatching: true,
+	    blinkingCursor: true
+	};
+    }
+    console.log('r');
+    console.log(r);
     return r;
 }
 
@@ -138,11 +154,11 @@ export const SubmissionDetailCN = async (id) => {
     let requestURL = "https://leetcode-cn.com/submissions/detail/" + id + "/check";
     for (let i = 0; i < 50; ++i) {
 	const curst = await CurrentRunStatusCN(id);
-	console.log("curst");
-	console.log(curst);
-	
+	/* console.log("curst");
+	   console.log(curst);
+	 */
 	if (curst['state'] == "SUCCESS") {
-            return curst; 
+            return curst;
             break;
 	}
     }
@@ -150,21 +166,22 @@ export const SubmissionDetailCN = async (id) => {
 };
 
 export const TaskInfo = async () =>{
-    let info_banner;
-    for (let i = 0; i < 40; i++) {
+    let elm;
+    for (let i = 0; i < 100; i++) {
 	const banner = await new Promise((resolve, fail) => {
 	    setTimeout(() => {
-		resolve(document.getElementsByClassName("css-v3d350")[0]);
+		resolve(document.querySelectorAll("[data-key='description']")[0]);
 	    }, 400)}
 	);
 	if (banner != undefined) {
-	    info_banner = banner;
+	    elm = banner;
 	    break;
 	}
     }
-    const info = info_banner.innerText.split('.');
-    const slug = make_slug(info[1]);
-    const id = await QuestionID(slug);
+    const elmHref = elm.getElementsByTagName('a')[0].href;
+    const regex = /(?<=problems\/)(.*)?(?=\/)/g;    
+    const slug = elmHref.match(regex)[0];
+    const id = await QuestionIDCN(slug);
     return {
 	question_id : id,
 	question_title_slug: slug
@@ -174,10 +191,10 @@ export const TaskInfo = async () =>{
 
 export const TaskInfoCN = async () => {
     let elm;
-    for (let i = 0; i < 40; ++i) {
+    for (let i = 0; i < 100; ++i) {
 	const banner = await new Promise((resolve, faile) => {
 	    setTimeout(()=> {
-		resolve(document.getElementsByClassName("css-10c1h40-Title eugt34i1")[0]);
+		resolve(document.querySelectorAll("[data-key='description']")[0]);
 	    }, 400);
 	});
 	if (banner != undefined) {
@@ -295,6 +312,98 @@ export function isCN() {
 }
 
 
+
+const RequestHeaderGraphQL = () => {
+    return {
+	'authority': 'leetcode.com',
+	'method': 'POST',
+	'path': '/graphql/',
+	'scheme': 'https',
+	'accept': '*/*',
+	'accept-encoding': 'gzip, deflate, br',
+	'accept-language': 'en',
+	'content-length': '1262',
+	'content-type': 'application/json',
+	'origin': 'https://leetcode.com',
+	'sec-ch-ua': '"Google Chrome";v="87", " Not;A Brand";v="99", "Chromium";v="87"',
+	'sec-ch-ua-mobile': '?0',
+	'sec-fetch-dest': 'empty',
+	'sec-fetch-mode': 'cors',
+	'sec-fetch-site': 'same-origin',
+	'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36',
+	'x-csrftoken': Csrftoken()
+    };
+};
+
+
+const RequestHeaderGraphQLCN = () => {
+    return {
+	'authority': 'leetcode-cn.com',
+	'method': 'POST',
+	'path': '/graphql/',
+	'scheme': 'https',
+	'accept': '*/*',
+	'accept-encoding': 'gzip, deflate, br',
+	'accept-language': 'en',
+	'content-length': '1262',
+	'content-type': 'application/json',
+	'origin': 'https://leetcode-cn.com',
+	'sec-ch-ua': '"Google Chrome";v="87", " Not;A Brand";v="99", "Chromium";v="87"',
+	'sec-ch-ua-mobile': '?0',
+	'sec-fetch-dest': 'empty',
+	'sec-fetch-mode': 'cors',
+	'sec-fetch-site': 'same-origin',
+	'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36',
+	'x-csrftoken': Csrftoken(),
+	'x-definition-name': 'question',
+	'x-operation-name': 'questionData'
+    };
+};
+
+
+const QueryProblemStatsCN = (slug) => {
+    return {
+	"operationName": "questionData",
+	"variables": {"titleSlug": slug},
+	"query": "query questionData($titleSlug: String!) {\n  question(titleSlug: $titleSlug) {\n    questionId\n    questionFrontendId\n    boundTopicId\n    title\n    titleSlug\n    content\n    translatedTitle\n    translatedContent\n    isPaidOnly\n    difficulty\n    likes\n    dislikes\n    isLiked\n    similarQuestions\n    contributors {\n      username\n      profileUrl\n      avatarUrl\n      __typename\n    }\n    langToValidPlayground\n    topicTags {\n      name\n      slug\n      translatedName\n      __typename\n    }\n    companyTagStats\n    codeSnippets {\n      lang\n      langSlug\n      code\n      __typename\n    }\n    stats\n    hints\n    solution {\n      id\n      canSeeDetail\n      __typename\n    }\n    status\n    sampleTestCase\n    metaData\n    judgerAvailable\n    judgeType\n    mysqlSchemas\n    enableRunCode\n    envInfo\n    book {\n      id\n      bookName\n      pressName\n      source\n      shortDescription\n      fullDescription\n      bookImgUrl\n      pressImgUrl\n      productUrl\n      __typename\n    }\n    isSubscribed\n    isDailyQuestion\n    dailyRecordStatus\n    editorType\n    ugcQuestionId\n    style\n    __typename\n  }\n}\n"};
+};
+
+const QueryProblemStats = (slug) => {
+    return  {
+	"operationName":"questionData",
+	"variables":{"titleSlug": slug},
+	"query":"query questionData($titleSlug: String!) {\n  question(titleSlug: $titleSlug) {\n    questionId\n    questionFrontendId\n    boundTopicId\n    title\n    titleSlug\n    content\n    translatedTitle\n    translatedContent\n    isPaidOnly\n    difficulty\n    likes\n    dislikes\n    isLiked\n    similarQuestions\n    exampleTestcases\n    contributors {\n      username\n      profileUrl\n      avatarUrl\n      __typename\n    }\n    topicTags {\n      name\n      slug\n      translatedName\n      __typename\n    }\n    companyTagStats\n    codeSnippets {\n      lang\n      langSlug\n      code\n      __typename\n    }\n    stats\n    hints\n    solution {\n      id\n      canSeeDetail\n      paidOnly\n      hasVideoSolution\n      __typename\n    }\n    status\n    sampleTestCase\n    metaData\n    judgerAvailable\n    judgeType\n    mysqlSchemas\n    enableRunCode\n    enableTestMode\n    enableDebugger\n    envInfo\n    libraryUrl\n    adminUrl\n    __typename\n  }\n}\n"};
+};
+
+
+
+export async function QuestionDetailStatsCN(slug) {
+    return fetch("https://leetcode-cn.com/graphql/", {
+	method: "POST",
+	headers: RequestHeaderGraphQLCN(),
+	credentials: 'same-origin',
+	body: JSON.stringify(QueryProblemStatsCN(slug))
+    }).then(res => {
+	return res.json();
+    }).then(res => {
+	return res;
+    });
+}
+
+export async function QuestionDetailStats(slug) {
+    return fetch("https://leetcode.com/graphql/", {
+	method: "POST",
+	headers: RequestHeaderGraphQL(),
+	credentials: 'same-origin',
+	body: JSON.stringify(QueryProblemStats(slug))
+    }).then(res => {
+	return res.json();
+    }).then(res => {
+	return res;
+    });
+}
+
+//deprecated
 export async function DefaultTestCaseCN() {
     const LOCATOR_CONSOLE_BUTTON = "custom-testcase__2ah7";
     const LOCATOR_CONSOLE_PANE = "result__1UhQ";
@@ -337,7 +446,7 @@ export async function DefaultTestCaseCN() {
 };
 
 
-
+//deprecated
 export async function DefaultTestCase() {
     const CN = isCN();
     const LOCATOR_CONSOLE_BUTTON = "custom-testcase__2ah7";
