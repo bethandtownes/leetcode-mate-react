@@ -50,23 +50,45 @@ var options = {
     module: {
         rules: [
             {
-                // look for .css or .scss files
-                test: /\.(css|scss)$/,
-                // in the `src` directory
-                use: [
-                    {
-                        loader: 'style-loader',
-                    },
-                    {
-                        loader: 'css-loader',
-                    },
-                    {
-                        loader: 'sass-loader',
-                        options: {
-                            sourceMap: true,
-                        },
-                    },
-                ],
+		test: /\.css$/i,
+		use: [
+		    "style-loader",
+		    "css-loader",
+		    {
+			loader: "postcss-loader",
+			options: {
+			    postcssOptions: {
+				plugins: [
+				    [
+					"postcss-preset-env",
+					{
+					    // Options
+					},
+				    ],
+				],
+			    },
+			},
+		    }
+		]
+            // look for .css or .scss files
+		/* test: /\.(css|scss)$/, */
+            // in the `src` directory
+		/* use: ["style-loader", "css-loader", "postcss-loader"], */
+            /* use: [
+	     *     {
+	     *         loader: 'style-loader',
+	     *     },
+	     *     {
+	     *         loader: 'css-loader',
+	     *     },
+	     *     {
+	     *         loader: 'sass-loader',
+	     *         options: {
+	     *             sourceMap: true,
+	     *         },
+	     *     },
+	       'postcss-loader'
+	     * ], */
             },
             {
                 test: /\.m?js/,
@@ -113,6 +135,7 @@ var options = {
     },
     plugins: [
         new webpack.ProgressPlugin(),
+	
         // clean the build folder
         new CleanWebpackPlugin({
             verbose: true,
@@ -147,7 +170,25 @@ var options = {
                     force: true,
                 },
             ],
+        }),	
+        new CopyWebpackPlugin({
+            patterns: [
+                {
+                    from: 'node_modules/codemirror/lib/codemirror.css',
+                    to: path.join(__dirname, 'build'),
+                    force: true,
+                },
+            ],
         }),
+	new CopyWebpackPlugin({
+            patterns: [
+                {
+                    from: 'node_modules/codemirror/theme/material.css',
+                    to: path.join(__dirname, 'build'),
+                    force: true,
+                },
+            ],
+	}),
         new CopyWebpackPlugin({
             patterns: [
                 {

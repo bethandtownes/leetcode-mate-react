@@ -22,6 +22,7 @@ import { createMuiTheme, CssBaseline, Typography, Box} from "@material-ui/core";
 import ContentViewSubmitOrAccepted from "./ContentViewSubmitOrAccepted.jsx";
 import { ContentViewDefault }  from "./ContentViewDefault.jsx";
 import DraggableDialog from "./Setting.jsx";
+import { MonacoDialog } from "./MonacoEditor.jsx";
 
 
 const PaperComponent = (props: PaperProps) => {
@@ -102,7 +103,8 @@ const theme = createMuiTheme({
     }
 });
 
-function LeetCodeMateSubmissionPanel(props) {
+
+function LeetCodeMate(props) {
     const [open, setOpen] = React.useState(false);
     const [openSetting, setOpenSetting] = React.useState(false);
     const [mode, setMode] = React.useState(null);
@@ -115,23 +117,39 @@ function LeetCodeMateSubmissionPanel(props) {
     const [CN, setCN] = React.useState(isCN());
     const [problemSlug, setProblemSlug] = React.useState(null);
 
+    const [taskInfo, setTaskInfo] = React.useState(null)
+    
     const [W, setW] = React.useState(800);
     const [H, setH] = React.useState(500);
-    
+
+   
     const textRef = useRef();
     const barRef = useRef();
     const inputBoxRef = useRef();
     const submitButtonRef = useRef();
     const runButtonRef = useRef();
     const runDefaultButtonRef = useRef();
-    
+    const monacoRef = useRef();
+
+
+    const [openMonaco, setOpenMonaco] = React.useState(false);
+    const [widthMonaco, setWidthMonaco] = React.useState(600);
+    const [heightMonaco, setHeightMonaco] = React.useState(600);
+    const [codeMateEditor, setCodeMateEditor] = React.useState("CodeMirror Editor");
+    const [settingsMateEditor, setSettingsEditor] = React.useState(
+	{
+	    mode: 'text/x-c++src',
+	    theme: 'material-darker',
+	    lineNumbers: true
+	}
+    );
 
     const [state, dispatch] = useReducer(reducer, initialState);
+
 
     const onInputChange = (e) => {
 	dispatch({type: T.action.update_input, payload: e.target.value});
     };
-
 
     useEffect(async () => {
 	const conf = await acquire.LeetCodeEditorSettings();
@@ -144,13 +162,14 @@ function LeetCodeMateSubmissionPanel(props) {
     useEffect(async() => {
 	setTimeout(async() => {
 	    if (CN == false) {
-		/* setProblemSlug(await acquire.TaskInfo()); */
 		const p = await acquire.TaskInfo();
 		console.log(p);
 		setProblemSlug(p);
 		const r = await acquire.QuestionDetailStats(p.question_title_slug);
 		const inputCase = r.data.question.sampleTestCase;
 		setDefaultCase(inputCase);
+		setTaskInfo(r);
+		console.log(r);
 	    }
 	    else {
 		const p = await acquire.TaskInfoCN();
@@ -158,6 +177,7 @@ function LeetCodeMateSubmissionPanel(props) {
 		const r = await acquire.QuestionDetailStatsCN(p.question_title_slug);
 		const inputCase = r.data.question.sampleTestCase;
 		setDefaultCase(inputCase);
+		setTaskInfo(r);
 	    }
 	}, 1000);
     }, []);
@@ -169,19 +189,7 @@ function LeetCodeMateSubmissionPanel(props) {
 	}
     }, [failed]);
 
-    /* 
-     * useEffect(() => {
-       const enforceEmacsMode = () => {
-       let event = new CustomEvent('EMACS');
-       window.dispatchEvent(event);
-       };
-       
-       window.addEventListener('click', enforceEmacsMode);
-       return () => {
-       window.removeEventListener('click', enforceEmacsMode);
-       };
-     * });
-     *  */
+
     useEffect(() => {
 	const memorizeBarPos = () => {
 	    try {
@@ -289,6 +297,14 @@ function LeetCodeMateSubmissionPanel(props) {
 	}
     });
 
+
+    const handleEditorSettingChange = async (e) => {
+	console.log(e);
+	const newState = {...settingsMateEditor, [e.target.name]: e.target.value };
+	console.log(newState);
+	setSettingsEditor(newState);
+    }
+
     const handleClickOpen = () => {
 	if (open == false) {
             setOpen(true)
@@ -319,6 +335,25 @@ function LeetCodeMateSubmissionPanel(props) {
 	else {
 	    setValue(0);
 	}
+    };
+
+
+
+    const handleMonacoSubmit = async () => {
+	dispatch({ type: T.action.update_input, payload: "" });
+	setMode(T.mode.submit);
+	setJudge(true);	
+	const res = CN == true ? (await submitCN(state, problemSlug)) : (await submit(state, problemSlug, monacoRef.current.editor.getValue(), "cpp"));
+	saveMateEditor();
+	console.log(res);	
+	if (res == null) {
+	    handleReset();
+	    setFail(true);
+	    return;
+	}
+	dispatch({type: T.action.update, payload: res});
+	setJudge(false);
+	updateMessagePaneTabStatus(res);
     };
 
 
@@ -369,6 +404,7 @@ function LeetCodeMateSubmissionPanel(props) {
 
 	};
 
+
 	const handleRunDefault = async () => {
 	    if (state.result_status == T.result.accepted) {
 		setMode(T.mode.test);
@@ -381,8 +417,6 @@ function LeetCodeMateSubmissionPanel(props) {
 	    dispatch({ type: T.action.update_input, payload: textRef.current.value });
 	    setMode(T.mode.test); 
 	    setJudge(true);
-	    /* let res = CN ? await runtestCN : await runtest(inputTextCase); */
-	    /* let res = await runtest(textRef.current.value.trim()); */
 	    let res = CN == true ? await runtestCN(textRef.current.value.trim(), problemSlug) : await runtest(textRef.current.value.trim(), problemSlug);
 	    if (res == null) {
 		handleReset();
@@ -440,22 +474,20 @@ function LeetCodeMateSubmissionPanel(props) {
 	}
 
 	// this s a test button for testing new features.
-	/* const handlePlay = async () => {
-	   const p = await acquire.QuestionDetailStats(problemSlug.question_title_slug);
-	   console.log(p.data.question.sampleTestCase);
-	   } */
+	const handlePlay = () => {
+	    setOpenMonaco(!openMonaco);
+	}
 
-	
         return (
             <>
 		<ThemeProvider theme={theme}>
-		    {/* <Button 
+		    <Button 
    			variant = "contained"
 			size = "small"
 			onClick =  { handlePlay }
 			color="primary">
 			Play
-			</Button> */}
+		    </Button>
 		    <Button 
    			variant = "contained"
 			size = "small"
@@ -495,11 +527,11 @@ function LeetCodeMateSubmissionPanel(props) {
     };
 
     
-	const XX = (e, d) => { console.log(e);
-					console.log(d);
-					setH(d.size.height);
-					setW(d.size.width);
-	};
+    const XX = (e, d) => { console.log(e);
+	console.log(d);
+	setH(d.size.height);
+	setW(d.size.width);
+    };
 
     
     const MiddleContent = () => {
@@ -521,42 +553,75 @@ function LeetCodeMateSubmissionPanel(props) {
 	    );
 	}
     }
+
+
+    const onResizeMonac = (e, data) => {
+	monacoRef.current.editor.setSize(data.size.width, data.size.height + 4);
+	/* setWidthMonaco(data.size.width);
+	   setHeightMonaco(data.size.height); */
+    };
+
+
+    const handleCodeChange = ((editor, data, value) => { });
+
+
+    const saveMateEditor = () => {
+	setCodeMateEditor(monacoRef.current.editor.getValue())
+    }
+	
     return (
         <div>
-	    {open && (
-		<>
-		    <>
-			<Dialog
-			    id={"submission_pane"}
-			    open={true}
-			    /* BackdropComponent = {document} */
-			    hideBackdrop = {true}
-			    disableAutoFocus = {true}
-			    disableEnforceFocus
-			    style={{ pointerEvents: 'none'}}  
-			    disableBackdropClick = {true}
-			    onClose={handleClose}
-			    maxWidth={false}
-			    PaperComponent={PaperComponent}
-			    PaperProps={{ style: {backgroundColor: 'rgba(0,0,0,0.6)', pointerEvents: 'auto'}}}
-			    aria-labelledby="draggable-dialog-title"
-			>
-			    <MiddleContent />
-			    <Box mb={0.5}>
-				<DialogActions>
-				    <Actions />
-				</DialogActions>
-			    </Box>
-			</Dialog>
-		    </>
-		    <>
-			<DraggableDialog open = {openSetting} onClose = {() => {setOpenSetting(false);}}>
-			</DraggableDialog>
-		    </>
-		</>
-	    )}
+	    { (
+		  <>
+		      <>
+			  <Dialog
+			      id={"submission_pane"}
+			      open={open}
+			      hideBackdrop = {true}
+			      disableAutoFocus = {true}
+			      disableEnforceFocus
+			      style={{ pointerEvents: 'none'}}  
+			      disableBackdropClick = {true}
+			      onClose={handleClose}
+			      maxWidth={false}
+			      PaperComponent={PaperComponent}
+			      PaperProps={{ style: {backgroundColor: 'rgba(0,0,0,0.6)', pointerEvents: 'auto'}}}
+			      aria-labelledby="draggable-dialog-title"
+			  >
+			      <MiddleContent />
+			      <Box mb={0.5}>
+				  <DialogActions>
+				      <Actions />
+				  </DialogActions>
+			      </Box>
+			  </Dialog>
+		      </>
+		      <>
+			  <DraggableDialog open = {openSetting} onClose = {() => {setOpenSetting(false);}}>
+			  </DraggableDialog>
+		      </>
+		      <>
+			  <MonacoDialog open = {openMonaco}
+			                task = { taskInfo }
+					W = {widthMonaco} H = {heightMonaco}
+					editorSettings = { settingsMateEditor }
+			                onResizeMonoco = {onResizeMonac}
+			                onCodeChange = { handleCodeChange }
+			                handleSubmit = { handleMonacoSubmit }
+			                code = { codeMateEditor }
+					handleChange = { handleEditorSettingChange } 
+					inputRef = { monacoRef }
+					handleClose = {() => {
+					    saveMateEditor();
+					    setOpenMonaco(false);
+					}}
+			                theme = { theme }
+			  />
+		      </>
+		  </>
+	      )}
         </div>
     );
 }
 
-export { LeetCodeMateSubmissionPanel };
+export { LeetCodeMate };

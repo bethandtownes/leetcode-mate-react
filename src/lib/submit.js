@@ -6,12 +6,20 @@ import { isCN } from "./acquire.js";
 
 
 
-export async function submit(prevState, task) {
+export async function submit(prevState, task, code = undefined, lang = undefined) {
     /* const task = await acquire.TaskInfo(); */
+    if (code == undefined) {
+	code = await acquire.EditorValue();
+    }
+    if (lang == undefined) {
+	lang = acquire.ProgrammingLanguage();
+    }
+    
     const data = {
 	lang: acquire.ProgrammingLanguage(),
 	question_id: task.question_id,
-	typed_code: await acquire.EditorValue(), 
+	typed_code: code
+	/* typed_code: await acquire.EditorValue(),  */
     };
     const submitURL = "/problems/" + task.question_slug + "/submit/";
     

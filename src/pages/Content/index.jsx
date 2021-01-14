@@ -7,7 +7,7 @@ const app = document.createElement('div');
 app.id = 'root';
 
 if (viewport) viewport.prepend(app);
-import { LeetCodeMateSubmissionPanel } from "./modules/LeetCodeSubmissionPane.jsx";
+import { LeetCodeMate } from "./modules/LeetCodeSubmissionPane.jsx";
 import * as acquire from "../../lib/acquire.js";
 import { injectJSListener } from "../../lib/utils.jsx";
 
@@ -25,4 +25,4 @@ injectJSListener();
 
 
 
-ReactDOM.render(<LeetCodeMateSubmissionPanel />, document.getElementById('root'));
+ReactDOM.render(<LeetCodeMate />, document.getElementById('root'));
