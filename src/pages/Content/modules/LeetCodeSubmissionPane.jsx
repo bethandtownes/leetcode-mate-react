@@ -556,9 +556,9 @@ function LeetCodeMate(props) {
 
 
     const onResizeMonac = (e, data) => {
-	monacoRef.current.editor.setSize(data.size.width, data.size.height + 4);
-	/* setWidthMonaco(data.size.width);
-	   setHeightMonaco(data.size.height); */
+	// monacoRef.current.editor.setSize(data.size.width, data.size.height + 4);
+	// setWidthMonaco(data.size.width);
+	// setHeightMonaco(data.size.height);
     };
 
 

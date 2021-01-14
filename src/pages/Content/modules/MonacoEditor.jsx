@@ -9,6 +9,10 @@ import { makeStyles, Theme } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 import React from 'react'
 import Draggable from 'react-draggable'
+import AceEditor from "react-ace";
+
+
+
 
 import { Typography, createMuiTheme, Box, IconButton } from "@material-ui/core";
 import { ResizableBox } from 'react-resizable'
@@ -26,6 +30,21 @@ import CancelIcon from '@material-ui/icons/Cancel';
 import '../../../../node_modules/codemirror/lib/codemirror.css'
 import '../../../../node_modules/codemirror/theme/material-darker.css'
 
+import "ace-builds/src-noconflict/theme-github";
+
+import "ace-builds/src-noconflict/mode-java";
+import "ace-builds/src-noconflict/mode-c_cpp.js";
+import "ace-builds/src-noconflict/mode-csharp.js";
+import "ace-builds/src-noconflict/mode-javascript.js";
+import "ace-builds/src-noconflict/mode-typescript.js";
+import "ace-builds/src-noconflict/mode-rust.js";
+import "ace-builds/src-noconflict/mode-golang.js";
+import "ace-builds/src-noconflict/mode-php.js";
+import "ace-builds/src-noconflict/mode-python.js";
+import "ace-builds/src-noconflict/mode-scala.js";
+import "ace-builds/src-noconflict/mode-sql.js";
+import "ace-builds/src-noconflict/mode-swift.js";
+
 
 require('codemirror/mode/javascript/javascript.js');
 require('codemirror/mode/clike/clike.js');
@@ -35,8 +54,7 @@ require('codemirror/keymap/sublime.js')
 require('codemirror/keymap/vim.js')
 
 
-function MateEditor(props) {
-
+function cMateEditor(props) {
     return (<CodeMirror
                 ref = { props.inputRef }
                 value = { props.code }
@@ -51,6 +69,21 @@ function MateEditor(props) {
 		}}
                 onChange = {props.onChange}
     />);
+}
+
+
+
+function MateEditor(props) {
+    return (<AceEditor
+		mode="java"
+		theme="github"
+		name="UNIQUE_ID_OF_DIV"
+		height = {"inherit"}
+		width = {"inherit"}
+		editorProps={{ $blockScrolling: true }}
+                ref = { props.inputRef }
+                value = { props.code }
+	    />);
 }
 
 
@@ -104,14 +137,12 @@ const PaperComponent2 = (props) => {
 }
 
 
-
 export const MonacoDialog = (props) => {
     const classes = useStyles();
     const [code, setCode] = React.useState("");
     
-    const handleMonacoSubmit = async () => {
-	console.log(props.inputRef);
-	console.log(props.inputRef.current.editor.getModel().getValue());
+    const handleReset = () => {
+	console.log(props.task.data.question.codeSnippets.find((e) => { return e.langSlug == MATE_LANGUAGE_SLUG[props.editorSettings.mode] ; }));
     };
 
     
@@ -149,25 +180,22 @@ export const MonacoDialog = (props) => {
 				</IconButton>
 			    </Box>
 			</Box>
-			
-			
  		    </DialogTitle>
  		    <ResizableBox
 			height= { props.H  }
 			width= { props.W + 12}
  			onResize = {props.onResizeMonoco}
 			minConstraints = {[props.W + 12, props.H]}
-
 			className={classes.resizable}
  		    >
-			<>
-			    
+			<>			    
  			    <MateEditor code = { props.code }  onChange = { props.onCodeChange } W = {props.W} H = {props.H}
 					settings = {props.editorSettings}
 			    inputRef = {props.inputRef} currentCode = { code } />
 			    
 			</>
  		    </ResizableBox>
+
 		    
 		    <DialogActions style = {{height: "55px"}}>
 			<ThemeProvider theme={props.theme}>
@@ -180,7 +208,10 @@ export const MonacoDialog = (props) => {
  			    <Button variant = "contained"  size = "small" color="primary">
  				Settings
  			    </Button>
-			    <Button variant = "contained"  size = "small" onClick={ props.handleSubmit } color="primary">
+			    <Button variant = "contained"  size = "small" onClick = { handleReset } color="primary">
+ 				Reset
+ 			    </Button>
+			    <Button variant = "contained"  size = "small" onClick = { props.handleSubmit } color="primary">
  				Submit
  			    </Button>
 			</ThemeProvider>
@@ -190,6 +221,3 @@ export const MonacoDialog = (props) => {
 	</div>
     )
 };
-
-
-
