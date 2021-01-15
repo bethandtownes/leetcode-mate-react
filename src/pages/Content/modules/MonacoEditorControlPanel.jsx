@@ -16,6 +16,7 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 
 import { ID } from "./utility.js";
+import { MATE_MONACO_THEME } from "./MonacoEditor.jsx";
 
 
 import InputBase from '@material-ui/core/InputBase';
@@ -66,8 +67,10 @@ const useStyles = makeStyles((theme) => ({
 
 
 
-const MATE_MONACO_LANGUAGE = ["text/x-c++src", "text/x-csrc", "text/x-java", "text/x-csharp", "text/x-scala", "text/x-kotlin"];
-const MATE_MONACO_THEME = ["material-darker"]
+const MATE_MONACO_LANGUAGE = ["text/x-c++src", "text/x-csrc", "text/x-java", "text/x-csharp",
+			      "text/x-scala", "text/x-kotlin", 'text/x-python', 'text/javascript', 'text/typescript',
+			      'text/x-swift', 'text/x-rustsrc', 'text/x-php', 'text/x-go'];
+
 
 export default function MonacoControlPanel(props) {
     const classes = useStyles();

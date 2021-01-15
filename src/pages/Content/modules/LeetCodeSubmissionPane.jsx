@@ -134,13 +134,22 @@ function LeetCodeMate(props) {
 
     const [openMonaco, setOpenMonaco] = React.useState(false);
     const [widthMonaco, setWidthMonaco] = React.useState(600);
-    const [heightMonaco, setHeightMonaco] = React.useState(600);
-    const [codeMateEditor, setCodeMateEditor] = React.useState("CodeMirror Editor");
+    const [heightMonaco, setHeightMonaco] = React.useState(800);
+    const [codeMateEditor, setCodeMateEditor] = React.useState("");
     const [settingsMateEditor, setSettingsEditor] = React.useState(
 	{
-	    mode: 'text/x-c++src',
+	    mode: "text/x-c++src",
+	    autoCloseBrackets: false,
 	    theme: 'material-darker',
-	    lineNumbers: true
+	    lineWrapping: true,
+	    keyMap: 'default',
+	    lineNumbers: true,
+	    cursorBlinkRate: 0,
+	    indentUnit: 4,
+	    matchBrackets: true,
+	    extraKeys: {
+		"Ctrl-m": "toggleComment"
+	    }
 	}
     );
 
@@ -528,7 +537,6 @@ function LeetCodeMate(props) {
 
     
     const XX = (e, d) => { console.log(e);
-	console.log(d);
 	setH(d.size.height);
 	setW(d.size.width);
     };
@@ -554,11 +562,16 @@ function LeetCodeMate(props) {
 	}
     }
 
+    const onResizeStopMonaco = (e, dir, ref) => {
+	setHeightMonaco(parseInt(ref.style.height))
+	setWidthMonaco(parseInt(ref.style.width));
+    };
+    
 
-    const onResizeMonac = (e, data) => {
-	// monacoRef.current.editor.setSize(data.size.width, data.size.height + 4);
-	// setWidthMonaco(data.size.width);
-	// setHeightMonaco(data.size.height);
+    const onResizeMonac = (e, dir, ref) => {
+	const width = parseInt(ref.style.width);
+	const height = parseInt(ref.style.height);
+	monacoRef.current.editor.setSize(width, height - 90);
     };
 
 
@@ -606,6 +619,7 @@ function LeetCodeMate(props) {
 					W = {widthMonaco} H = {heightMonaco}
 					editorSettings = { settingsMateEditor }
 			                onResizeMonoco = {onResizeMonac}
+			                onResizeStopMonaco = { onResizeStopMonaco }
 			                onCodeChange = { handleCodeChange }
 			                handleSubmit = { handleMonacoSubmit }
 			                code = { codeMateEditor }
