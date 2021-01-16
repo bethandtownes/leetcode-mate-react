@@ -23,55 +23,131 @@ import CancelIcon from '@material-ui/icons/Cancel';
 
 import Switch from '@material-ui/core/Switch';
 
+import { Select, MenuItem } from "@material-ui/core";
+
 import { MateDialog } from "./MateWindow.jsx";
 import { ID } from "./utility.js";
+import { BootstrapInput } from "./helper-components/BootstrapInput.jsx";
+
+import { MATE_MONACO_THEME } from "./MonacoEditor.jsx";
+
+
+const MATE_EDITOR_OPTIONS = {
+    'theme': {
+	displayName: "Theme"
+    },
+    'autoCloseBrackets' : {
+	displayName: "Auto Close Brackets"
+    },
+    'lineWrapping' : {
+	displayName: "Line Wrapping"
+    },
+    'cursorBlinkRate' : {
+	displayName: "Cursor Blinking"
+    },
+    'matchBrackets' : {
+	displayName: "Match Brackets"
+    },
+    'lineNumbers' : {
+	displayName: "Display Line Numbers"
+    },
+    'indentUnit' : {
+	displayName: "Indent Size"
+    },
+    'keyMap': {
+	displayName: "Key Binding"
+    },
+    'fontsize': {
+	displayName: "Font Size"
+    }
+};
+
+const MATE_EDITOR_FONTSIZES = [...Array(11).keys()].map((x) => x + 10).map(x => x.toString() + 'px');
+
+
+
+function OptionTrueFalse(props) {
+    return (
+	<>
+	    <Box display = "flex" p = {1} >
+		<Box p = {1}  mt = {1} flexGrow={1} >
+		    <Typography variant="subtitle2" style = {{color: "white"}}>
+			{ MATE_EDITOR_OPTIONS[props.name].displayName }
+		    </Typography>
+		</Box>
+		<Box p = {1}  >
+		    <Switch
+		        id = { ID() }
+		    checked={ props.checked }
+		    onChange={ props.onChange }
+		    name= { props.name }
+		    inputProps={{ 'aria-label': 'secondary checkbox' }}
+		    />
+		</Box>
+	    </Box>
+	</>
+    );
+}
+
+
+function OptionChooser(props) {
+    return (
+	<>
+	    <Box id = {ID()} display = "flex" p = {1} >
+		<Box id = {ID()} p = {1}  mt = {1} flexGrow={1} >
+		    <Typography id = {ID()} variant="subtitle2" style = {{color: "white"}}>
+			{ MATE_EDITOR_OPTIONS[props.name].displayName }
+    		    </Typography>
+		</Box>
+		<Box p = {1}  >
+		    <Select
+			id= {ID()}
+			onChange = { props.onChange }
+			value={ props.value } 
+			style= {{backgroundColor: "white"}}
+			name = {props.name} 
+			input= {<BootstrapInput id = {ID()} />}
+		    >
+			{ props.options.map(x => { return <MenuItem id = { ID() } value = {x}> {x} </MenuItem>; }) }
+		    </Select>
+		</Box>
+	    </Box>
+	</>
+    );
+}
 
 
 export default function MateEditorConfig(props) {
-
-    const [config, setConfig] = React.useState(props.config);
-    
+    const config = React.useState(props.config);
     
     React.useEffect(() => {
 	if (config == undefined || config == null) {
 	    // TODO: load config from google storage
 	}
     }, []);
-
+    
 
 
     const mainContent = () => {
 	const [state, setState] = React.useState({
-	    checkedA: true,
+	    autoCloseBrackets: true,
 	    checkedB: true,
 	});
-
-	const handleChange = (event) => {
-	    setState({ ...state, [event.target.name]: event.target.checked });
-	};
+	
 
 	return (
-	    <div>
-		<Box display = "flex" p = {1} >
-		    <Box p = {1} flexGrow={1} >
-			<Typography variant="subtitle2" style = {{color: "white"}}>
-			    { "HAHAH" }
-			</Typography>
-		    </Box>
-		    <Box p = {1}  >
-			<Switch
-			    checked={state.checkedA}
-			    onChange={handleChange}
-			    name="checkedA"
-			    inputProps={{ 'aria-label': 'secondary checkbox' }}
-			/>
-		    </Box>
-		</Box>
-
-		
-
-		
-	    </div>
+	    <>
+		<OptionTrueFalse name = "autoCloseBrackets" onChange = {props.onChange} checked = { props.config.autoCloseBrackets }/>
+		<OptionTrueFalse name = "lineWrapping" onChange = {props.onChange} checked = {props.config.lineWrapping} />
+		<OptionTrueFalse name = "cursorBlinkRate" onChange = {props.onChange} checked = {props.config.cursorBlinkRate > 0} />
+		<OptionTrueFalse name = "matchBrackets" onChange = {props.onChange} checked = {props.config.matchBrackets} />
+		<OptionTrueFalse name = "lineNumbers" onChange = {props.onChange} checked = {props.config.lineNumbers} />
+		<OptionChooser name = "indentUnit" onChange = {props.onChange} value = {props.config.indentUnit} options = {[2, 4, 8]}/>
+		<OptionChooser name = "keyMap" onChange = {props.onChange} value = {props.config.keyMap} options = {["default", "emacs", "vim"]}/>
+		<OptionChooser name = "theme" onChange = {props.onChange} value = {props.config.theme} options = {MATE_MONACO_THEME}/>
+		<OptionChooser name = "fontsize" onChange = {props.onChange} value = {props.config.fontsize} options = {MATE_EDITOR_FONTSIZES} />
+	    </>
+	    
 	);
     };
 
@@ -84,8 +160,9 @@ export default function MateEditorConfig(props) {
 	       dialogName = "MateEditor Config"
                mainContent = { mainContent() }
                dialogActions = { null }
-               W = { 500 } H = { 500 } minW = { 500 } minH = { 500 }
-               onResize = { onResize } 
+               W = {500} minW = {500}
+               
+               resizable = {false}
                open = { props.open } onClose = { props.onClose } 
     />
 }

@@ -17,7 +17,7 @@ import Select from '@material-ui/core/Select';
 
 import { ID } from "./utility.js";
 import { MATE_MONACO_THEME } from "./MonacoEditor.jsx";
-
+import { MATE_EDITOR_LANGUAGE } from "./MonacoEditor.jsx"
 
 import InputBase from '@material-ui/core/InputBase';
 
@@ -65,13 +65,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-
-
-const MATE_MONACO_LANGUAGE = ["text/x-c++src", "text/x-csrc", "text/x-java", "text/x-csharp",
-			      "text/x-scala", "text/x-kotlin", 'text/x-python', 'text/javascript', 'text/typescript',
-			      'text/x-swift', 'text/x-rustsrc', 'text/x-php', 'text/x-go'];
-
-
 export default function MonacoControlPanel(props) {
     const classes = useStyles();
     return (
@@ -87,25 +80,10 @@ export default function MonacoControlPanel(props) {
 		    input={ <BootstrapInput id = {ID() } /> }
 		    name = {"mode"} 
 		>
-		    { MATE_MONACO_LANGUAGE.map(x => { return <MenuItem id = { ID() } value = {x}> {x} </MenuItem>; }) }
+		    { Object.entries(MATE_EDITOR_LANGUAGE).map((x) => { return <MenuItem id = { ID() } value = {x[0]}> {x[1].official_name} </MenuItem>; }) }
 		</Select>
 	    </FormControl>
-	    <FormControl id = { ID() } variant="outlined" className={classes.formControl}>
-		<Select
-		    labelId="mate-monaco-select-theme-label-id"
-		    id= {ID()}
-		    onChange = {props.handleChange}
-		    value={ props.settings.theme }
-		    style= {{backgroundColor: "white"}}
-		    label="mate-monaco-theme"
-		    name = {"theme"} 
-		    input={<BootstrapInput id = {ID()} />}
-		>
-		    { MATE_MONACO_THEME.map(x => { return <MenuItem id = { ID() } value = {x}> {x} </MenuItem>; }) }
 
-		</Select>
-	    </FormControl>
-	    
 	</>
     );
     

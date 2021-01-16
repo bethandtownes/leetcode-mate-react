@@ -47,3 +47,10 @@ window.addEventListener("EDITOR_GRAB", function test() {
 	window.postMessage({action: 'EDITOR_VALUE', payout: document.querySelector(".CodeMirror").CodeMirror.getValue()});
 }
 });
+
+
+
+function getCMFont() {
+    console.log("getCMFont called");
+    return "12px";
+}

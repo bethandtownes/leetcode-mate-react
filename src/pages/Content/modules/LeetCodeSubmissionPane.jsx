@@ -23,7 +23,46 @@ import ContentViewSubmitOrAccepted from "./ContentViewSubmitOrAccepted.jsx";
 import { ContentViewDefault }  from "./ContentViewDefault.jsx";
 import DraggableDialog from "./Setting.jsx";
 import { MonacoDialog } from "./MonacoEditor.jsx";
+import LeetCodeMateSettings from "./LeetCodeMateSettings.jsx";
 
+
+
+
+function checkmod(e, mod) {
+    if (mod == "Enter") {
+	return e.key == "Enter";
+    }
+    else if (mod == "Ctrl") {
+	return e.ctrlKey;
+    }
+    else if (mod == "Alt") {
+	return e.altKey;
+    }
+    else if (mod == "Shift") {
+	return e.shiftKey;
+    }
+    else if (mod == "Meta") {
+	return e.metaKey;
+    }
+    else if (mod == "None") {
+	return true;
+    }
+    return false;
+}
+
+function checkkey(e, key) {
+    if (key.length == 0) {
+	return true;
+    }
+    return e.key == key;
+}
+
+
+
+function triggers(e, binding) {
+    const mod1 = binding.mod1;
+    return checkmod(e, binding.mod1) && checkmod(e, binding.mod2) && checkkey(e, binding.key);
+}
 
 const PaperComponent = (props: PaperProps) => {
     return (
@@ -122,6 +161,11 @@ function LeetCodeMate(props) {
     const [W, setW] = React.useState(800);
     const [H, setH] = React.useState(500);
 
+    const [ready, setReady] = React.useState({
+	loadedMateEditor: false,
+	loadedLeetCodeMateSettings: false,
+	loadedTask: true
+    });
    
     const textRef = useRef();
     const barRef = useRef();
@@ -131,27 +175,51 @@ function LeetCodeMate(props) {
     const runDefaultButtonRef = useRef();
     const monacoRef = useRef();
 
-
     const [openMonaco, setOpenMonaco] = React.useState(false);
     const [widthMonaco, setWidthMonaco] = React.useState(600);
     const [heightMonaco, setHeightMonaco] = React.useState(800);
     const [codeMateEditor, setCodeMateEditor] = React.useState("");
-    const [settingsMateEditor, setSettingsEditor] = React.useState(
-	{
-	    mode: "text/x-c++src",
-	    autoCloseBrackets: false,
-	    theme: 'material-darker',
-	    lineWrapping: true,
-	    keyMap: 'default',
-	    lineNumbers: true,
-	    cursorBlinkRate: 0,
-	    indentUnit: 4,
-	    matchBrackets: true,
-	    extraKeys: {
-		"Ctrl-m": "toggleComment"
-	    }
+    
+    const [settingsMateEditor, setSettingsEditor] = React.useState(null);
+    const [settingsLeetCodeMate, setSettingLeetCodeMate] = React.useState(null);
+
+
+
+    useEffect(async () => {
+	const initLeetCodeMateSettings =  await acquire.LeetCodeEditorSettings();
+	setSettingLeetCodeMate(initLeetCodeMateSettings);
+	console.log("[loaded] leetcodemate settings");
+    }, []);
+    
+
+    useEffect(async () => {
+	if (settingsLeetCodeMate != null) {
+	    setReady({...ready, loadedLeetCodeMateSettings : true});
+	    console.log("[loaded flag on] leetcodemate settings");
+	    console.log(settingsLeetCodeMate);
 	}
-    );
+    }, [settingsLeetCodeMate]);
+
+
+
+    const handleLeetCodeMateSettingsChange = async (e) => {
+	const newState = (() => {
+	    const option = e.target.name;
+	    if (option === 'autoCloseBrackets' || option === 'blinkingCursor') {
+		const newEditConfig = {...settingsLeetCodeMate};
+		newEditConfig.editor[option] = e.target.checked;
+		return newEditConfig
+	    }
+	    if (option === 'toggleSubmissionPane' || option === 'toggleMateEditor' || option === 'submit' || option === 'test') {
+		const newEditConfig = {...settingsLeetCodeMate};
+		newEditConfig.keybinding[option] = e.target.value;
+		return newEditConfig;
+	    }
+	    return state;
+	})();
+	setSettingLeetCodeMate(newState);
+    };
+
 
     const [state, dispatch] = useReducer(reducer, initialState);
 
@@ -160,25 +228,30 @@ function LeetCodeMate(props) {
 	dispatch({type: T.action.update_input, payload: e.target.value});
     };
 
+
     useEffect(async () => {
-	const conf = await acquire.LeetCodeEditorSettings();
-	const A =  async () => window.dispatchEvent(new CustomEvent("EDITOR_CONFIG_EVENT", {detail : { action: "INIT", data: conf }}));
-	setTimeout(A, 500);
-	console.log("set storaged editor config");
+	if (settingsMateEditor != null) {
+	    console.log('[loaded] mate editor settings');
+	    setReady({...ready, loadedMateEditor: true});
+	}
+    }, [settingsMateEditor]);
+
+    useEffect(async () => {
+	const conf = await acquire.MateEditorSettings();	
+	setSettingsEditor(conf);
     }, []);
 
+    
 
     useEffect(async() => {
 	setTimeout(async() => {
 	    if (CN == false) {
 		const p = await acquire.TaskInfo();
-		console.log(p);
 		setProblemSlug(p);
 		const r = await acquire.QuestionDetailStats(p.question_title_slug);
 		const inputCase = r.data.question.sampleTestCase;
 		setDefaultCase(inputCase);
 		setTaskInfo(r);
-		console.log(r);
 	    }
 	    else {
 		const p = await acquire.TaskInfoCN();
@@ -230,89 +303,105 @@ function LeetCodeMate(props) {
 
 
 
+
+    const toggleSubmissionPane = () => {
+	if (open) {
+	    if (!judge && state.result_status != T.result.accepted) {
+		dispatch({type: T.action.update_input, payload: textRef.current.value});
+	    }
+	    setOpen(false);
+	}
+	else {
+	    
+	    setOpen(true);
+	    focusInput();
+	}
+    };
+
+
+
+    const handleSubmit = () => {
+	if (openMonaco) {
+	    handleMonacoSubmit();
+	    return;
+	}
+	if (open == false) {
+	    setOpen(true);
+	}
+	if (judge) return;
+	submitButtonRef.current.click();
+    };
+
+
+    const handleTest = () => {
+	if (open == false) {
+	    setOpen(true);
+	}
+	if (judge) return;
+	if (textRef.current == null || textRef.current.value.trim() == "") {
+	    runDefaultButtonRef.current.click();
+	}
+	else {
+	    runButtonRef.current.click();
+	}
+    };
+    
+    
     useEffect(() => {
+	if (ready.loadedLeetCodeMateSettings == false) {
+	    return;
+	}
 	const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
 	const toggle = (e) => {
-	    if (e.altKey && e.key == 'i') {
-		if (open) {
-		    if (!judge && state.result_status != T.result.accepted) {
-			dispatch({type: T.action.update_input, payload: textRef.current.value});
-		    }
-		    setOpen(false);
-		}
-		else {
-		    
-		    setOpen(true);
-		    focusInput();
-		}
-	    }
-	    if (isMac && e.metaKey && e.key == 'i') {
-		if (open) {
-		    if (!judge && state.result_status != T.result.accepted) {
-			dispatch({type: T.action.update_input, payload: textRef.current.value});
-		    }
-		    setOpen(false);
-		}
-		else {
-		    setOpen(true);
-		    focusInput();
-		}
-	    }
-	    if (e.ctrlKey && e.key == 'Enter') {
-		if (open == false) {
-		    setOpen(true);
-		}
-		if (judge) return;
-		submitButtonRef.current.click();
-	    }
-	    if (e.altKey && e.key == 'Enter') {
-		if (open == false) {
-		    setOpen(true);
-		}
-		if (judge) return;
-		if (textRef.current == null || textRef.current.value.trim() == "") {
-		    runDefaultButtonRef.current.click();
-		}
-		else {
-		    runButtonRef.current.click();
-		}
-	    }
-	    
-
-	    if (isMac && e.metaKey && e.key == 'Enter') {
-		if (open == false) {
-		    setOpen(true);
-		}
-		if (judge) return;
-		if (textRef.current == null || textRef.current.value.trim() == "") {
-		    runDefaultButtonRef.current.click();
-		}
-		else {
-		    runButtonRef.current.click();
-		}
-	    }
-	    
-	    if (e.altKey && e.ctrlKey && e.key == 'Enter') {
-		if (judge) return;
-		if (open == false) {
-		    setOpen(true);
-		}
-		runDefaultButtonRef.current.click();
-	    }
+	    const keybinding = settingsLeetCodeMate.keybinding;
+	    const bindKey = (keys, fn) => { if (triggers(e, keys)) fn(); }
+	    bindKey(keybinding.toggleSubmissionPane, toggleSubmissionPane);
+	    bindKey(keybinding.toggleMateEditor, ()=> { setOpenMonaco(!openMonaco) });
+	    bindKey(keybinding.submit, handleSubmit);
+	    bindKey(keybinding.test, handleTest);
 	};
 	window.addEventListener('keydown', toggle);
-	return () => {
-	    window.removeEventListener('keydown', toggle);
-	}
+	return () => { window.removeEventListener('keydown', toggle); }
     });
 
+    const mateEditorRef = () => {
+	if (monacoRef.current == undefined || monacoRef.current == null) {
+	    return undefined;
+	}
+	return monacoRef.current.editor;
+    }
 
+    
     const handleEditorSettingChange = async (e) => {
-	console.log(e);
-	const newState = {...settingsMateEditor, [e.target.name]: e.target.value };
-	console.log(newState);
+	const newState = (() => {
+	    if (e.target.name == 'fontsize') {
+		// side effect
+		const editor = mateEditorRef();
+		if (editor != undefined) {
+		    editor.getWrapperElement().style['font-size'] = e.target.value;
+		    editor.refresh();
+		}
+		return {...settingsMateEditor, [e.target.name]: e.target.value };	
+	    }
+	    if (e.target.name == 'cursorBlinkRate') {
+		return {...settingsMateEditor, [e.target.name]: e.target.checked ? 530 : 0};
+	    }
+	    if (e.target.name == 'indentUnit' || e.target.name == 'keyMap' || e.target.name == 'theme' || e.target.name == 'mode') {
+		return {...settingsMateEditor, [e.target.name]: e.target.value };
+	    }
+	    return {...settingsMateEditor, [e.target.name]: e.target.checked };
+	})();
+	chrome.storage.local.set({
+	    mateEditorSettings: JSON.stringify(newState),
+	}, function() {
+	    console.log('[stored] new mate editor settings');
+	});
 	setSettingsEditor(newState);
     }
+
+
+
+    
 
     const handleClickOpen = () => {
 	if (open == false) {
@@ -354,7 +443,6 @@ function LeetCodeMate(props) {
 	setJudge(true);	
 	const res = CN == true ? (await submitCN(state, problemSlug)) : (await submit(state, problemSlug, monacoRef.current.editor.getValue(), "cpp"));
 	saveMateEditor();
-	console.log(res);	
 	if (res == null) {
 	    handleReset();
 	    setFail(true);
@@ -394,13 +482,12 @@ function LeetCodeMate(props) {
 	    updateMessagePaneTabStatus(res);
 	};
 
-	const handleSubmit = async () => {
+	const handleButtonSubmit = async () => {
 	    dispatch({ type: T.action.update_input, payload: "" });
 	    setMode(T.mode.submit);
 	    setJudge(true);
 	    
 	    const res = CN == true ? await submitCN(state, problemSlug) : await submit(state, problemSlug);
-	    console.log(res);
 	    
 	    if (res == null) {
 		handleReset();
@@ -483,7 +570,8 @@ function LeetCodeMate(props) {
 	}
 
 	// this s a test button for testing new features.
-	const handlePlay = () => {
+	const handleMateEditor = () => {
+	    /* acquire.MateEditorSettings(); */
 	    setOpenMonaco(!openMonaco);
 	}
 
@@ -493,9 +581,9 @@ function LeetCodeMate(props) {
 		    <Button 
    			variant = "contained"
 			size = "small"
-			onClick =  { handlePlay }
+			onClick =  { handleMateEditor }
 			color="primary">
-			Play
+			Editor
 		    </Button>
 		    <Button 
    			variant = "contained"
@@ -523,7 +611,7 @@ function LeetCodeMate(props) {
 			      ref = { runButtonRef } onClick = { handleRunCustom } disabled = { judge || failed } color="primary"> Run </Button>
 		    <Button   variant = "contained"
 			      size = "small"
-			      ref = { submitButtonRef } onClick = { handleSubmit } disabled = { judge || failed } color="primary"> Submit </Button>
+			      ref = { submitButtonRef } onClick = { handleButtonSubmit } disabled = { judge || failed } color="primary"> Submit </Button>
 		    <Button   variant = "contained"
 			      size = "small"
 			      onClick = { handleButtonClose } color="primary"> Close </Button>
@@ -536,7 +624,7 @@ function LeetCodeMate(props) {
     };
 
     
-    const XX = (e, d) => { console.log(e);
+    const XX = (e, d) => {
 	setH(d.size.height);
 	setW(d.size.width);
     };
@@ -581,6 +669,17 @@ function LeetCodeMate(props) {
     const saveMateEditor = () => {
 	setCodeMateEditor(monacoRef.current.editor.getValue())
     }
+
+    
+    
+    const checkReady = () => {
+	return Object.entries(ready).map(x => x[1]).reduce((x, y) => (x && y));
+    };
+
+
+    if (checkReady() == false) {
+	return null;
+    }
 	
     return (
         <div>
@@ -610,17 +709,22 @@ function LeetCodeMate(props) {
 			  </Dialog>
 		      </>
 		      <>
-			  <DraggableDialog open = {openSetting} onClose = {() => {setOpenSetting(false);}}>
-			  </DraggableDialog>
+			  <LeetCodeMateSettings open = { openSetting } onClose = {() => {setOpenSetting(false)}}
+			                        onChange = { handleLeetCodeMateSettingsChange }
+			                        settings = { settingsLeetCodeMate }
+			  />
 		      </>
+
 		      <>
 			  <MonacoDialog open = {openMonaco}
 			                task = { taskInfo }
-					W = {widthMonaco} H = {heightMonaco}
+      			                W = {widthMonaco} H = {heightMonaco}
 					editorSettings = { settingsMateEditor }
 			                onResizeMonoco = {onResizeMonac}
 			                onResizeStopMonaco = { onResizeStopMonaco }
 			                onCodeChange = { handleCodeChange }
+			  		save = { saveMateEditor }
+
 			                handleSubmit = { handleMonacoSubmit }
 			                code = { codeMateEditor }
 					handleChange = { handleEditorSettingChange } 

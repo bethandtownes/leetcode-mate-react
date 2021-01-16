@@ -29,7 +29,7 @@ const makeDraggagblePaper = (props) => {
 		id = {ID() }
 		position = {props.position}
 		handle= { "#" + props.id.toString() }
-		onStop = { props.onStop }
+		onStop = { (e, data) => props.onStop(e, data) }
 		cancel={'[class*="MuiDialogContent-root"]'}
             >
 		<Paper id = { ID() } {...innerProps} />
@@ -50,6 +50,7 @@ const valueOrDefault = (props, or) => {
 
 
 
+
 export function MateDialog(props) {
 
     const [pos, setPos] = React.useState({x: 0, y:0})
@@ -67,6 +68,8 @@ export function MateDialog(props) {
 	    return; 
 	}
 	setPos({x: data.lastX, y: data.lastY});
+	// prevent unmount
+	return false;
     };
     
     return (
@@ -91,6 +94,7 @@ export function MateDialog(props) {
 		    minHeight = {props.minH}
 		    onResize = { valueOrDefault(props.onResize, defaultResize) }
 		    onResizeStop = { valueOrDefault(props.onResizeStop, defaultResizeStop) }
+		    enable = { props.resizable }
 		>
 		    <>
 			<DialogTitle
@@ -111,7 +115,9 @@ export function MateDialog(props) {
 				</Box>
 			    </Box>
  			</DialogTitle>
-			{ props.mainContent }
+			<DialogContent>
+			    { props.mainContent }
+			</DialogContent>
 			{ props.dialogActions }
 		    </>
 		</Resizable>

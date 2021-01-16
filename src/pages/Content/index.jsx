@@ -13,6 +13,12 @@ import { injectJSListener } from "../../lib/utils.jsx";
 
 injectJSListener();
 
+
+function getCMFont() {
+    console.log("getCMFont called");
+    return "12px";
+}
+
 /* chrome.storage.local.set({
  *     leetcodeEditorSettings: JSON.stringify({
  *   	bracketMatching: false,

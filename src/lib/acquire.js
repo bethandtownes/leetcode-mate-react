@@ -23,36 +23,79 @@ const LANG_CODEMAP = {
 };
 
 
+export async function MateEditorSettings() {
+     const p = new Promise((resolve, fail) => {
+	 chrome.storage.local.get(['mateEditorSettings'], function(result) {
+	     resolve(JSON.parse(result.mateEditorSettings));
+	})
+     }).then((res) => {
+	 return res;
+     }).catch((e) => {
+	 console.log("unable to read mate setting from local storage, using default");
+	 return  {
+	     fontsize: "14px",
+	     mode: "text/x-c++src",
+	     autoCloseBrackets: false,
+	     theme: 'monokai',
+	     lineWrapping: true,
+	     keyMap: 'default',
+	     lineNumbers: true,
+	     cursorBlinkRate: 0,
+	     indentUnit: 4,
+	     matchBrackets: true,
+	     extraKeys: {
+		 "Ctrl-m": "toggleComment"
+	     }
+	 }
+    });
+    const r = await p;
+    return r;
+};
+
 export async function LeetCodeEditorSettings() {
     const p = new Promise((resolve, fail) => {
 	chrome.storage.local.get(['leetcodeEditorSettings'], function(result) {
-	    if (result.leetcodeEditorSettings == undefined) {
-		console.log('default');
-		resolve({
-		    bracketMatching: true,
-		    blinkingCursor: true
-		});
-	    }
-	    else {
-		resolve(JSON.parse(result.leetcodeEditorSettings));
-	    }
+	    resolve(JSON.parse(result.leetcodeEditorSettings));
 	})
     }).catch((e) => {
 	console.log(e);
 	return undefined;
     });
     const r = await p;
-
-    if (r == undefined) {
-	return {
-	    bracketMatching: true,
-	    blinkingCursor: true
-	};
-    }
-    console.log('r');
-    console.log(r);
     return r;
 }
+
+
+/* port async function LeetCodeEditorSettings() {
+   *   const p = new Promise((resolve, fail) => {
+     chrome.storage.local.get(['leetcodeEditorSettings'], function(result) {
+     if (result.leetcodeEditorSettings == undefined) {
+     console.log('default');
+     resolve({
+     bracketMatching: true,
+     blinkingCursor: true
+     });
+     }
+     else {
+     resolve(JSON.parse(result.leetcodeEditorSettings));
+     }
+     })
+   *   }).catch((e) => {
+     console.log(e);
+     return undefined;
+   *   });
+   *   const r = await p;
+
+   *   if (r == undefined) {
+     return {
+     bracketMatching: true,
+     blinkingCursor: true
+     };
+   *   }
+   *   console.log('r');
+   *   console.log(r);
+   *   return r;
+     } */
 
 
 async function QuestionID(slug) {

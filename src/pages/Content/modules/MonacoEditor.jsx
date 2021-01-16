@@ -22,19 +22,81 @@ import CancelIcon from '@material-ui/icons/Cancel';
 
 import MateEditorConfig from "./MateEditorConfig.jsx";
 
-const MATE_MONACO_THEME = [];
-import '../../../../node_modules/codemirror/lib/codemirror.css'
 
+const MATE_EDITOR_LANGUAGE = {
+    "text/x-c++src": {
+	leetcode_slug: 'cpp',
+	official_name: 'C++'
+    },
+    "text/x-csrc": {
+	leetcode_slug: 'c',
+	official_name: 'C'
+    },
+    "text/x-java": {
+	leetcode_slug: 'java',
+	official_name: 'Java'
+    },
+    "text/x-csharp": {
+	leetcode_slug: 'csharp',
+	official_name: 'C#'
+    },
+    "text/x-scala": {
+	leetcode_slug: 'scala',
+	official_name: 'Scala'
+    },
+    "text/x-kotlin": {
+	leetcode_slug: 'kotlin',
+	official_name: 'Kotlin'
+    },
+    'text/x-python': {
+	leetcode_slug: 'python3',
+	official_name: 'Python3'
+    },
+    'text/javascript': {
+	leetcode_slug: 'javascript',
+	official_name: 'JavaScript'
+    },
+    'text/typescript': {
+	leetcode_slug: 'typescript',
+	official_name: 'TypeScript'
+    },
+    'text/x-swift': {
+	leetcode_slug: 'swift',
+	official_name: 'Swift'
+    },
+    'text/x-rustsrc': {
+	leetcode_slug: 'rust',
+	official_name: 'Rust'
+    },
+    'text/x-php': {
+	leetcode_slug: 'php',
+	official_name: 'PHP'
+    },
+    'text/x-go': {
+	leetcode_slug: 'golang',
+	official_name: 'Go'
+    },
+};
+
+
+const MATE_MONACO_THEME = [];
+
+import '../../../../node_modules/codemirror/lib/codemirror.css'
 import '../../../../node_modules/codemirror/theme/material-darker.css'; MATE_MONACO_THEME.push('material-darker');
 import '../../../../node_modules/codemirror/theme/monokai.css'; MATE_MONACO_THEME.push('monokai');
 import '../../../../node_modules/codemirror/theme/darcula.css'; MATE_MONACO_THEME.push('darcula');
 import '../../../../node_modules/codemirror/theme/material.css'; MATE_MONACO_THEME.push('material');
-import '../../../../node_modules/codemirror/theme/solarized.css'; MATE_MONACO_THEME.push('material');
+import '../../../../node_modules/codemirror/theme/eclipse.css'; MATE_MONACO_THEME.push('eclipse');
+import '../../../../node_modules/codemirror/theme/vscode.css'; MATE_MONACO_THEME.push('vscode');
 
 
 require('codemirror/mode/javascript/javascript.js');
 require('codemirror/mode/clike/clike.js');
 require('codemirror/mode/python/python.js');
+require('codemirror/mode/rust/rust.js')
+require('codemirror/mode/go/go.js')
+require('codemirror/mode/swift/swift.js')
+require('codemirror/mode/php/php.js')
 require('codemirror/keymap/emacs.js')
 require('codemirror/keymap/sublime.js')
 require('codemirror/keymap/vim.js')
@@ -56,6 +118,9 @@ function MateEditor(props) {
 	    editorDidMount ={(editor) => {
 		editor.setSize(props.W, props.H - 90);
 		editor.addKeyMap({"Ctrl-/": 'toggleComment'});
+		editor.getWrapperElement().style['font-size'] = props.settings.fontsize;
+		editor.refresh();
+		console.log(editor.getWrapperElement().style);
 	    }}
             onChange = {props.onChange}
 	/>);
@@ -117,14 +182,22 @@ export const MonacoDialog = (props) => {
     const [openSetting, setOpenSetting] = React.useState(false);
     
     const handleReset = () => {
-	/* props.inputRef.current.editor.resize();
-	   props.inputRef.current.editor.renderer.updateFull(); */
-	props.inputRef.current.editor.execCommand("toggleComment");
+	if (props.inputRef.current != undefined || props.inputRef.current != null) {
+	    const matched_item = props.task.data.question.codeSnippets.find(x => {
+		console.log(x.langSlug);
+		console.log(MATE_EDITOR_LANGUAGE[props.editorSettings.mode].leetcode_slug);
+		console.log(x.langSlug === MATE_EDITOR_LANGUAGE[props.editorSettings.mode].leetcode_slug)
+		return x.langSlug === MATE_EDITOR_LANGUAGE[props.editorSettings.mode].leetcode_slug;
+	    });
+	    if (matched_item != undefined && matched_item != null) {
+		props.inputRef.current.editor.setValue(matched_item.code);
+		props.save();
+	    }
 
+	}
     };
 
     const handleSetting = () => {
-	
 	setOpenSetting(true);
     }
 
@@ -179,42 +252,48 @@ export const MonacoDialog = (props) => {
 				    </Box>
  				</DialogTitle>
 
- 				<MateEditor code = { props.code }  onChange = { props.onCodeChange } W = {props.W} H = {props.H} HRatio = { props.HRatio }
-					    settings = {props.editorSettings}
-				inputRef = {props.inputRef} currentCode = { code } />
-				
-				<DialogActions style = {{height: "55px"}}>
-				    <ThemeProvider theme={props.theme}>
-					<MonacoControlPanel
-					id = "control-panel-monaco"
-					editorRef = { props.inputRef }
-					settings = { props.editorSettings }
-					handleChange = { props.handleChange }
-					/>
- 					<Button variant = "contained"  size = "small" onClick = { handleSetting } color="primary">
- 					    Settings
- 					</Button>
-					<Button variant = "contained"  size = "small" onClick = { handleReset } color="primary">
- 					    Reset
- 					</Button>
-					<Button variant = "contained"  size = "small" onClick = { props.handleSubmit } color="primary">
- 					    Submit
- 					</Button>
-				    </ThemeProvider>
- 				</DialogActions>
-				
-			    </>
+				<div id = "mate-editor">
+ 				    <MateEditor code = { props.code }  onChange = { props.onCodeChange } W = {props.W} H = {props.H} HRatio = { props.HRatio }
+				    
+						settings = {props.editorSettings}
+
+						inputRef = {props.inputRef} currentCode = { code } />
+				</div>
+
+			    
+			    <DialogActions style = {{height: "55px"}}>
+				<ThemeProvider theme={props.theme}>
+				    <MonacoControlPanel
+				    id = "control-panel-monaco"
+				    editorRef = { props.inputRef }
+				    settings = { props.editorSettings }
+				    handleChange = { props.handleChange }
+				    />
+ 				    <Button variant = "contained"  size = "small" onClick = { handleSetting } color="primary">
+ 					Settings
+ 				    </Button>
+				    <Button variant = "contained"  size = "small" onClick = { handleReset } color="primary">
+ 					Reset
+ 				    </Button>
+				    <Button variant = "contained"  size = "small" onClick = { props.handleSubmit } color="primary">
+ 					Submit
+ 				    </Button>
+				</ThemeProvider>
+ 			    </DialogActions>
+			    
+	    </>
  			</Resizable>
-		    </div>
+				</div>
 
  		</Dialog>
-	    </>
-	    <>
-		<MateEditorConfig open = { openSetting } onClose = {() => { console.log("clicked close"); setOpenSetting(false); }} config = {props.setting} />
-	    </>
+	</>
+	<>
+	    <MateEditorConfig open = { openSetting } onClose = {() => { setOpenSetting(false); }}
+			      config = {props.editorSettings} onChange = { props.handleChange }/>
+	</>
 	</>
     );
 };
 
 
-export { MATE_MONACO_THEME };
+export { MATE_MONACO_THEME, MATE_EDITOR_LANGUAGE};
