@@ -116,7 +116,6 @@ function MateEditor(props) {
             value = { props.code }
 	    options={ props.settings }
 	    editorDidMount ={(editor) => {
-		console.log("amounted");
 		editor.setSize(props.W, props.H - 90);
 		editor.addKeyMap({"Ctrl-/": 'toggleComment'});
 		editor.getWrapperElement().style['font-size'] = props.settings.fontsize;
@@ -164,7 +163,6 @@ const theme = createMuiTheme({
 
 
 const PaperComponent2 = (props) => {
-    console.log(props);
     
     return (
 	<Draggable
@@ -180,22 +178,6 @@ const PaperComponent2 = (props) => {
 }
 
 
-
-/* const PaperComponent2 = (props) => {
- *     console.log('paper');
- *     console.log(props);
- *     return (
- *         <Draggable
- * 	    position = {props.position}
- *             handle="#draggable-dialog-title2"
- * 	    onStop = {props.onStop}
- *             cancel={'[class*="MuiDialogContent-root"]'}
- *         >
- *             <Paper {...props} />
- *         </Draggable>
- *     )
- * } */
-
 const AAPaperComponent2 = (props) => {
     return (innerProps) => {
   	return (
@@ -209,22 +191,6 @@ const AAPaperComponent2 = (props) => {
   		<Paper {...innerProps} />
             </Draggable>	    
   	);
-    };
-};
-
-
-const APaperComponent2 = (props) => {
-    return (innerProps) => {
-	return (
-	    <Draggable
-		position = {props.position}
-		handle= { "#draggable-dialog-title2" }
-		onStop = { (e, data) => props.onStop(e, data) }
-		cancel={'[class*="MuiDialogContent-root"]'}
-            >
-		<Paper {...innerProps} />
-            </Draggable>	    
-	);
     };
 };
 
@@ -246,21 +212,11 @@ export const MonacoDialog = (props) => {
     const [heightMonaco, setHeightMonaco] = React.useState(800);
 
     const onStop = (e, data) => {
-	console.log('here');
 	setPos({x: data.lastX, y: data.lastY});
-	return
-	// prevent unmount
-	return false;
+	return;
     };
 
 
-    const onStart = (e, data) => {
-	console.log('start');
-	/* setPos({x: data.lastX, y: data.lastY});
-	   return
-	   // prevent unmount
-	   return false; */
-    };
     
     const handleReset = () => {
 	console.log('[mate editor] reset');

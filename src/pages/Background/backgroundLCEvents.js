@@ -1,6 +1,14 @@
 export const Test = () => {console.log("backlcevents loaded")};
 
 chrome.runtime.onInstalled.addListener(function () {
+    
+
+    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+
+    if (isMac) {
+	console.log('[init] mac os detected, will install mac keybinding')
+    }
+    
     chrome.storage.local.set({
 	leetcodeEditorSettings: JSON.stringify({
 	    editor: {
@@ -9,14 +17,14 @@ chrome.runtime.onInstalled.addListener(function () {
 	    },
 	    keybinding: {
 		toggleSubmissionPane: {
-		    mod1: 'Alt',
+		    mod1: isMac ? 'Meta' : 'Alt',
 		    mod2: 'None',
 		    key: 'i'
 		},
 		toggleMateEditor: {
-		    mod1: 'Alt',
+		    mod1: isMac ? 'Meta' : 'Alt',
 		    mod2: 'None',
-		    key: 'o'
+		    key: 'k'
 		},
 		submit: {
 		    mod1: 'Ctrl',
@@ -24,14 +32,14 @@ chrome.runtime.onInstalled.addListener(function () {
 		    key: ''
 		},
 		test: {
-		    mod1: 'Alt',
+		    mod1: isMac ? 'Meta' : 'Alt',
 		    mod2: 'Enter',
 		    key: ''
 		}
 	    }
 	}),
     }, function() {
-	console.log('Initialized default settings');
+	console.log('[init] Initialized default settings');
     });
 
     chrome.storage.local.set({

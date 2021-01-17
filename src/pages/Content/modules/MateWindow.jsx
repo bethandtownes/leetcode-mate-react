@@ -41,7 +41,6 @@ const makeDraggagblePaper = (props) => {
 
 const valueOrDefault = (props, or) => {
     if (props == null || props == undefined) {
-	console.log("no prop");
 	return or;
     }
     else {
@@ -53,8 +52,6 @@ const valueOrDefault = (props, or) => {
 
 
 export function MateDialog(props) {
-    console.log("props win");
-    console.log(props);
     const [pos, setPos] = React.useState({x: 0, y:0})
     const defaultResize = (e, dir, ref) => {
 	return;
