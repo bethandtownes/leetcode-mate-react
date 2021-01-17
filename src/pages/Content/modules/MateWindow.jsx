@@ -41,6 +41,7 @@ const makeDraggagblePaper = (props) => {
 
 const valueOrDefault = (props, or) => {
     if (props == null || props == undefined) {
+	console.log("no prop");
 	return or;
     }
     else {
@@ -52,17 +53,15 @@ const valueOrDefault = (props, or) => {
 
 
 export function MateDialog(props) {
-
+    console.log("props win");
+    console.log(props);
     const [pos, setPos] = React.useState({x: 0, y:0})
-
-    
     const defaultResize = (e, dir, ref) => {
 	return;
     }
     const defaultResizeStop = (e, dir, ref) => {
 	return;
     }
-    
     const onStop = (e, data) => {
 	if (e.toElement.toString().match("SVG") != null || e.toElement.toString().match("Button") != null) {
 	    return; 
@@ -70,6 +69,23 @@ export function MateDialog(props) {
 	setPos({x: data.lastX, y: data.lastY});
 	// prevent unmount
 	return false;
+    };
+
+    const MainContent = () => {
+	if (props.full == undefined || props.full == false) {
+	    return (
+		<>
+		    { props.mainContent }
+		</>
+	    );
+	}
+	else {
+	    return (
+		<DialogContent>
+		    { props.mainContent }
+		</DialogContent>
+	    );
+	}
     };
     
     return (
@@ -94,7 +110,6 @@ export function MateDialog(props) {
 		    minHeight = {props.minH}
 		    onResize = { valueOrDefault(props.onResize, defaultResize) }
 		    onResizeStop = { valueOrDefault(props.onResizeStop, defaultResizeStop) }
-		    enable = { props.resizable }
 		>
 		    <>
 			<DialogTitle
@@ -115,9 +130,7 @@ export function MateDialog(props) {
 				</Box>
 			    </Box>
  			</DialogTitle>
-			<DialogContent>
-			    { props.mainContent }
-			</DialogContent>
+			<MainContent />
 			{ props.dialogActions }
 		    </>
 		</Resizable>

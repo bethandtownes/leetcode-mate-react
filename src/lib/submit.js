@@ -16,7 +16,7 @@ export async function submit(prevState, task, code = undefined, lang = undefined
     }
     
     const data = {
-	lang: acquire.ProgrammingLanguage(),
+	lang: lang,
 	question_id: task.question_id,
 	typed_code: code
 	/* typed_code: await acquire.EditorValue(),  */

@@ -3,13 +3,20 @@ import { DEBUG }  from "./debug.js"
 import * as UtilSubmissionPane from "./submit_pane_util.jsx";
 
 
-export async function runtest(testInput, task) {
-    /* const task = await acquire.TaskInfo(); */
+export async function runtest(testInput, task, code = undefined, lang = undefined) {
+    if (code == undefined) {
+	code = await acquire.EditorValue();
+    }
+
+    if (lang == undefined) {
+	lang = acquire.ProgrammingLanguage();
+    }
+    
     const data = {
 	data_input: testInput,
-	lang: acquire.ProgrammingLanguage(),
+	lang: lang,
 	question_id: task.question_id,
-	typed_code: await acquire.EditorValue(), 
+	typed_code: code
     };
     const submitURL = "/problems/" + task.question_slug + "/interpret_solution/";
     

@@ -15,12 +15,16 @@ import { Resizable } from "re-resizable";
 import { DraggableCore } from 'react-draggable';
 import { ThemeProvider } from "@material-ui/styles";
 import MonacoControlPanel from "./MonacoEditorControlPanel.jsx";
-import {UnControlled as CodeMirror} from 'react-codemirror2'
+import { UnControlled as CodeMirror } from 'react-codemirror2'
 import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
-
 import CancelIcon from '@material-ui/icons/Cancel';
-
 import MateEditorConfig from "./MateEditorConfig.jsx";
+import { MateDialog } from "./MateWindow.jsx";
+import { ID } from "./utility.js"
+import { useMountedState, useMeasure} from 'react-use';
+
+
+
 
 
 const MATE_EDITOR_LANGUAGE = {
@@ -81,14 +85,12 @@ const MATE_EDITOR_LANGUAGE = {
 
 const MATE_MONACO_THEME = [];
 
-import '../../../../node_modules/codemirror/lib/codemirror.css'
-import '../../../../node_modules/codemirror/theme/material-darker.css'; MATE_MONACO_THEME.push('material-darker');
-import '../../../../node_modules/codemirror/theme/monokai.css'; MATE_MONACO_THEME.push('monokai');
-import '../../../../node_modules/codemirror/theme/darcula.css'; MATE_MONACO_THEME.push('darcula');
-import '../../../../node_modules/codemirror/theme/material.css'; MATE_MONACO_THEME.push('material');
-import '../../../../node_modules/codemirror/theme/eclipse.css'; MATE_MONACO_THEME.push('eclipse');
-import '../../../../node_modules/codemirror/theme/vscode.css'; MATE_MONACO_THEME.push('vscode');
-
+import 'codemirror/lib/codemirror.css'
+import 'codemirror/theme/material-darker.css'; MATE_MONACO_THEME.push('material-darker');
+import 'codemirror/theme/monokai.css'; MATE_MONACO_THEME.push('monokai');
+import 'codemirror/theme/darcula.css'; MATE_MONACO_THEME.push('darcula');
+import 'codemirror/theme/material.css'; MATE_MONACO_THEME.push('material');
+import 'codemirror/theme/eclipse.css'; MATE_MONACO_THEME.push('eclipse');
 
 require('codemirror/mode/javascript/javascript.js');
 require('codemirror/mode/clike/clike.js');
@@ -104,9 +106,7 @@ require('codemirror/addon/edit/matchbrackets.js')
 require('codemirror/addon/edit/closebrackets.js')
 require('codemirror/addon/comment/comment.js')
 
-
-
-
+import {Rnd} from 'react-rnd'
 
 
 function MateEditor(props) {
@@ -116,16 +116,15 @@ function MateEditor(props) {
             value = { props.code }
 	    options={ props.settings }
 	    editorDidMount ={(editor) => {
+		console.log("amounted");
 		editor.setSize(props.W, props.H - 90);
 		editor.addKeyMap({"Ctrl-/": 'toggleComment'});
 		editor.getWrapperElement().style['font-size'] = props.settings.fontsize;
 		editor.refresh();
-		console.log(editor.getWrapperElement().style);
 	    }}
             onChange = {props.onChange}
 	/>);
 }
-
 
 const useStyles = makeStyles((theme: Theme) => ({
     resizable: {
@@ -165,28 +164,108 @@ const theme = createMuiTheme({
 
 
 const PaperComponent2 = (props) => {
+    console.log(props);
+    
     return (
-        <Draggable
-            handle="#draggable-dialog-title2"
-            cancel={'[class*="MuiDialogContent-root"]'}
-        >
+	<Draggable
+	    onStop = {(e, data) => {props.onStop(e, data) }}
+	    position = {props.position}
+	    handle="#draggable-dialog-title2"
+	    cancel={'[class*="MuiDialogContent-root"]'}
+	>
             <Paper {...props} />
-        </Draggable>
+	</Draggable>
+
     )
 }
 
 
+
+/* const PaperComponent2 = (props) => {
+ *     console.log('paper');
+ *     console.log(props);
+ *     return (
+ *         <Draggable
+ * 	    position = {props.position}
+ *             handle="#draggable-dialog-title2"
+ * 	    onStop = {props.onStop}
+ *             cancel={'[class*="MuiDialogContent-root"]'}
+ *         >
+ *             <Paper {...props} />
+ *         </Draggable>
+ *     )
+ * } */
+
+const AAPaperComponent2 = (props) => {
+    return (innerProps) => {
+  	return (
+  	    <Draggable
+		position = {props.position}
+		
+		onStop={props.onStop}
+  		handle= { "#draggable-dialog-title2" }
+  		cancel={'[class*="MuiDialogContent-root"]'}
+            >
+  		<Paper {...innerProps} />
+            </Draggable>	    
+  	);
+    };
+};
+
+
+const APaperComponent2 = (props) => {
+    return (innerProps) => {
+	return (
+	    <Draggable
+		position = {props.position}
+		handle= { "#draggable-dialog-title2" }
+		onStop = { (e, data) => props.onStop(e, data) }
+		cancel={'[class*="MuiDialogContent-root"]'}
+            >
+		<Paper {...innerProps} />
+            </Draggable>	    
+	);
+    };
+};
+
+
+
 export const MonacoDialog = (props) => {
     const classes = useStyles();
-    const [code, setCode] = React.useState("");
     const [openSetting, setOpenSetting] = React.useState(false);
+    const [task, setTask] = React.useState(props.task);
+    const [code, setCode] = React.useState("");
+
+    const inputRef = props.inputRef;
+
+
+    const [pos, setPos] = React.useState({x: 0, y:0})
+
+    const [drag, setDrag] = React.useState(false);
+    const [widthMonaco, setWidthMonaco] = React.useState(600);
+    const [heightMonaco, setHeightMonaco] = React.useState(800);
+
+    const onStop = (e, data) => {
+	console.log('here');
+	setPos({x: data.lastX, y: data.lastY});
+	return
+	// prevent unmount
+	return false;
+    };
+
+
+    const onStart = (e, data) => {
+	console.log('start');
+	/* setPos({x: data.lastX, y: data.lastY});
+	   return
+	   // prevent unmount
+	   return false; */
+    };
     
     const handleReset = () => {
+	console.log('[mate editor] reset');
 	if (props.inputRef.current != undefined || props.inputRef.current != null) {
 	    const matched_item = props.task.data.question.codeSnippets.find(x => {
-		console.log(x.langSlug);
-		console.log(MATE_EDITOR_LANGUAGE[props.editorSettings.mode].leetcode_slug);
-		console.log(x.langSlug === MATE_EDITOR_LANGUAGE[props.editorSettings.mode].leetcode_slug)
 		return x.langSlug === MATE_EDITOR_LANGUAGE[props.editorSettings.mode].leetcode_slug;
 	    });
 	    if (matched_item != undefined && matched_item != null) {
@@ -196,101 +275,121 @@ export const MonacoDialog = (props) => {
 
 	}
     };
-
+    
     const handleSetting = () => {
 	setOpenSetting(true);
     }
 
 
+    const onResizeStopMonaco = (e, dir, ref) => {
+	setHeightMonaco(parseInt(ref.style.height))
+	setWidthMonaco(parseInt(ref.style.width));
+	setDrag(false);
+	return false;
+    };
+    
+
+    const onResizeMonaco = (e, dir, ref) => {
+	const width = parseInt(ref.style.width);
+	const height = parseInt(ref.style.height);
+	inputRef.current.editor.setSize(width, height - 90);
+	props.save();
+	return false;
+    };
+
+
     if (props.open == false) {
 	return null;
     }
+    
     return (
 	<>
 	    <>
-		<Dialog
-		    open={props.open}
- 		    hideBackdrop = {true}
- 		    disableAutoFocus = {true}
- 		    disableEnforceFocus
- 		    style={{ pointerEvents: 'none'}}  
- 		    disableBackdropClick = {true}
- 		    onClose={props.handleClose}
- 		    maxWidth={false}
- 		    PaperComponent={PaperComponent2}
- 		    PaperProps={{ style: {backgroundColor: 'rgba(0,0,0,0.9)', pointerEvents: 'auto'}}}
- 		    aria-labelledby="draggable-dialog-title"
-		>
+		    <Dialog
+			open={props.open}
+ 			hideBackdrop = {true}
+ 			disableAutoFocus = {true}
+ 			disableEnforceFocus
+ 			style={{ pointerEvents: 'none'}}  
+ 			disableBackdropClick = {true}
+ 			onClose={props.handleClose}
+ 			maxWidth={false}
+ 			PaperComponent={ PaperComponent2 }
+ 			PaperProps={{ position: pos, onStop: onStop,  style: {backgroundColor: 'rgba(0,0,0,0.9)', pointerEvents: 'auto'}}}
+ 			aria-labelledby="draggable-dialog-title"
+		    >
 
-		    <div style={{ overflow: "hidden"}}>
- 			<Resizable
-			    size = {{width: props.W, height: props.H}}
-			    minWidth = {600}
-			    id = {"mateDialogEditor"}
-			    
-			    minHeight = {800}
- 			    onResize = {props.onResizeMonoco}
-			    onResizeStop = {props.onResizeStopMonaco}
- 			>
-			    <>
-				<DialogTitle
- 				    style={{ cursor: 'move', height: "30px" }}
-				    id="draggable-dialog-title2"
-				    disableTypography = {true}
- 				>
-				    <Box display = "flex" p = {1} >
-					<Box p = {1} flexGrow={1} ml = {-3} mt = {-3} >
-					    <Typography variant="subtitle2" style = {{color: "white"}}>
-						{ props.task.data.question.questionFrontendId + "." + props.task.data.question.title }
-					    </Typography>
+			<div style={{ overflow: "hidden"}}>
+ 			    <Resizable
+				size = {{width: widthMonaco, height:heightMonaco}}
+				minWidth = {600}
+				id = {"mateDialogEditor"}
+				minHeight = {800}
+ 				onResize = {onResizeMonaco}
+				onResizeStop = {onResizeStopMonaco}
+ 			    >
+				<>
+				    <DialogTitle
+ 					style={{ cursor: 'move', height: "30px" }}
+					id="draggable-dialog-title2"
+					disableTypography = {true}
+ 				    >
+					<Box display = "flex" p = {1} >
+					    <Box p = {1} flexGrow={1} ml = {-3} mt = {-3} >
+						<Typography variant="subtitle2" style = {{color: "white"}}>
+						    { props.task.data.question.questionFrontendId + "." + props.task.data.question.title }
+						</Typography>
+					    </Box>
+					    <Box p = {1} mr = {-6} mt = {-4.8} >
+						<IconButton onClick={ props.handleClose } >
+						    <FiberManualRecordIcon style = {{color:"#f50057"}} />
+						</IconButton>
+					    </Box>
 					</Box>
-					<Box p = {1} mr = {-6} mt = {-4.8} >
-					    <IconButton onClick={ props.handleClose } >
-						<FiberManualRecordIcon style = {{color:"#f50057"}} />
-					    </IconButton>
-					</Box>
-				    </Box>
- 				</DialogTitle>
+ 				    </DialogTitle>
 
-				<div id = "mate-editor">
- 				    <MateEditor code = { props.code }  onChange = { props.onCodeChange } W = {props.W} H = {props.H} HRatio = { props.HRatio }
+				    <div id = "mate-editor">
+ 					<MateEditor code = { props.code }  onChange = { props.onCodeChange } W = {widthMonaco} H = {heightMonaco} HRatio = { props.HRatio }
+					
+						    settings = {props.editorSettings}
+
+						    inputRef = {props.inputRef} />
+				    </div>
+
 				    
-						settings = {props.editorSettings}
+				    <DialogActions style = {{height: "55px"}}>
+					<ThemeProvider theme={props.theme}>
+					    <MonacoControlPanel
+						id = "control-panel-monaco"
+						editorRef = { props.inputRef }
+						settings = { props.editorSettings }
+						handleChange = { props.handleChange }
+					    />
+ 					    <Button variant = "contained"  size = "small" onClick = { handleSetting } color="primary">
+ 						Settings
+ 					    </Button>
+					    <Button variant = "contained"  size = "small" onClick = { handleReset } color="primary">
+ 						Reset
+ 					    </Button>
+				    	    <Button variant = "contained"  size = "small" onClick = { props.handleTest } color="primary">
+ 						Test
+ 					    </Button> 
+					    <Button variant = "contained"  size = "small" onClick = { props.handleSubmit } color="primary">
+ 						Submit
+ 					    </Button>
+					</ThemeProvider>
+ 				    </DialogActions>
+				    
+				</>
+ 			    </Resizable>
+			</div>
 
-						inputRef = {props.inputRef} currentCode = { code } />
-				</div>
-
-			    
-			    <DialogActions style = {{height: "55px"}}>
-				<ThemeProvider theme={props.theme}>
-				    <MonacoControlPanel
-				    id = "control-panel-monaco"
-				    editorRef = { props.inputRef }
-				    settings = { props.editorSettings }
-				    handleChange = { props.handleChange }
-				    />
- 				    <Button variant = "contained"  size = "small" onClick = { handleSetting } color="primary">
- 					Settings
- 				    </Button>
-				    <Button variant = "contained"  size = "small" onClick = { handleReset } color="primary">
- 					Reset
- 				    </Button>
-				    <Button variant = "contained"  size = "small" onClick = { props.handleSubmit } color="primary">
- 					Submit
- 				    </Button>
-				</ThemeProvider>
- 			    </DialogActions>
-			    
+ 		    </Dialog>
 	    </>
- 			</Resizable>
-				</div>
-
- 		</Dialog>
-	</>
-	<>
-	    <MateEditorConfig open = { openSetting } onClose = {() => { setOpenSetting(false); }}
-			      config = {props.editorSettings} onChange = { props.handleChange }/>
-	</>
+	    <>
+		<MateEditorConfig open = { openSetting } onClose = {() => { setOpenSetting(false); }}
+				  config = {props.editorSettings} onChange = { props.handleChange }/>
+	    </>
 	</>
     );
 };

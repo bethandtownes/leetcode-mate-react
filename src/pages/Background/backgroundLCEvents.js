@@ -1,3 +1,5 @@
+export const Test = () => {console.log("backlcevents loaded")};
+
 chrome.runtime.onInstalled.addListener(function () {
     chrome.storage.local.set({
 	leetcodeEditorSettings: JSON.stringify({
@@ -52,3 +54,21 @@ chrome.runtime.onInstalled.addListener(function () {
 	console.log("Initialized mate editor settings");
     });
 });
+
+
+chrome.tabs.onUpdated.addListener(
+    function(tabId, changeInfo, tab) {
+	// read changeInfo data and do something with it
+	// like send the new url to contentscripts.js
+	if (changeInfo.url) {
+	    chrome.tabs.sendMessage( tabId, {
+		message: "HANDLE_URL_CHANGE",
+		url: changeInfo.url
+	    })
+	    chrome.tabs.sendMessage( tabId, {
+		message: "HANDLE_URL_CHANGE_MONACO",
+		url: changeInfo.url
+	    })
+	}
+    }
+);
