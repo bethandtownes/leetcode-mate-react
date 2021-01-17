@@ -22,7 +22,7 @@ import MateEditorConfig from "./MateEditorConfig.jsx";
 import { MateDialog } from "./MateWindow.jsx";
 import { ID } from "./utility.js"
 import { useMountedState, useMeasure} from 'react-use';
-
+import { MateDialogRND } from './MateDialogRnd.jsx';
 
 
 
@@ -106,8 +106,6 @@ require('codemirror/addon/edit/matchbrackets.js')
 require('codemirror/addon/edit/closebrackets.js')
 require('codemirror/addon/comment/comment.js')
 
-import {Rnd} from 'react-rnd'
-
 
 function MateEditor(props) {
     return (
@@ -125,26 +123,6 @@ function MateEditor(props) {
 	/>);
 }
 
-const useStyles = makeStyles((theme: Theme) => ({
-    resizable: {
-        position: 'relative',
-        '& .react-resizable-handle': {
-            position: 'absolute',    
-            width: 20,  
-            height: 20,   
-            bottom: 0,
-            right: 0,
-            background:"url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2IDYiIHN0eWxlPSJiYWNrZ3JvdW5kLWNvbG9yOiNmZmZmZmYwMCIgeD0iMHB4IiB5PSIwcHgiIHdpZHRoPSI2cHgiIGhlaWdodD0iNnB4Ij48ZyBvcGFjaXR5PSIwLjMwMiI+PHBhdGggZD0iTSA2IDYgTCAwIDYgTCAwIDQuMiBMIDQgNC4yIEwgNC4yIDQuMiBMIDQuMiAwIEwgNiAwIEwgNiA2IEwgNiA2IFoiIGZpbGw9IiMwMDAwMDAiLz48L2c+PC9zdmc+')",
-            'background-position': 'bottom right',
-            padding: '0 3px 3px 0',
-            'background-repeat': 'no-repeat',
-            'background-origin': 'content-box',
-            'box-sizing': 'border-box',
-            cursor: 'se-resize',
-        },
-    },
-}))
-
 
 
 const theme = createMuiTheme({
@@ -161,37 +139,8 @@ const theme = createMuiTheme({
   }
 });
 
-	    // handle="#draggable-dialog-title2"
-const DraggablePaperComponent = (props) => {
-    const paperProps = Object.fromEntries(Object.entries(props)
-					  .filter(([k, v]) => k !=  'onStop' && k != 'position'));
-    console.log(paperProps);
-    return (
-	<Draggable
-	    onStop = {(e, data) => { props.onStop(e, data) }}
-	    position = { props.position }
-	    handle = { '#draggable' + props.id.toString() }
-
-	    cancel={'[class*="MuiDialogContent-root"]'}
-	>
-            <Paper {...paperProps} />
-	</Draggable>
-
-    )
-}
-
-
-
-
-const MateDialogRND = (props) => {
-
-}
-
-
-
 
 export const MonacoDialog = (props) => {
-    const classes = useStyles();
     const [openSetting, setOpenSetting] = React.useState(false);
     const [task, setTask] = React.useState(props.task);
     const [code, setCode] = React.useState("");
@@ -258,8 +207,6 @@ export const MonacoDialog = (props) => {
     };
 
 
-    
-
     const ActionComponent = () => {
 	return (
 	    <>
@@ -290,62 +237,22 @@ export const MonacoDialog = (props) => {
     };
 
 
+    
     if (props.open == false) {
 	return null;
     }
-    
+
     return (
-	<>
+	<>	
 	    <>
-		<Dialog
-		    open={props.open}
- 		    hideBackdrop = {true}
- 		    disableAutoFocus = {true}
- 		    disableEnforceFocus
- 		    style={{ pointerEvents: 'none'}}  
- 		    disableBackdropClick = {true}
- 		    onClose={props.handleClose}
- 		    maxWidth={false}
- 		    PaperComponent={ DraggablePaperComponent }
- 		    PaperProps={{ id: props.id, position: pos, onStop: onStop,  style: {backgroundColor: 'rgba(0,0,0,0.9)', pointerEvents: 'auto'}}}
- 		    aria-labelledby="draggable-dialog-title"
-		>
+		<MateDialogRND W = {widthMonaco} H = {heightMonaco} onResize = {onResize} onResizeStop = {onResizeStop}
+			       minWidth = {600} minHeight = {800}
+			       MainComponent = {MainComponent} ActionComponent = {ActionComponent}
+			       
+			       title = {props.task.data.question.questionFrontendId + "." + props.task.data.question.title}
+			       onClose = {props.handleClose} open = {props.open} id = {props.id} onStop = {onStop} position = {pos}
+		/>
 
-		    <div style={{ overflow: "hidden"}}>
- 			<Resizable
-			    size = {{width: widthMonaco, height:heightMonaco}}
-			    minWidth = {600}
-			    id = {"mateDialogEditor"}
-			    minHeight = {800}
- 			    onResize = {onResize}
-			    onResizeStop = {onResizeStop}
- 			>
-			    <>
-				<DialogTitle
- 				    style={{ cursor: 'move', height: "30px" }}
-				    id= {"draggable" + props.id.toString()}
-				    disableTypography = {true}
- 				>
-				    <Box display = "flex" p = {1} >
-					<Box p = {1} flexGrow={1} ml = {-3} mt = {-3} >
-					    <Typography variant="subtitle2" style = {{color: "white"}}>
-						{ props.task.data.question.questionFrontendId + "." + props.task.data.question.title }
-					    </Typography>
-					</Box>
-					<Box p = {1} mr = {-6} mt = {-4.8} >
-					    <IconButton onClick={ props.handleClose } >
-						<FiberManualRecordIcon style = {{color:"#f50057"}} />
-					    </IconButton>
-					</Box>
-				    </Box>
- 				</DialogTitle>
-				<MainComponent />
-				<ActionComponent />
-			    </>
- 			</Resizable>
-		    </div>
-
- 		</Dialog>
 	    </>
 	    <>
 		<MateEditorConfig open = { openSetting } onClose = {() => { setOpenSetting(false); }}

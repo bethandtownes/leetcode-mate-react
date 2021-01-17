@@ -179,6 +179,18 @@ function LeetCodeMate(props) {
     const [settingsMateEditor, setSettingsEditor] = React.useState(null);
     const [settingsLeetCodeMate, setSettingLeetCodeMate] = React.useState(null);
 
+    const [zIndexSubmission, setzIndexSubmission] = React.useState(1);
+
+    const [zIndex, setzIndex] = React.useState({
+	submission: 1000,
+	settingMate: 1001,
+	editor:1002,
+	settingEditor:1003
+    });
+
+    
+
+
     useEffect(async () => {
 	const initLeetCodeMateSettings =  await acquire.LeetCodeEditorSettings();
 	setSettingLeetCodeMate(initLeetCodeMateSettings);
@@ -199,6 +211,8 @@ function LeetCodeMate(props) {
 	    console.log("[loaded flag on] taskinfo settings");
 	}
     }, [taskInfo]);
+
+
 
 
     useEffect(async () => {
@@ -445,9 +459,6 @@ function LeetCodeMate(props) {
 	setSettingsEditor(newState);
     }
 
-
-
-    
 
     const handleClickOpen = () => {
 	if (open == false) {
@@ -765,9 +776,16 @@ function LeetCodeMate(props) {
     };
     
 
+
+    const handleClickSubmission = () => {
+	const curMaxzIndenx = Object.entries(zIndex).map(([x, y])=> y).reduce((x, y)=> Math.max(x, y), 0);
+	setzIndex({...zIndex, [submission]: curMaxzIndex + 1});
+    };
+    
     if (checkReady() == false || taskInfo == null) {
 	return null;
     }
+
 	
     return (
         <div>
@@ -780,12 +798,12 @@ function LeetCodeMate(props) {
 			      hideBackdrop = {true}
 			      disableAutoFocus = {true}
 			      disableEnforceFocus
-			      style={{ pointerEvents: 'none'}}  
+			      style={{ zIndex: zIndex.submission, pointerEvents: 'none'}}  
 			      disableBackdropClick = {true}
 			      onClose={handleClose}
 			      maxWidth={false}
 			      PaperComponent={PaperComponent}
-			      PaperProps={{ style: {backgroundColor: 'rgba(0,0,0,0.6)', pointerEvents: 'auto'}}}
+			      PaperProps={{ onClick: handleClickSubmission, style: {backgroundColor: 'rgba(0,0,0,0.6)', pointerEvents: 'auto'}}}
 			      aria-labelledby="draggable-dialog-title"
 			  >
 			      <MiddleContent />
