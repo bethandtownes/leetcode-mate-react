@@ -161,38 +161,32 @@ const theme = createMuiTheme({
   }
 });
 
-
-const PaperComponent2 = (props) => {
-    
+	    // handle="#draggable-dialog-title2"
+const DraggablePaperComponent = (props) => {
+    const paperProps = Object.fromEntries(Object.entries(props)
+					  .filter(([k, v]) => k !=  'onStop' && k != 'position'));
+    console.log(paperProps);
     return (
 	<Draggable
-	    onStop = {(e, data) => {props.onStop(e, data) }}
-	    position = {props.position}
-	    handle="#draggable-dialog-title2"
+	    onStop = {(e, data) => { props.onStop(e, data) }}
+	    position = { props.position }
+	    handle = { '#draggable' + props.id.toString() }
+
 	    cancel={'[class*="MuiDialogContent-root"]'}
 	>
-            <Paper {...props} />
+            <Paper {...paperProps} />
 	</Draggable>
 
     )
 }
 
 
-const AAPaperComponent2 = (props) => {
-    return (innerProps) => {
-  	return (
-  	    <Draggable
-		position = {props.position}
-		
-		onStop={props.onStop}
-  		handle= { "#draggable-dialog-title2" }
-  		cancel={'[class*="MuiDialogContent-root"]'}
-            >
-  		<Paper {...innerProps} />
-            </Draggable>	    
-  	);
-    };
-};
+
+
+const MateDialogRND = (props) => {
+
+}
+
 
 
 
@@ -203,10 +197,7 @@ export const MonacoDialog = (props) => {
     const [code, setCode] = React.useState("");
 
     const inputRef = props.inputRef;
-
-
     const [pos, setPos] = React.useState({x: 0, y:0})
-
     const [drag, setDrag] = React.useState(false);
     const [widthMonaco, setWidthMonaco] = React.useState(600);
     const [heightMonaco, setHeightMonaco] = React.useState(800);
@@ -215,7 +206,6 @@ export const MonacoDialog = (props) => {
 	setPos({x: data.lastX, y: data.lastY});
 	return;
     };
-
 
     
     const handleReset = () => {
@@ -237,7 +227,7 @@ export const MonacoDialog = (props) => {
     }
 
 
-    const onResizeStopMonaco = (e, dir, ref) => {
+    const onResizeStop = (e, dir, ref) => {
 	setHeightMonaco(parseInt(ref.style.height))
 	setWidthMonaco(parseInt(ref.style.width));
 	setDrag(false);
@@ -245,12 +235,58 @@ export const MonacoDialog = (props) => {
     };
     
 
-    const onResizeMonaco = (e, dir, ref) => {
+    const onResize = (e, dir, ref) => {
 	const width = parseInt(ref.style.width);
 	const height = parseInt(ref.style.height);
 	inputRef.current.editor.setSize(width, height - 90);
 	props.save();
 	return false;
+    };
+
+    const MainComponent = () => {
+	return (
+	    <>
+		<div id = "mate-editor">
+ 		    <MateEditor code = { props.code }  onChange = { props.onCodeChange } W = {widthMonaco} H = {heightMonaco} HRatio = { props.HRatio }
+				
+				settings = {props.editorSettings}
+
+				inputRef = {props.inputRef} />
+		</div>
+	    </>
+	);
+    };
+
+
+    
+
+    const ActionComponent = () => {
+	return (
+	    <>
+		<DialogActions style = {{height: "55px"}}>
+		    <ThemeProvider theme={props.theme}>
+			<MonacoControlPanel
+			    id = "control-panel-monaco"
+			    editorRef = { props.inputRef }
+			    settings = { props.editorSettings }
+			    handleChange = { props.handleChange }
+			/>
+ 			<Button variant = "contained"  size = "small" onClick = { handleSetting } color="primary">
+ 			    Settings
+ 			</Button>
+			<Button variant = "contained"  size = "small" onClick = { handleReset } color="primary">
+ 			    Reset
+ 			</Button>
+			<Button variant = "contained"  size = "small" onClick = { props.handleTest } color="primary">
+ 			    Test
+ 			</Button> 
+			<Button variant = "contained"  size = "small" onClick = { props.handleSubmit } color="primary">
+ 			    Submit
+ 			</Button>
+		    </ThemeProvider>
+ 		</DialogActions>
+		</>
+	);
     };
 
 
@@ -261,86 +297,55 @@ export const MonacoDialog = (props) => {
     return (
 	<>
 	    <>
-		    <Dialog
-			open={props.open}
- 			hideBackdrop = {true}
- 			disableAutoFocus = {true}
- 			disableEnforceFocus
- 			style={{ pointerEvents: 'none'}}  
- 			disableBackdropClick = {true}
- 			onClose={props.handleClose}
- 			maxWidth={false}
- 			PaperComponent={ PaperComponent2 }
- 			PaperProps={{ position: pos, onStop: onStop,  style: {backgroundColor: 'rgba(0,0,0,0.9)', pointerEvents: 'auto'}}}
- 			aria-labelledby="draggable-dialog-title"
-		    >
+		<Dialog
+		    open={props.open}
+ 		    hideBackdrop = {true}
+ 		    disableAutoFocus = {true}
+ 		    disableEnforceFocus
+ 		    style={{ pointerEvents: 'none'}}  
+ 		    disableBackdropClick = {true}
+ 		    onClose={props.handleClose}
+ 		    maxWidth={false}
+ 		    PaperComponent={ DraggablePaperComponent }
+ 		    PaperProps={{ id: props.id, position: pos, onStop: onStop,  style: {backgroundColor: 'rgba(0,0,0,0.9)', pointerEvents: 'auto'}}}
+ 		    aria-labelledby="draggable-dialog-title"
+		>
 
-			<div style={{ overflow: "hidden"}}>
- 			    <Resizable
-				size = {{width: widthMonaco, height:heightMonaco}}
-				minWidth = {600}
-				id = {"mateDialogEditor"}
-				minHeight = {800}
- 				onResize = {onResizeMonaco}
-				onResizeStop = {onResizeStopMonaco}
- 			    >
-				<>
-				    <DialogTitle
- 					style={{ cursor: 'move', height: "30px" }}
-					id="draggable-dialog-title2"
-					disableTypography = {true}
- 				    >
-					<Box display = "flex" p = {1} >
-					    <Box p = {1} flexGrow={1} ml = {-3} mt = {-3} >
-						<Typography variant="subtitle2" style = {{color: "white"}}>
-						    { props.task.data.question.questionFrontendId + "." + props.task.data.question.title }
-						</Typography>
-					    </Box>
-					    <Box p = {1} mr = {-6} mt = {-4.8} >
-						<IconButton onClick={ props.handleClose } >
-						    <FiberManualRecordIcon style = {{color:"#f50057"}} />
-						</IconButton>
-					    </Box>
+		    <div style={{ overflow: "hidden"}}>
+ 			<Resizable
+			    size = {{width: widthMonaco, height:heightMonaco}}
+			    minWidth = {600}
+			    id = {"mateDialogEditor"}
+			    minHeight = {800}
+ 			    onResize = {onResize}
+			    onResizeStop = {onResizeStop}
+ 			>
+			    <>
+				<DialogTitle
+ 				    style={{ cursor: 'move', height: "30px" }}
+				    id= {"draggable" + props.id.toString()}
+				    disableTypography = {true}
+ 				>
+				    <Box display = "flex" p = {1} >
+					<Box p = {1} flexGrow={1} ml = {-3} mt = {-3} >
+					    <Typography variant="subtitle2" style = {{color: "white"}}>
+						{ props.task.data.question.questionFrontendId + "." + props.task.data.question.title }
+					    </Typography>
 					</Box>
- 				    </DialogTitle>
+					<Box p = {1} mr = {-6} mt = {-4.8} >
+					    <IconButton onClick={ props.handleClose } >
+						<FiberManualRecordIcon style = {{color:"#f50057"}} />
+					    </IconButton>
+					</Box>
+				    </Box>
+ 				</DialogTitle>
+				<MainComponent />
+				<ActionComponent />
+			    </>
+ 			</Resizable>
+		    </div>
 
-				    <div id = "mate-editor">
- 					<MateEditor code = { props.code }  onChange = { props.onCodeChange } W = {widthMonaco} H = {heightMonaco} HRatio = { props.HRatio }
-					
-						    settings = {props.editorSettings}
-
-						    inputRef = {props.inputRef} />
-				    </div>
-
-				    
-				    <DialogActions style = {{height: "55px"}}>
-					<ThemeProvider theme={props.theme}>
-					    <MonacoControlPanel
-						id = "control-panel-monaco"
-						editorRef = { props.inputRef }
-						settings = { props.editorSettings }
-						handleChange = { props.handleChange }
-					    />
- 					    <Button variant = "contained"  size = "small" onClick = { handleSetting } color="primary">
- 						Settings
- 					    </Button>
-					    <Button variant = "contained"  size = "small" onClick = { handleReset } color="primary">
- 						Reset
- 					    </Button>
-				    	    <Button variant = "contained"  size = "small" onClick = { props.handleTest } color="primary">
- 						Test
- 					    </Button> 
-					    <Button variant = "contained"  size = "small" onClick = { props.handleSubmit } color="primary">
- 						Submit
- 					    </Button>
-					</ThemeProvider>
- 				    </DialogActions>
-				    
-				</>
- 			    </Resizable>
-			</div>
-
- 		    </Dialog>
+ 		</Dialog>
 	    </>
 	    <>
 		<MateEditorConfig open = { openSetting } onClose = {() => { setOpenSetting(false); }}
