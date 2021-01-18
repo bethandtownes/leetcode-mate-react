@@ -186,10 +186,11 @@ export const MonacoDialog = (props) => {
     };
 
     const handleClick = () => {
+	setCursor(inputRef.current.editor.getCursor());
+
 	/* const zIndex = props.zIndexPair.zIndex;
 	   props.saveInput(); */
 	props.onClick();
-	setCursorPos(inputRef.current.editor.getCursor());
 	props.save();
 	/* const curMaxzIndex = Object.entries(zIndex).map(([x, y])=> y).reduce((x, y)=> Math.max(x, y), 0);
 	   props.zIndexPair.setzIndex({...zIndex, editor: curMaxzIndex + 500}); */

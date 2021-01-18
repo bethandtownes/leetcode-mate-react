@@ -23,10 +23,8 @@ import { ID } from "./utility.js"
 
 
 const DraggablePaperComponent = (props) => {
-    console.log(props);
     const paperProps = Object.fromEntries(Object.entries(props)
-					  .filter(([k, v]) => k !=  'onStop' && k != 'position'));
-    /* console.log(paperProps); */
+					  .filter(([k, v]) => k !=  'onStop' && k != 'position' && k != 'onStart'));
     return (
 	<Draggable
 	    onStart = {(e, data) => { props.onStart(e, data) }}

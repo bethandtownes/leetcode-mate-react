@@ -189,7 +189,7 @@ function LeetCodeMate(props) {
 
     const [focus, setFocus] = React.useState({
 	on: false,
-	component: 'input_text_area'
+	component: undefined
     });
 
     const [openMonaco, setOpenMonaco] = React.useState(false);
@@ -253,29 +253,29 @@ function LeetCodeMate(props) {
     });
 
 
-    /* useEffect(async () => {
-       const update = () => {
-       saveInput();
-       if (monacoRef.current != undefined) {
-       setCursorPos(monacoRef.current.editor.getCursor());
-       }
-       saveMateEditor();
-       const curMaxzIndex = Object.entries(zIndex).map(([x, y])=> y).reduce((x, y)=> Math.max(x, y), 0);
-       const newState = {
-       submission: 1000,
-       textinput: 1100,
-       editor: 1200,
-       editor_lang_select: 1300,
-       editor_settings: 1400
-       
-       };
-       setzIndex(newState);
-       };
-       saveMateEditor();
-       if (focusMateEditor.on == true) {
-       update();
-       }
-     * }, [focusMateEditor]); */
+    useEffect(async () => {
+	const update = () => {
+	    saveInput();
+	    if (monacoRef.current != undefined) {
+		setCursorPos(monacoRef.current.editor.getCursor());
+	    }
+	    saveMateEditor();
+	    const curMaxzIndex = Object.entries(zIndex).map(([x, y])=> y).reduce((x, y)=> Math.max(x, y), 0);
+	    const newState = {
+		submission: 1000,
+		textinput: 1100,
+		editor: 1200,
+		editor_lang_select: 1300,
+		editor_settings: 1400
+		
+	    };
+	    setzIndex(newState);
+	};
+	saveMateEditor();
+	if (focusMateEditor.on == true) {
+	    update();
+	}
+    }, [focusMateEditor]);
 
 
     useEffect(async () => {
@@ -413,20 +413,14 @@ function LeetCodeMate(props) {
     }, [failed]);
 
 
-    const focusInput = () => {
-	if (textRef.current != null || textRef.current != undefined) {
-	    textRef.current.focus();
-	    /* textRef.current.setSelectionRange(inputCursor[0], inputCursor[1]); */
-	    textRef.current.setSelectionRange(cursors.input[0], cursors.input[1]);
-	}
-    };
+     const focusInput = () => {
+       if (textRef.current != null || textRef.current != undefined) {
+	   textRef.current.focus();
+	   textRef.current.setSelectionRange(cursors.input[0], cursors.input[1]);
+       }
+      };
 
 
-    const focusStdOut = () => {
-	if (stdoutRef.current != null || stdoutRef != undefined) {
-	    stdoutRef.current.focus();
-	}
-    };
 
 
     const safeFocus = (elementRef) => {
@@ -434,45 +428,48 @@ function LeetCodeMate(props) {
 	    elementRef.current.focus();
 	}
     };
-
-    /* useEffect(() => {
-       if (focus.on) {
-       if (focus.component == "input_text_area") {
-       focusInput();
-       }
-       else if (focus.component == "textarea_stdout") {
-       safeFocus(stdoutRef);
-       }
-       else if (focus.component == "textarea_errmsg") {
-       safeFocus(errmsgRef);
-       }
-       else if (focus.component == "textarea_output") {
-       safeFocus(outputRef);
-       }
-       else if (focus.component == "textarea_expected") {
-       safeFocus(expectedRef);
-       }
-       
-       }
-     * }); */
+    
+    useEffect(() => {
+ 	if (focus.on) {
+ 	    if (focus.component == "input_text_area") {
+ 		focusInput();
+ 	    }
+ 	    else if (focus.component == "textarea_stdout") {
+ 		safeFocus(stdoutRef);
+ 	    }
+ 	    else if (focus.component == "textarea_errmsg") {
+ 		safeFocus(errmsgRef);
+ 	    }
+ 	    else if (focus.component == "textarea_output") {
+ 		safeFocus(outputRef);
+ 	    }
+ 	    else if (focus.component == "textarea_expected") {
+ 		safeFocus(expectedRef);
+ 	    }
+ 	    
+ 	}
+    });
 
 
     useEffect(() => {
-	if (!open || !focus.on || judge || mode == T.task_type.submit) return;
-	dispatch({ type: T.action.update_input, payload: textRef.current.value });
-	saveMateEditor();
-	setBarPos(barRef.current.clientWidth);
-
-	const newState = {
-	    submission: 1200,
-	    testinput:1500,
-	    editor: 1000,
-	    editor_lang_select: 1300,
-	    editor_settings: 1400
-	};
-	setzIndex(newState);
+	if (!open || !focus.on || judge || mode == T.task_type.submit) {
+	    return;
+	}
+	else {
+	    /* dispatch({ type: T.action.update_input, payload: textRef.current.value }); */
+	    saveInput();
+	    saveMateEditor();
+	    setBarPos(barRef.current.clientWidth);
+	    const newState = {
+		submission: 1200,
+		testinput:1500,
+		editor: 1000,
+		editor_lang_select: 1300,
+		editor_settings: 1400
+	    };
+	    setzIndex(newState);
+	}
 	
-
     }, [focus]);
 
 
@@ -520,6 +517,30 @@ function LeetCodeMate(props) {
     };
 
 
+
+    const withSave = (fn) => {
+	return () => {
+	    if (textRef.current != null && textRef.current != undefined) {
+		dispatch({ type: T.action.update_input, payload: textRef.current.value });
+		setCursors({
+		    ...cursors,
+		    input: [textRef.current.selectionEnd, textRef.current.selectionEnd]
+		});
+	    }
+	    
+	    if (monacoRef.current != undefined && monacoRef.current != undefined) {
+		setCodeMateEditor(monacoRef.current.editor.getValue());
+	    }
+	    fn();
+	};
+    };
+
+
+    const toggleMonaco = () => {
+	setOpenMonaco(!openMonaco);
+    };
+    
+    
     const handleTest = () => {
 	if (open == false) {
 	    setOpen(true);
@@ -539,6 +560,9 @@ function LeetCodeMate(props) {
 	    runButtonRef.current.click();
 	}
     };
+
+
+
     
     
     useEffect(() => {
@@ -549,8 +573,10 @@ function LeetCodeMate(props) {
 	const toggle = (e) => {
 	    const keybinding = settingsLeetCodeMate.keybinding;
 	    const bindKey = (keys, fn) => { if (triggers(e, keys)) fn(); }
-	    bindKey(keybinding.toggleSubmissionPane, toggleSubmissionPane);
-	    bindKey(keybinding.toggleMateEditor, ()=> { if (openMonaco) saveMateEditor();  setOpenMonaco(!openMonaco); });
+	    bindKey(keybinding.toggleSubmissionPane, withSave(toggleSubmissionPane));
+	    bindKey(keybinding.toggleMateEditor, withSave(toggleMonaco));
+
+	    /* bindKey(keybinding.toggleMateEditor, ()=> { if (openMonaco) saveMateEditor();  saveInput(); setOpenMonaco(!openMonaco); }); */
 	    bindKey(keybinding.submit, handleSubmit);
 	    bindKey(keybinding.test, handleTest);
 	};
@@ -922,20 +948,31 @@ function LeetCodeMate(props) {
     };
 
     const handleClickSubmission = (e) => {
-	if (focus.on) return;
-	if (e.target.id == "input_text_area") {
-	    console.log(textRef.current.selectionStart);
-	    console.log(textRef.current.selectionEnd);
-	    setCursors(
-		{
-		    ...cursors,
-		    input: [textRef.current.selectionStart, textRef.current.selectionEnd]
-		}
-	    );
+	if (zIndex.submission < zIndex.editor) {
+	    const newState = {
+		submission: 1200,
+		testinput:1500,
+		editor: 1000,
+		editor_lang_select: 1300,
+		editor_settings: 1400
+	    };
+	    setzIndex(newState);
 	}
+
+	/* if (e.target != undefined && e.target.id === 'input_text_area') {
+	   console.log(e.target);
+	   withSave( () => {
+	   setCursors({
+	   ...cursors,
+	   input: [e.target.selectionEnd, e.target.selectionEnd]
+	   });
+	   })();
+	   }
+	   console.log(e.target.id); */
+	
+	if (focus.on) return;
 	saveInput();
 	saveMateEditor();
-	
 	setFocusMateEditor(false);
 	setFocus({
 	    on: true,
@@ -995,11 +1032,24 @@ function LeetCodeMate(props) {
 						
 					    };
 					    setzIndex(newState);
-					    if (focusMateEditor.on == true) return;
-				            setFocus(false);
-					    saveInput();
-					    
-
+					    if (focusMateEditor.on == true) {
+						return;
+					    }
+					    else {
+						withSave(() => {
+						    setFocus(false);
+						    setFocusMateEditor({...focusMateEditor, on: true, component: undefined});
+						})();
+						{/* setFocus(false);
+						    saveInput();
+						    setFocusMateEditor({...focusMateEditor, on: true, component: undefined});
+						    withSave( () => {
+						    setCursors({
+						    ...cursors,
+						    input: [textRef.current.selectionEnd, textRef.current.selectionEnd]
+						    });
+						    })(); */}
+					    }
 					}}
 			                cursorPos =  {cursorPos}
                                         focus = { focusMateEditor  }
