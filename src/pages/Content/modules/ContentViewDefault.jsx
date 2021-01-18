@@ -1,10 +1,14 @@
 import React from 'react';
 import PaneTitle from "./PaneTitle.jsx";
 import { Divider, Box, DialogContent } from "@material-ui/core";
-import { ResizableBox } from 'react-resizable';
+/* import { ResizableBox } from 'react-resizable'; */
+import { Resizable } from "re-resizable";
+
 import { Container, Section, Bar, Resizer} from 'react-simple-resizer';
 import { InputOutputExpectedPane } from "./InputOutputExpectedPane.jsx";
 import { DebugMessagePane } from "./DebugMessagePane.jsx";
+import ResizeObserver from 'react-resize-detector';
+
 
 const MIN_SIZE = 150;
 
@@ -16,8 +20,8 @@ function beforeApplyResizer(resizer: Resizer): void {
   }
 }
 export const ContentViewDefault = (props) => {
-    const containerRef = React.useRef();
-
+    /* const containerRef = React.useRef(); */
+    const containerRef = props.containerRef;
     const onBarClick = () => {
 	const container = containerRef.current;
 
@@ -32,7 +36,7 @@ export const ContentViewDefault = (props) => {
     };
 
     const percentageHfix = () => {
-	if (props.W <= 620) {
+	if (props.W <= 700) {
 	    return "90%";
 	}
 	if (props.W < 650) {
@@ -43,42 +47,41 @@ export const ContentViewDefault = (props) => {
 	}
     };
 
+
+    const H = props.sizes.height - 115;
+    
     return (
-	<ResizableBox
-	    height = {props.H}
-	    width = {props.W}
-	    minConstraints = {[600, 400]}
-	    onResizeStop ={ props.XX }
-	>
-	    <>
-		<PaneTitle state = { props.state } loading = { props.loading }
-			   mode = { props.mode } failed = { props.failed } />
-		<Divider />
-		<DialogContent style = {{height: "90%"}}>
-		    <Container style = {{height: percentageHfix(), width:"100%"}}
-			       ref = {containerRef}
-			       beforeApplyResizer = { beforeApplyResizer }
-		    >
-			<Section
-			    key = "section1"
-			    defaultSize = {props.barPos}
-			    disableResponsive = {true}
-			    style = {{height: "100%", width:"100%"}}
-			    innerRef = {props.barRef}
+
+	
+		<>
+		    <PaneTitle state = { props.state } loading = { props.loading }
+			       mode = { props.mode } failed = { props.failed } />
+		    <Divider />
+
+			<Container style = {{height: H, width:"100%"}}
+				   ref = {containerRef}
+				   beforeApplyResizer = { beforeApplyResizer }
 			>
-			    <InputOutputExpectedPane  zIndex = {props.zIndex}
-						      state = {props.state} inputRef = { props.inputRef }
-						      mode = { props.mode } inputCursor = {props.inputCursor} refs = {props.refs}/>
-			</Section>
-			<Bar size = { 10 } onClick = { onBarClick } style={{ background: '#888888', cursor: 'col-resize' }} />
-			<Section style = {{height: "100%", width:"100%"}}
-				 key = "section2"
-			>
-			    <DebugMessagePane refs = {props.refs} stdoutRef = {props.stdoutRef} value = {props.tabID} state = {props.state} onChange = { props.handleTabChange } />
-			</Section>
-		    </Container>
-		</DialogContent>
-	    </>
-	</ResizableBox>
+			    <Section
+				key = "section1"
+				defaultSize = {props.barPos}
+				disableResponsive = {true}
+				style = {{height:  H, width:"100%"}}
+				innerRef = {props.barRef}
+			    >
+				<InputOutputExpectedPane  zIndex = {props.zIndex}
+							  state = {props.state} inputRef = { props.inputRef }
+							  mode = { props.mode } inputCursor = {props.inputCursor} refs = {props.refs}/>
+			    </Section>
+			    <Bar size = { 10 } onClick = { onBarClick } style={{ background: '#888888', cursor: 'col-resize' }} />
+			    <Section style = {{height: H, width:"100%"}}
+				     key = "section2"
+			    >
+				<DebugMessagePane refs = {props.refs} stdoutRef = {props.stdoutRef} value = {props.tabID} state = {props.state} onChange = { props.handleTabChange } />
+			    </Section>
+			</Container>
+
+		</>
+	   
     );
 };

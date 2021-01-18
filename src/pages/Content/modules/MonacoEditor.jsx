@@ -87,6 +87,7 @@ const MATE_MONACO_THEME = [];
 import 'codemirror/lib/codemirror.css'
 import 'codemirror/theme/material-darker.css'; MATE_MONACO_THEME.push('material-darker');
 import 'codemirror/theme/monokai.css'; MATE_MONACO_THEME.push('monokai');
+import 'codemirror/theme/monokai-mate.css'; MATE_MONACO_THEME.push('monokai-mate');
 import 'codemirror/theme/darcula.css'; MATE_MONACO_THEME.push('darcula');
 import 'codemirror/theme/material.css'; MATE_MONACO_THEME.push('material');
 import 'codemirror/theme/eclipse.css'; MATE_MONACO_THEME.push('eclipse');
@@ -104,11 +105,13 @@ require('codemirror/keymap/vim.js')
 require('codemirror/addon/edit/matchbrackets.js')
 require('codemirror/addon/edit/closebrackets.js')
 require('codemirror/addon/comment/comment.js')
+require('codemirror/addon/selection/active-line.js')
 
 
 function MateEditor(props) {
     return (
 	<CodeMirror
+	    id = "mate"
             ref = { props.inputRef }
             value = { props.code }
 	    options={ props.settings }
@@ -151,8 +154,8 @@ export const MonacoDialog = (props) => {
     const inputRef = props.inputRef;
     const [pos, setPos] = React.useState({x: 0, y:0})
     const [drag, setDrag] = React.useState(false);
-    const [widthMonaco, setWidthMonaco] = React.useState(600);
-    const [heightMonaco, setHeightMonaco] = React.useState(800);
+    const [widthMonaco, setWidthMonaco] = React.useState(800);
+    const [heightMonaco, setHeightMonaco] = React.useState(1000);
     /* const [cursorPos, setCursorPos] = React.useState({line: 1, ch: 1, sticky: null}); */
     const [cursor, setCursor] = React.useState({line: 1, ch: 1, sticky: null});
 

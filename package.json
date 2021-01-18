@@ -37,6 +37,8 @@
     "react-native-countdown-circle-timer": "^2.3.10",
     "react-reflex": "^3.1.0",
     "react-resizable": "^1.11.0",
+    "react-resize-aware": "^3.1.0",
+    "react-resize-detector": "^6.0.1-rc.4",
     "react-rnd": "^10.2.4",
     "react-router-dom": "^5.2.0",
     "react-simple-resizer": "^2.1.0",

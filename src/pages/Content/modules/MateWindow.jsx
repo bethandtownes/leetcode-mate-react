@@ -69,7 +69,7 @@ export function MateDialog(props) {
     };
 
     const MainContent = () => {
-	if (props.full == undefined || props.full == false) {
+	if (props.full == true) {
 	    return (
 		<>
 		    { props.mainContent }

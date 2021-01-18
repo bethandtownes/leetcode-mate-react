@@ -29,9 +29,93 @@ import { MATE_EDITOR_LANGUAGE } from "./MonacoEditor.jsx";
 
 // to do
 
-export function SubmissionPanel(props) {
+
+const PaperComponent = (props: PaperProps) => {
+    const paperProps = Object.fromEntries(Object.entries(props)
+						.filter(([k, v]) => k !=  'onStop' && k != 'position' && k != 'onStart'));
+    return (
+        <Draggable
+	    position = {props.position}
+	    onStop = {props.onStop}
+	    onStart = {props.onStart}
+	    onClick = {props.onClick}
+            handle="#submitpanelc"
+            cancel={'[class*="MuiDialogContent-root"]'}
+        >
+            <Paper style = {{backgroundColor: "rgba(0,0,0,0.3)"}} {...paperProps} />
+        </Draggable>
+    )
+}
 
 
-   
-	
+const initialState = {
+    result_status: null,
+    input: "",
+    output: "",
+    expected: "",
+    status_runtime: null,
+    status_memory: null,
+    runtime_percentile: null,
+    memory_percentile: null,
+    msg_compile_error: "init",
+    msg_runtime_error: null,
+    msg_debug: null,
+    total_correct: null,
+    total_testcases: null
+};
+
+function reducer(state, action) {
+    switch (action.type) {
+	case T.action.update: {
+	    return action.payload;
+	}
+	case T.action.update_input: {
+	    return {
+		result_status: state.result_status,
+		input: action.payload,
+		output: state.output,
+		expected: state.expected,
+		status_runtime: state.status_runtime,
+		status_memory: state.status_memory,
+		runtime_percentile: state.runtime_percentile,
+		memory_percentile: state.memory_percentile,
+		msg_compile_error: state.msg_compile_error,
+		msg_runtime_error: state.msg_runtime_error,
+		msg_debug: state.msg_debug,
+		total_correct: state.total_correct,
+		total_testcases: state.total_testcases
+	    };
+	}
+        case T.action.run_default_case : {
+	    return ;
+	}
+	case T.action.reinitialize: {
+	    return initialState;
+	}
+        default: {
+	    return state;
+        }
+    }
+}
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    width: '50%',
+    '& > * + *': {
+      marginTop: theme.spacing(2),
+    },
+  },
+}));
+
+const theme = createMuiTheme({
+    palette: {
+ 	action: {
+ 	    disabled: '#bdbdbd'
+ 	}
+    }
+});
+
+export function SubmissionPane(props) {
+    
+    
 };
