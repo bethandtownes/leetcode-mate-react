@@ -41,7 +41,13 @@ function a11yProps(index) {
     };
 }
 
-export function DebugMessagePane(props) {   
+export function DebugMessagePane(props) {
+
+
+
+    
+
+    
     const renderErrorMsg = () => {
 	let state = props.state;
 	switch (state.result_status) {
@@ -81,6 +87,8 @@ export function DebugMessagePane(props) {
                           style = {{height:"100%", width:"100%"}}>
 		    <textarea value = { valueOr(props.state.msg_debug, "") }
 			      readOnly = {true}
+		              ref = { props.stdoutRef }
+		              id = {'textarea_stdout'}
 			      key = {"stdout_text_area_key"}
 			      style={{resize: "none",
 				      height:"100%",
@@ -92,11 +100,13 @@ export function DebugMessagePane(props) {
 		    <textarea
 		        value = { renderErrorMsg() }
 			key = {"error_message_text_area_key"}
-                   	readOnly = {true}
-			style={{resize: "none",
-				height:"100%",
-				color: 'rgb(233, 30, 99)',
-				backgroundColor: 'rgba(252, 228, 236, 0.9)', width: "100%"}}/>
+		    	id = {'textarea_errmsg'}
+                        readOnly = {true}
+		        ref = { props.refs.err }
+		    style={{resize: "none",
+			    height:"100%",
+			    color: 'rgb(233, 30, 99)',
+			    backgroundColor: 'rgba(252, 228, 236, 0.9)', width: "100%"}}/>
                 </TabPanel>
 	    </Box>
         </>

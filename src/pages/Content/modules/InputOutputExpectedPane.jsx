@@ -28,13 +28,14 @@ export const InputOutputExpectedPane = (props) => {
 		readOnly = { false }
 		rows = {20}
 		variant = "filled"
-		style = {{width:"100%", height:"34%", backgroundColor: 'rgba(255,255,255,0.8)', overflow: 'auto'}}
+		style = {{zIndex: props.zIndex, width:"100%", height:"34%", backgroundColor: 'rgba(255,255,255,0.8)', overflow: 'auto'}}
 	    >
 	    </TextField>
 	    <Divider/>
 	    <TextField
-		id = "outlined-multiline-static"
-		key = {"output_text_area_key"}
+		id = "textarea_output"
+	        key = {"output_text_area_key"}
+	        inputRef = { props.refs.output }
 		label = "Output"
 		value = {valueOr(props.state.output, "")}
 		multiline = {true}
@@ -45,9 +46,10 @@ export const InputOutputExpectedPane = (props) => {
 	    />
 	    <Divider/>
 	    <TextField
-                id="outlined-multiline-static"
+                id="textarea_expected"
 		key = {"expected_text_area_key"}
                 label="Expected"
+	        inputRef = { props.refs.expected }
 		value = {valueOr(props.state.expected, "")}
 		readOnly = {true}
                 multiline = {true}

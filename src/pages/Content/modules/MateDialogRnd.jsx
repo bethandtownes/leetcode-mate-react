@@ -25,7 +25,7 @@ import { ID } from "./utility.js"
 const DraggablePaperComponent = (props) => {
     const paperProps = Object.fromEntries(Object.entries(props)
 					  .filter(([k, v]) => k !=  'onStop' && k != 'position'));
-    console.log(paperProps);
+    /* console.log(paperProps); */
     return (
 	<Draggable
 	    onStop = {(e, data) => { props.onStop(e, data) }}
@@ -43,9 +43,6 @@ const DraggablePaperComponent = (props) => {
 
 
 export const MateDialogRND = (props) => {
-
-
-    
     return (
 	<Dialog
 	    open={props.open}

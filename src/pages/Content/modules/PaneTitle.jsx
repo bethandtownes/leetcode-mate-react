@@ -114,7 +114,7 @@ export default function PaneTitle(props) {
 	<>
 	    <DialogTitle
 		style={{ cursor: 'move' , backgroundColor: makeBackgroundColor(),  width: "800"}}
-		id="draggable-dialog-title"
+		id="submitpanelc"
 	    >
 		<Box display = "flex" flexDirection = "row">
 		    <Typography variant="h6" style = {{color: "black"}}>

@@ -63,12 +63,18 @@ function triggers(e, binding) {
 }
 
 const PaperComponent = (props: PaperProps) => {
+    const paperProps = Object.fromEntries(Object.entries(props)
+						.filter(([k, v]) => k !=  'onStop' && k != 'position' && k != 'onStart'));
     return (
         <Draggable
-            handle="#draggable-dialog-title"
+	    position = {props.position}
+	    onStop = {props.onStop}
+	    onStart = {props.onStart}
+	    onClick = {props.onClick}
+            handle="#submitpanelc"
             cancel={'[class*="MuiDialogContent-root"]'}
         >
-            <Paper style = {{backgroundColor: "rgba(0,0,0,0.3)"}} {...props} />
+            <Paper style = {{backgroundColor: "rgba(0,0,0,0.3)"}} {...paperProps} />
         </Draggable>
     )
 }
@@ -155,7 +161,7 @@ function LeetCodeMate(props) {
     const [problemSlug, setProblemSlug] = React.useState(null);
     const [taskInfo, setTaskInfo] = React.useState(null);
     const [cursorPos, setCursorPos] = React.useState({line: 1, ch: 1, sticky: null});
-
+    const [pos, setPos] = React.useState({x: 0, y:0})
     const [inputCursor, setInputCursor] = React.useState([0, 0]);
     
     const [W, setW] = React.useState(800);
@@ -166,7 +172,7 @@ function LeetCodeMate(props) {
 	loadedLeetCodeMateSettings: false,
 	loadedTask: false
     });
-   
+
     const textRef = useRef();
     const barRef = useRef();
     const inputBoxRef = useRef();
@@ -174,9 +180,12 @@ function LeetCodeMate(props) {
     const runButtonRef = useRef();
     const runDefaultButtonRef = useRef();
     const monacoRef = useRef();
+    const stdoutRef = React.useRef();
+    const errmsgRef = React.useRef();
+    const outputRef = React.useRef();
+    const expectedRef = React.useRef();
 
-    const [inputFocus, setInputFocus] = React.useState(false);
-    const [focusSubmission, setFocusSubmission] = React.useState(false);
+
 
     const [focus, setFocus] = React.useState({
 	on: false,
@@ -188,12 +197,46 @@ function LeetCodeMate(props) {
     const [heightMonaco, setHeightMonaco] = React.useState(800);
     const [codeMateEditor, setCodeMateEditor] = React.useState("");  
     const [settingsMateEditor, setSettingsEditor] = React.useState(null);
+
     
     const [focusMateEditor, setFocusMateEditor] = React.useState({
 	on: false,
 	component: undefined
     });
 
+
+    const onStop = (e, data) => {
+	saveInput();
+	saveMateEditor();
+	setPos({x: data.lastX, y: data.lastY});
+	return;
+    };
+
+    
+    const onStart = (e, data) => {
+	saveInput();
+	saveMateEditor();
+	const newState = {
+	    submission: 1200,
+	    testinput:1500,
+	    editor: 1000,
+	    editor_lang_select: 1300,
+	    editor_settings: 1400
+	};
+	setzIndex(newState);
+	setPos({x: data.lastX, y: data.lastY});
+	return;
+    };
+
+
+    const [cursors, setCursors] = React.useState({
+	input: [0, 0],
+	output: [0, 0],
+	expected: [0, 0],
+	stdout: [0, 0],
+	errmsg: [0, 0]
+    });
+    
     
     const [settingsLeetCodeMate, setSettingLeetCodeMate] = React.useState(null);
 
@@ -203,6 +246,7 @@ function LeetCodeMate(props) {
 
     const [zIndex, setzIndex] = React.useState({
 	submission: 1000,
+	testinput: 1100,
 	editor:1200,
 	editor_lang_select:1300,
 	editor_settings:1400
@@ -212,11 +256,14 @@ function LeetCodeMate(props) {
     useEffect(async () => {
 	const update = () => {
 	    saveInput();
-	    setCursorPos(monacoRef.current.editor.getCursor());
+	    if (monacoRef.current != undefined) {
+		setCursorPos(monacoRef.current.editor.getCursor());
+	    }
 	    saveMateEditor();
 	    const curMaxzIndex = Object.entries(zIndex).map(([x, y])=> y).reduce((x, y)=> Math.max(x, y), 0);
 	    const newState = {
 		submission: 1000,
+		textinput: 1100,
 		editor: 1200,
 		editor_lang_select: 1300,
 		editor_settings: 1400
@@ -224,6 +271,7 @@ function LeetCodeMate(props) {
 	    };
 	    setzIndex(newState);
 	};
+	saveMateEditor();
 	if (focusMateEditor.on == true) {
 	    update();
 	}
@@ -368,37 +416,63 @@ function LeetCodeMate(props) {
     const focusInput = () => {
 	if (textRef.current != null || textRef.current != undefined) {
 	    textRef.current.focus();
-	    textRef.current.setSelectionRange(inputCursor[0], inputCursor[0]);
+	    /* textRef.current.setSelectionRange(inputCursor[0], inputCursor[1]); */
+	    textRef.current.setSelectionRange(cursors.input[0], cursors.input[1]);
+	}
+    };
+
+
+    const focusStdOut = () => {
+	if (stdoutRef.current != null || stdoutRef != undefined) {
+	    stdoutRef.current.focus();
+	}
+    };
+
+
+    const safeFocus = (elementRef) => {
+	if (elementRef.current != null || elementRef != undefined) {
+	    elementRef.current.focus();
 	}
     };
 
     useEffect(() => {
-	if (inputFocus == true) {
-	    focusInput();
+	if (focus.on) {
+	    if (focus.component == "input_text_area") {
+		focusInput();
+	    }
+	    else if (focus.component == "textarea_stdout") {
+		safeFocus(stdoutRef);
+	    }
+	    else if (focus.component == "textarea_errmsg") {
+		safeFocus(errmsgRef);
+	    }
+	    else if (focus.component == "textarea_output") {
+		safeFocus(outputRef);
+	    }
+	    else if (focus.component == "textarea_expected") {
+		safeFocus(expectedRef);
+	    }
+	    
 	}
-    }, [inputFocus]);
+    });
 
 
     useEffect(() => {
-	if (!open || !focus.on) return;
+	if (!open || !focus.on || judge || mode == T.task_type.submit) return;
 	dispatch({ type: T.action.update_input, payload: textRef.current.value });
 	saveMateEditor();
 	setBarPos(barRef.current.clientWidth);
 
 	const newState = {
 	    submission: 1200,
+	    testinput:1500,
 	    editor: 1000,
 	    editor_lang_select: 1300,
 	    editor_settings: 1400
 	};
 	setzIndex(newState);
 	
-	if (focus.component == "input_text_area") {
-	    setInputFocus(true);
-	}
-	else {
-	    setInputFocus(false);
-	}
+
     }, [focus]);
 
 
@@ -415,15 +489,32 @@ function LeetCodeMate(props) {
     };
 
 
-
+    const handleGReset = () => {
+	dispatch({ type: T.action.reinitialize });
+	setMode(null);
+	setJudge(false);
+    };
+    
     const handleSubmit = () => {
-	if (openMonaco) {
-	    handleMonacoSubmit();
-	    return;
-	}
 	if (open == false) {
 	    setOpen(true);
 	}
+	if (openMonaco) {
+	    saveMateEditor();
+	  
+	    handleMonacoSubmit();
+
+	    const newState = {
+		submission: 1200,
+		testinput:1500,
+		editor: 1000,
+		editor_lang_select: 1300,
+		editor_settings: 1400
+	    };
+	    setzIndex(newState);
+	    return;
+	}
+
 	if (judge) return;
 	submitButtonRef.current.click();
     };
@@ -436,6 +527,7 @@ function LeetCodeMate(props) {
 	if (judge) return;
 
 	if (openMonaco) {
+	    saveMateEditor();
 	    handleMonacoTest();
 	    return;
 	}
@@ -543,7 +635,7 @@ function LeetCodeMate(props) {
 	const res = CN == true ? (await submitCN(state, problemSlug)) : (await submit(state, problemSlug, monacoRef.current.editor.getValue(), "cpp"));
 	saveMateEditor();
 	if (res == null) {
-	    handleReset();
+	    handleGReset();
 	    setFail(true);
 	    return;
 	}
@@ -732,7 +824,7 @@ function LeetCodeMate(props) {
     };
 
     
-    const MiddleContent = (props) => {
+    const MiddleContent = () => {
 	if ((mode == T.mode.submit && judge == true) || (state.result_status == T.result.accepted && mode == T.mode.submit)) {
 	    return (
 		<ContentViewSubmitOrAccepted loading = { judge }
@@ -744,6 +836,9 @@ function LeetCodeMate(props) {
 	    return (
 		<ContentViewDefault loading = { judge } state = { state } mode = { mode }
 		                    barPos = { barPos } barRef = {barRef}
+		                    zIndex = { zIndex.testinput }
+		                    refs = {{stdout: stdoutRef, err: errmsgRef, output: outputRef, expected: expectedRef }}
+		                    stdoutRef = {stdoutRef}
 		                    inputCursor = {inputCursor }
    		                    H = {H} W = {W} XX = {XX} 
 		                    inputRef = { textRef } failed = { failed }
@@ -827,10 +922,21 @@ function LeetCodeMate(props) {
     };
 
     const handleClickSubmission = (e) => {
-	saveInput();
+	console.log(e);
 	if (e.target.id == "input_text_area") {
-	    setInputCursor([e.target.selectionStart, e.target.selectionEnd]);
+	    console.log(textRef.current.selectionStart);
+	    console.log(textRef.current.selectionEnd);
+	    setCursors(
+		{
+		    ...cursors,
+		    input: [textRef.current.selectionStart, textRef.current.selectionEnd]
+		}
+	    );
 	}
+	saveInput();
+	saveMateEditor();
+	
+	setFocusMateEditor(false);
 	setFocus({
 	    on: true,
 	    component: e.target.id
@@ -858,15 +964,15 @@ function LeetCodeMate(props) {
 			      onClose={handleClose}
 			      maxWidth={false}
 			      PaperComponent={PaperComponent}
-			      PaperProps={{ onClick: handleClickSubmission, style: {backgroundColor: 'rgba(0,0,0,0.6)', pointerEvents: 'auto'}}}
+			      PaperProps={{ onStop: onStop, onStart: onStart, position: pos, onClick: handleClickSubmission, style: {backgroundColor: 'rgba(0,0,0,0.6)', pointerEvents: 'auto'}}}
 			      aria-labelledby="draggable-dialog-title"
-			  >
-			      <MiddleContent/>
-			      <Box mb={0.5}>
-				  <DialogActions>
-				      <Actions />
-				  </DialogActions>
-			      </Box>
+		>
+		<MiddleContent />
+		<Box mb={0.5}>
+		    <DialogActions>
+			<Actions />
+		    </DialogActions>
+		</Box>
 			  </Dialog>
 		      </>
 		      <>
@@ -880,13 +986,17 @@ function LeetCodeMate(props) {
 			  <MonacoDialog open = {openMonaco}
 			                task = { taskInfo }
 			                onClick = {(e) => {
+				            setFocus(false);
+					    saveInput();
+					    setCursorPos(monacoRef.current.editor.getCursor());
 					    setFocusMateEditor({...focusMateEditor, on: true, component: e.target.id});
 					}}
 			                cursorPos =  {cursorPos}
+                                        focus = { focusMateEditor  }
 			                zIndexPair = {{ zIndex: zIndex, setzIndex : setzIndex }}
 			                id = { ID() }
       			                W = {widthMonaco} H = {heightMonaco}
-					editorSettings = { settingsMateEditor }
+			  editorSettings = { settingsMateEditor }
 			                onResizeMonoco = { onResizeMonac }
 			                onResizeStopMonaco = { onResizeStopMonaco }
 			                onCodeChange = { handleCodeChange }
@@ -895,19 +1005,19 @@ function LeetCodeMate(props) {
 			                handleTest = { handleMonacoTest }
 			                handleSubmit = { handleMonacoSubmit }
 			                code = { codeMateEditor }
-					handleChange = { handleEditorSettingChange } 
-					inputRef = { monacoRef }
-					handleClose = {() => {
-					    saveMateEditor();
-					    setOpenMonaco(false);
-					}}
+			  handleChange = { handleEditorSettingChange } 
+			  inputRef = { monacoRef }
+			  handleClose = {() => {
+			      saveMateEditor();
+			      setOpenMonaco(false);
+			  }}
 			                theme = { theme }
 			  />
 		      </>
-		  </>
-	      )}
+	    </>
+	)}
         </div>
-    );
+);
 }
 
 export { LeetCodeMate };

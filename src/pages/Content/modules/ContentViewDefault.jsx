@@ -66,13 +66,15 @@ export const ContentViewDefault = (props) => {
 			    style = {{height: "100%", width:"100%"}}
 			    innerRef = {props.barRef}
 			>
-			    <InputOutputExpectedPane state = {props.state} inputRef = { props.inputRef } mode = { props.mode } inputCursor = {props.inputCursor}/>
+			    <InputOutputExpectedPane  zIndex = {props.zIndex}
+						      state = {props.state} inputRef = { props.inputRef }
+						      mode = { props.mode } inputCursor = {props.inputCursor} refs = {props.refs}/>
 			</Section>
 			<Bar size = { 10 } onClick = { onBarClick } style={{ background: '#888888', cursor: 'col-resize' }} />
 			<Section style = {{height: "100%", width:"100%"}}
 				 key = "section2"
 			>
-			    <DebugMessagePane value = {props.tabID} state = {props.state} onChange = { props.handleTabChange } />
+			    <DebugMessagePane refs = {props.refs} stdoutRef = {props.stdoutRef} value = {props.tabID} state = {props.state} onChange = { props.handleTabChange } />
 			</Section>
 		    </Container>
 		</DialogContent>

@@ -113,11 +113,12 @@ function MateEditor(props) {
             value = { props.code }
 	    options={ props.settings }
 	    editorDidMount ={(editor) => {
-		console.log('codemirror mounted');
 		editor.setSize(props.W, props.H - 90);
 		editor.addKeyMap({"Ctrl-/": 'toggleComment'});
 		editor.getWrapperElement().style['font-size'] = props.settings.fontsize;
-		editor.focus();
+		if (props.focus) {
+		    editor.focus();
+		}
 		editor.setCursor(props.cursor);
 		editor.refresh();
 	    }}
@@ -143,8 +144,6 @@ const theme = createMuiTheme({
 
 
 export const MonacoDialog = (props) => {
-    console.log("mdialog");
-    console.log(props.zIndexPair.zIndex);
     const [openSetting, setOpenSetting] = React.useState(false);
     const [task, setTask] = React.useState(props.task);
     const [code, setCode] = React.useState("");
@@ -179,10 +178,8 @@ export const MonacoDialog = (props) => {
     };
 
     const handleClick = () => {
-	console.log("clicked monaco");
 	const zIndex = props.zIndexPair.zIndex;
 	props.saveInput();
-	console.log(inputRef.current.editor.getCursor());
 	setCursorPos(inputRef.current.editor.getCursor());
 	props.save();
 	const curMaxzIndex = Object.entries(zIndex).map(([x, y])=> y).reduce((x, y)=> Math.max(x, y), 0);
@@ -217,7 +214,7 @@ export const MonacoDialog = (props) => {
  		    <MateEditor code = { props.code }  onChange = { props.onCodeChange } W = {widthMonaco} H = {heightMonaco} HRatio = { props.HRatio }
 				cursor = { props.cursorPos }
 				settings = {props.editorSettings}
-
+                                focus = { props.focus }
 				inputRef = {props.inputRef} />
 		</div>
 	    </>
