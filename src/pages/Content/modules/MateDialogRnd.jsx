@@ -43,18 +43,21 @@ const DraggablePaperComponent = (props) => {
 
 
 export const MateDialogRND = (props) => {
+
+
+    
     return (
 	<Dialog
 	    open={props.open}
  	    hideBackdrop = {true}
  	    disableAutoFocus = {true}
  	    disableEnforceFocus
- 	    style={{ pointerEvents: 'none'}}  
+ 	    style={{ zIndex: props.zIndex, pointerEvents: 'none'}}  
  	    disableBackdropClick = {true}
  	    onClose={props.handleClose}
  	    maxWidth={false}
  	    PaperComponent={ DraggablePaperComponent }
- 	    PaperProps={{ id: props.id, position: props.position, onStop: props.onStop,  style: {backgroundColor: 'rgba(0,0,0,0.9)', pointerEvents: 'auto'}}}
+ 	    PaperProps={{ onClick: props.onClick, id: props.id, position: props.position, onStop: props.onStop,  style: {backgroundColor: 'rgba(0,0,0,0.9)', pointerEvents: 'auto'}}}
  	    aria-labelledby="draggable-dialog-title"
 	>
 	    <div style={{ overflow: "hidden"}}>

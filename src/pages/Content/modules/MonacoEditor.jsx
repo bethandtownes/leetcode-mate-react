@@ -26,7 +26,6 @@ import { MateDialogRND } from './MateDialogRnd.jsx';
 
 
 
-
 const MATE_EDITOR_LANGUAGE = {
     "text/x-c++src": {
 	leetcode_slug: 'cpp',
@@ -114,9 +113,12 @@ function MateEditor(props) {
             value = { props.code }
 	    options={ props.settings }
 	    editorDidMount ={(editor) => {
+		console.log('codemirror mounted');
 		editor.setSize(props.W, props.H - 90);
 		editor.addKeyMap({"Ctrl-/": 'toggleComment'});
 		editor.getWrapperElement().style['font-size'] = props.settings.fontsize;
+		editor.focus();
+		editor.setCursor(props.cursor);
 		editor.refresh();
 	    }}
             onChange = {props.onChange}
@@ -141,6 +143,8 @@ const theme = createMuiTheme({
 
 
 export const MonacoDialog = (props) => {
+    console.log("mdialog");
+    console.log(props.zIndexPair.zIndex);
     const [openSetting, setOpenSetting] = React.useState(false);
     const [task, setTask] = React.useState(props.task);
     const [code, setCode] = React.useState("");
@@ -150,13 +154,16 @@ export const MonacoDialog = (props) => {
     const [drag, setDrag] = React.useState(false);
     const [widthMonaco, setWidthMonaco] = React.useState(600);
     const [heightMonaco, setHeightMonaco] = React.useState(800);
+    /* const [cursorPos, setCursorPos] = React.useState({line: 1, ch: 1, sticky: null}); */
+    
+
+    
 
     const onStop = (e, data) => {
 	setPos({x: data.lastX, y: data.lastY});
 	return;
     };
 
-    
     const handleReset = () => {
 	console.log('[mate editor] reset');
 	if (props.inputRef.current != undefined || props.inputRef.current != null) {
@@ -169,6 +176,17 @@ export const MonacoDialog = (props) => {
 	    }
 
 	}
+    };
+
+    const handleClick = () => {
+	console.log("clicked monaco");
+	const zIndex = props.zIndexPair.zIndex;
+	props.saveInput();
+	console.log(inputRef.current.editor.getCursor());
+	setCursorPos(inputRef.current.editor.getCursor());
+	props.save();
+	const curMaxzIndex = Object.entries(zIndex).map(([x, y])=> y).reduce((x, y)=> Math.max(x, y), 0);
+	props.zIndexPair.setzIndex({...zIndex, editor: curMaxzIndex + 500});
     };
     
     const handleSetting = () => {
@@ -197,7 +215,7 @@ export const MonacoDialog = (props) => {
 	    <>
 		<div id = "mate-editor">
  		    <MateEditor code = { props.code }  onChange = { props.onCodeChange } W = {widthMonaco} H = {heightMonaco} HRatio = { props.HRatio }
-				
+				cursor = { props.cursorPos }
 				settings = {props.editorSettings}
 
 				inputRef = {props.inputRef} />
@@ -205,6 +223,7 @@ export const MonacoDialog = (props) => {
 	    </>
 	);
     };
+    
 
 
     const ActionComponent = () => {
@@ -214,6 +233,7 @@ export const MonacoDialog = (props) => {
 		    <ThemeProvider theme={props.theme}>
 			<MonacoControlPanel
 			    id = "control-panel-monaco"
+			    zIndex = { props.zIndexPair.zIndex }
 			    editorRef = { props.inputRef }
 			    settings = { props.editorSettings }
 			    handleChange = { props.handleChange }
@@ -232,7 +252,7 @@ export const MonacoDialog = (props) => {
  			</Button>
 		    </ThemeProvider>
  		</DialogActions>
-		</>
+	    </>
 	);
     };
 
@@ -248,7 +268,8 @@ export const MonacoDialog = (props) => {
 		<MateDialogRND W = {widthMonaco} H = {heightMonaco} onResize = {onResize} onResizeStop = {onResizeStop}
 			       minWidth = {600} minHeight = {800}
 			       MainComponent = {MainComponent} ActionComponent = {ActionComponent}
-			       
+		               onClick = {props.onClick}
+		               zIndex = {props.zIndexPair.zIndex.editor}
 			       title = {props.task.data.question.questionFrontendId + "." + props.task.data.question.title}
 			       onClose = {props.handleClose} open = {props.open} id = {props.id} onStop = {onStop} position = {pos}
 		/>
@@ -256,11 +277,12 @@ export const MonacoDialog = (props) => {
 	    </>
 	    <>
 		<MateEditorConfig open = { openSetting } onClose = {() => { setOpenSetting(false); }}
-				  config = {props.editorSettings} onChange = { props.handleChange }/>
+				  config = {props.editorSettings} onChange = { props.handleChange }
+		                  zIndex = {props.zIndexPair.zIndex.editor_settings}
+		/>
 	    </>
-	</>
+	    </>
     );
-};
-
+	};
 
 export { MATE_MONACO_THEME, MATE_EDITOR_LANGUAGE};

@@ -66,7 +66,7 @@ export const ContentViewDefault = (props) => {
 			    style = {{height: "100%", width:"100%"}}
 			    innerRef = {props.barRef}
 			>
-			    <InputOutputExpectedPane state = {props.state} inputRef = { props.inputRef } mode = { props.mode } />
+			    <InputOutputExpectedPane state = {props.state} inputRef = { props.inputRef } mode = { props.mode } inputCursor = {props.inputCursor}/>
 			</Section>
 			<Bar size = { 10 } onClick = { onBarClick } style={{ background: '#888888', cursor: 'col-resize' }} />
 			<Section style = {{height: "100%", width:"100%"}}

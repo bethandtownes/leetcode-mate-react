@@ -72,10 +72,10 @@ export default function MonacoControlPanel(props) {
 	    <FormControl id = { ID() } variant="outlined" className={classes.formControl}>
 		<Select
 		    labelId="mate-monaco-select-moded-label"
-		    id= {ID()}
+		    id= {'mateeditor-language-select' + ID().toString()}
 		    onChange = { props.handleChange }
 		    value={ props.settings.mode }
-		    style= {{ backgroundColor: "white" }}
+		    style= {{ zIndex:props.zIndex.editor_lang_select, backgroundColor: "white" }}
 		    label="mate-monaco-mode"
 		    input={ <BootstrapInput id = {ID() } /> }
 		    name = {"mode"} 
