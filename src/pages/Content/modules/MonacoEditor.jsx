@@ -154,11 +154,19 @@ export const MonacoDialog = (props) => {
     const [widthMonaco, setWidthMonaco] = React.useState(600);
     const [heightMonaco, setHeightMonaco] = React.useState(800);
     /* const [cursorPos, setCursorPos] = React.useState({line: 1, ch: 1, sticky: null}); */
-    
+    const [cursor, setCursor] = React.useState({line: 1, ch: 1, sticky: null});
 
     
 
     const onStop = (e, data) => {
+	setPos({x: data.lastX, y: data.lastY});
+	return;
+    };
+
+    
+    const onStart = (e, data) => {
+	setCursor(inputRef.current.editor.getCursor());
+	props.save();
 	setPos({x: data.lastX, y: data.lastY});
 	return;
     };
@@ -178,12 +186,13 @@ export const MonacoDialog = (props) => {
     };
 
     const handleClick = () => {
-	const zIndex = props.zIndexPair.zIndex;
-	props.saveInput();
+	/* const zIndex = props.zIndexPair.zIndex;
+	   props.saveInput(); */
+	props.onClick();
 	setCursorPos(inputRef.current.editor.getCursor());
 	props.save();
-	const curMaxzIndex = Object.entries(zIndex).map(([x, y])=> y).reduce((x, y)=> Math.max(x, y), 0);
-	props.zIndexPair.setzIndex({...zIndex, editor: curMaxzIndex + 500});
+	/* const curMaxzIndex = Object.entries(zIndex).map(([x, y])=> y).reduce((x, y)=> Math.max(x, y), 0);
+	   props.zIndexPair.setzIndex({...zIndex, editor: curMaxzIndex + 500}); */
     };
     
     const handleSetting = () => {
@@ -212,7 +221,7 @@ export const MonacoDialog = (props) => {
 	    <>
 		<div id = "mate-editor">
  		    <MateEditor code = { props.code }  onChange = { props.onCodeChange } W = {widthMonaco} H = {heightMonaco} HRatio = { props.HRatio }
-				cursor = { props.cursorPos }
+				cursor = { cursor }
 				settings = {props.editorSettings}
                                 focus = { props.focus }
 				inputRef = {props.inputRef} />
@@ -264,8 +273,9 @@ export const MonacoDialog = (props) => {
 	    <>
 		<MateDialogRND W = {widthMonaco} H = {heightMonaco} onResize = {onResize} onResizeStop = {onResizeStop}
 			       minWidth = {600} minHeight = {800}
+		               onStart = {onStart}
 			       MainComponent = {MainComponent} ActionComponent = {ActionComponent}
-		               onClick = {props.onClick}
+		               onClick = {handleClick}
 		               zIndex = {props.zIndexPair.zIndex.editor}
 			       title = {props.task.data.question.questionFrontendId + "." + props.task.data.question.title}
 			       onClose = {props.handleClose} open = {props.open} id = {props.id} onStop = {onStop} position = {pos}

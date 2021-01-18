@@ -23,11 +23,13 @@ import { ID } from "./utility.js"
 
 
 const DraggablePaperComponent = (props) => {
+    console.log(props);
     const paperProps = Object.fromEntries(Object.entries(props)
 					  .filter(([k, v]) => k !=  'onStop' && k != 'position'));
     /* console.log(paperProps); */
     return (
 	<Draggable
+	    onStart = {(e, data) => { props.onStart(e, data) }}
 	    onStop = {(e, data) => { props.onStop(e, data) }}
 	    position = { props.position }
 	    handle = { '#draggable' + props.id.toString() }
@@ -54,7 +56,7 @@ export const MateDialogRND = (props) => {
  	    onClose={props.handleClose}
  	    maxWidth={false}
  	    PaperComponent={ DraggablePaperComponent }
- 	    PaperProps={{ onClick: props.onClick, id: props.id, position: props.position, onStop: props.onStop,  style: {backgroundColor: 'rgba(0,0,0,0.9)', pointerEvents: 'auto'}}}
+ 	    PaperProps={{ onStart: props.onStart, onClick: props.onClick, id: props.id, position: props.position, onStop: props.onStop,  style: {backgroundColor: 'rgba(0,0,0,0.9)', pointerEvents: 'auto'}}}
  	    aria-labelledby="draggable-dialog-title"
 	>
 	    <div style={{ overflow: "hidden"}}>

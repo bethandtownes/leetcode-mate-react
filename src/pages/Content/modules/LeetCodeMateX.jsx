@@ -253,29 +253,29 @@ function LeetCodeMate(props) {
     });
 
 
-    /* useEffect(async () => {
-       const update = () => {
-       saveInput();
-       if (monacoRef.current != undefined) {
-       setCursorPos(monacoRef.current.editor.getCursor());
-       }
-       saveMateEditor();
-       const curMaxzIndex = Object.entries(zIndex).map(([x, y])=> y).reduce((x, y)=> Math.max(x, y), 0);
-       const newState = {
-       submission: 1000,
-       textinput: 1100,
-       editor: 1200,
-       editor_lang_select: 1300,
-       editor_settings: 1400
-       
-       };
-       setzIndex(newState);
-       };
-       saveMateEditor();
-       if (focusMateEditor.on == true) {
-       update();
-       }
-     * }, [focusMateEditor]); */
+    useEffect(async () => {
+	const update = () => {
+	    saveInput();
+	    if (monacoRef.current != undefined) {
+		setCursorPos(monacoRef.current.editor.getCursor());
+	    }
+	    saveMateEditor();
+	    const curMaxzIndex = Object.entries(zIndex).map(([x, y])=> y).reduce((x, y)=> Math.max(x, y), 0);
+	    const newState = {
+		submission: 1000,
+		textinput: 1100,
+		editor: 1200,
+		editor_lang_select: 1300,
+		editor_settings: 1400
+		
+	    };
+	    setzIndex(newState);
+	};
+	saveMateEditor();
+	if (focusMateEditor.on == true) {
+	    update();
+	}
+    }, [focusMateEditor]);
 
 
     useEffect(async () => {
@@ -430,31 +430,31 @@ function LeetCodeMate(props) {
 
 
     const safeFocus = (elementRef) => {
-	if (elementRef.current != null && elementRef != undefined) {
+	if (elementRef.current != null || elementRef != undefined) {
 	    elementRef.current.focus();
 	}
     };
 
-    /* useEffect(() => {
-       if (focus.on) {
-       if (focus.component == "input_text_area") {
-       focusInput();
-       }
-       else if (focus.component == "textarea_stdout") {
-       safeFocus(stdoutRef);
-       }
-       else if (focus.component == "textarea_errmsg") {
-       safeFocus(errmsgRef);
-       }
-       else if (focus.component == "textarea_output") {
-       safeFocus(outputRef);
-       }
-       else if (focus.component == "textarea_expected") {
-       safeFocus(expectedRef);
-       }
-       
-       }
-     * }); */
+    useEffect(() => {
+	if (focus.on) {
+	    if (focus.component == "input_text_area") {
+		focusInput();
+	    }
+	    else if (focus.component == "textarea_stdout") {
+		safeFocus(stdoutRef);
+	    }
+	    else if (focus.component == "textarea_errmsg") {
+		safeFocus(errmsgRef);
+	    }
+	    else if (focus.component == "textarea_output") {
+		safeFocus(outputRef);
+	    }
+	    else if (focus.component == "textarea_expected") {
+		safeFocus(expectedRef);
+	    }
+	    
+	}
+    });
 
 
     useEffect(() => {
@@ -922,7 +922,7 @@ function LeetCodeMate(props) {
     };
 
     const handleClickSubmission = (e) => {
-	if (focus.on) return;
+	console.log(e);
 	if (e.target.id == "input_text_area") {
 	    console.log(textRef.current.selectionStart);
 	    console.log(textRef.current.selectionEnd);
@@ -966,13 +966,13 @@ function LeetCodeMate(props) {
 			      PaperComponent={PaperComponent}
 			      PaperProps={{ onStop: onStop, onStart: onStart, position: pos, onClick: handleClickSubmission, style: {backgroundColor: 'rgba(0,0,0,0.6)', pointerEvents: 'auto'}}}
 			      aria-labelledby="draggable-dialog-title"
-			  >
-			      <MiddleContent />
-			      <Box mb={0.5}>
-				  <DialogActions>
-				      <Actions />
-				  </DialogActions>
-			      </Box>
+		>
+		<MiddleContent />
+		<Box mb={0.5}>
+		    <DialogActions>
+			<Actions />
+		    </DialogActions>
+		</Box>
 			  </Dialog>
 		      </>
 		      <>
@@ -986,27 +986,17 @@ function LeetCodeMate(props) {
 			  <MonacoDialog open = {openMonaco}
 			                task = { taskInfo }
 			                onClick = {(e) => {
-					    const newState = {
-						submission: 1000,
-						textinput: 1100,
-						editor: 1200,
-						editor_lang_select: 1300,
-						editor_settings: 1400
-						
-					    };
-					    setzIndex(newState);
-					    if (focusMateEditor.on == true) return;
 				            setFocus(false);
 					    saveInput();
-					    
-
+					    setCursorPos(monacoRef.current.editor.getCursor());
+					    setFocusMateEditor({...focusMateEditor, on: true, component: e.target.id});
 					}}
 			                cursorPos =  {cursorPos}
                                         focus = { focusMateEditor  }
 			                zIndexPair = {{ zIndex: zIndex, setzIndex : setzIndex }}
 			                id = { ID() }
       			                W = {widthMonaco} H = {heightMonaco}
-					editorSettings = { settingsMateEditor }
+			  editorSettings = { settingsMateEditor }
 			                onResizeMonoco = { onResizeMonac }
 			                onResizeStopMonaco = { onResizeStopMonaco }
 			                onCodeChange = { handleCodeChange }
@@ -1024,10 +1014,10 @@ function LeetCodeMate(props) {
 			                theme = { theme }
 			  />
 		      </>
-		  </>
-	      )}
+	    </>
+	)}
         </div>
-    );
+);
 }
 
 export { LeetCodeMate };
