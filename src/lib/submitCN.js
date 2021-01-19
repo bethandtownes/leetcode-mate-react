@@ -5,15 +5,21 @@ import * as UtilSubmissionPane from "./submit_pane_util.jsx";
 import { isCN } from "./acquire.js";
 
 
-export async function submitCN(prevState, task) {
-    /* const task = await acquire.TaskInfoCN(); */
+export async function submitCN(prevState, task, code = undefined, lang = undefined ) {
+     if (code == undefined) {
+	code = await acquire.EditorValue();
+    }
+    if (lang == undefined) {
+	lang = acquire.ProgrammingLanguage();
+    }
+
     const data = {
-	lang: acquire.ProgrammingLanguageCN(),
+	lang: lang,
 	questionSlug: task.question_title_slug,
 	question_id: task.question_id,
 	test_judger: "",
 	test_mode: false,
-	typed_code: await acquire.EditorValue(), 
+	typed_code: code
     };
 
     const submitURL = "/problems/" + task.question_slug + "/submit/";

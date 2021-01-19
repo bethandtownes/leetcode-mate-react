@@ -38,6 +38,8 @@ import DeveloperModeIcon from '@material-ui/icons/DeveloperMode';
 import FullscreenIcon from '@material-ui/icons/Fullscreen';
 import SettingsIcon from '@material-ui/icons/Settings';
 import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
+
+
 function checkmod(e, mod) {
     if (mod == "Enter") {
 	return e.key == "Enter";
@@ -185,6 +187,8 @@ function LeetCodeMate(props) {
     const [cursorPos, setCursorPos] = React.useState({line: 1, ch: 1, sticky: null});
     const [pos, setPos] = React.useState({x: 0, y:0})
     const [inputCursor, setInputCursor] = React.useState([0, 0]);
+
+    const [monacoLan, setMonacoLan] = React.useState(null);
     
     const [W, setW] = React.useState(800);
     const [H, setH] = React.useState(500);
@@ -328,12 +332,14 @@ function LeetCodeMate(props) {
 	if (settingsMateEditor != null) {
 	    console.log('[loaded] mate editor settings');
 	    setReady({...ready, loadedMateEditor: true});
+	    setMonacoLan(MATE_EDITOR_LANGUAGE[settingsMateEditor.mode].leetcode_slug);
 	}
     }, [settingsMateEditor]);
 
     useEffect(async () => {
 	const conf = await acquire.MateEditorSettings();	
 	setSettingsEditor(conf);
+	setMonacoLan(MATE_EDITOR_LANGUAGE[conf.mode].leetcode_slug);
     }, []);
 
     const updateTaskInfo = async () => {
@@ -595,12 +601,8 @@ function LeetCodeMate(props) {
 		return;
 	    }
 	    else {
-		console.log(e.target.className.toLowerCase());
 		if (e.target.className.toLowerCase().match("codemirror") != null && e.path.some(x => x.id == 'mate-editor') == false) {
-		    console.log(e.path);
-		    console.log(submitPortal);
 		    if (submitPortal != 'leetcode-editor') {
-			console.log('setting');
 			if (focusMateEditor) {
 			    setFocusMateEditor(false);
 			}
@@ -703,11 +705,23 @@ function LeetCodeMate(props) {
 
 
 
+
+    
     const handleMonacoSubmit = async () => {
 	dispatch({ type: T.action.update_input, payload: "" });
 	setMode(T.mode.submit);
 	setJudge(true);
-	const res = CN == true ? (await submitCN(state, problemSlug)) : (await submit(state, problemSlug, monacoRef.current.editor.getValue(), "cpp"));
+
+	const res = await (() => {
+	    if (CN) {
+		return submitCN(state, problemSlug, monacoRef.current.editor.getValue(), monacoLan);
+	    }
+	    else {
+		return submit(state, problemSlug, monacoRef.current.editor.getValue(), monacoLan);
+	    }
+	})();
+	
+	/* const res = CN == true ? (await submitCN(state, problemSlug, monacoRef.current.editor.getValue(), monacoLan)) : (await submit(state, problemSlug, monacoRef.current.editor.getValue(), monacoLan)); */
 	saveMateEditor();
 	if (res == null) {
 	    handleGReset();
@@ -792,14 +806,6 @@ function LeetCodeMate(props) {
 	    updateMessagePaneTabStatus(res);
 	};
 	
-	/* const handleButtonClose = () => {
-	   if (open) {
-	   if (!judge && state.result_status != T.result.accepted) {
-	   dispatch({type: T.action.update_input, payload: textRef.current.value});
-	   }
-	   setOpen(false);
-	   }
-	   }; */
 
 	const handleMini = () => {
 	    if (mini == false) {

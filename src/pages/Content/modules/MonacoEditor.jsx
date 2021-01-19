@@ -119,6 +119,8 @@ function MateEditor(props) {
 		editor.setSize(props.W, props.H - 90);
 		editor.addKeyMap({"Ctrl-/": 'toggleComment'});
 		editor.getWrapperElement().style['font-size'] = props.settings.fontsize;
+		editor.getWrapperElement().style['line-height'] = (parseInt(props.settings.fontsize) + 5).toString() + "px";
+
 		if (props.focus) {
 		    editor.focus();
 		}

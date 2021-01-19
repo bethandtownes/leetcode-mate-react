@@ -3,16 +3,26 @@ import { DEBUG }  from "./debug.js"
 import * as UtilSubmissionPane from "./submit_pane_util.jsx";
 
 
-export async function runtestCN(testInput, task) {
+export async function runtestCN(testInput, task, code = undefined, lang = undefined) {
     /* const task = await acquire.TaskInfoCN(); */
+
+    if (code == undefined) {
+	code = await acquire.EditorValue();
+    }
+
+    if (lang == undefined) {
+	lang = acquire.ProgrammingLanguageCN();
+    }
+
+    
     const data = {
 	data_input: testInput,
 	judge_type: "large",
-	lang: acquire.ProgrammingLanguageCN(),
+	lang: lang,
 	question_id: task.question_id,
 	test_judger: "",
 	test_mode: false,
-	typed_code: await acquire.EditorValue(), 
+	typed_code: code
     };
     const submitURL = "/problems/" + task.question_slug + "/interpret_solution/";
     
@@ -31,8 +41,6 @@ export async function runtestCN(testInput, task) {
 	else {
 	    console.log(e);
 	    return null;
-	    /* console.log(e);
-	       next(e); */
 	}
     });
 }
