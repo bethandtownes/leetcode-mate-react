@@ -3,41 +3,79 @@ console.log("[status]: page_script fired")
 const CN = document.getElementsByClassName("css-19dbiou-HomeWrapper e1925exm1")[0] != undefined;
 
 
+
 const useMonaco = () => {
     return document.getElementsByClassName("css-1jwxfyp-IndicatorButton e8k12jq1")[0] != undefined;
 };
 
-let editorConfig = {
-    bracketMatching: false,
-    blinkingCursor: false
-};
+
+let editorConfig;
 
 
-function setEditor() {
+async function setEditor()  {  
     if (useMonaco() == false) {
-	const editor = document.querySelector(".CodeMirror").CodeMirror;
-	if (editor == undefined || editor == null) return;
-	document.querySelector(".CodeMirror").CodeMirror.setOption("autoCloseBrackets", editorConfig.bracketMatching);
-	document.querySelector(".CodeMirror").CodeMirror.setOption("cursorBlinkRate", editorConfig.blinkingCursor ? 530 : 0);
+	
+	if (CN) {
+	    for (let i = 0; i < 30; ++i) {
+		const elm = await new Promise((resolve, fail) => {
+		    setTimeout(() => {
+			resolve(document.getElementsByClassName("css-pwvbgl-CodeAreaContainer ejldciv0")[0]);
+		    }, 300);
+		});
+
+		if (elm == undefined || elm == null) {
+		    continue;
+		}
+		else {
+		    const editor = document.querySelector(".CodeMirror").CodeMirror;
+		    if (editor == undefined || editor == null) return;
+		    editor.setOption("autoCloseBrackets", editorConfig.autoCloseBrackets);
+		    editor.setOption("cursorBlinkRate", editorConfig.blinkingCursor ? 530 : 0);
+
+		    elm.style['display']= editorConfig.hide ? 'none' : '';
+		    break;
+		}
+		
+
+	    }
+	}
+	else {
+	    for (let i = 0; i < 30; ++i) {
+		const elm = await new Promise((resolve, fail) => {
+		    setTimeout(() => {
+			resolve(document.querySelector('[data-cy="code-area"]'));
+		    }, 300);
+		});
+		if (elm == null || elm == undefined) continue;
+		else {
+		    const editor = document.querySelector(".CodeMirror").CodeMirror;
+		    if (editor == undefined || editor == null) return;
+		    editor.setOption("autoCloseBrackets", editorConfig.autoCloseBrackets);
+		    editor.setOption("cursorBlinkRate", editorConfig.blinkingCursor ? 530 : 0);
+		    if (editorConfig.hide == true) {
+			console.log('hide');
+			document.querySelector('[data-cy="code-area"]').parentElement.style['flex'] = "0 0 1px";
+			document.querySelector('[data-id="0"]').style['flex'] = "1 0 0px";
+		    }
+		    else {
+			document.querySelector('[data-cy="code-area"]').parentElement.style['flex'] = "1 0 320px";
+			document.querySelector('[data-id="0"]').style['flex'] = "0 1 400px";
+		    }
+		    break;
+		}
+	    }
+	}
+	
     }
 };
 
 
 window.addEventListener("EDITOR_CONFIG_EVENT", function(event) {
-    if (event.detail.action == "INIT") {
-	editorConfig = event.detail.data;
-	setEditor();
-    }
-    if (event.detail.action == "UPDATE") {
-	editorConfig = event.detail.data;
+    if (event.detail.action == "SET") {
+	editorConfig = event.detail.data.editor;
 	setEditor();
     }
 }, false);
-
-window.addEventListener('click', function() {
-    setEditor();
-});
-
 
 window.addEventListener("EDITOR_GRAB", function test() {
     if (useMonaco()) {

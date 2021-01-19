@@ -13,7 +13,8 @@ chrome.runtime.onInstalled.addListener(function () {
 	leetcodeEditorSettings: JSON.stringify({
 	    editor: {
 		autoCloseBrackets: true,
-		blinkingCursor: true
+		blinkingCursor: true,
+		hide: false
 	    },
 	    keybinding: {
 		toggleSubmissionPane: {

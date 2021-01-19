@@ -306,7 +306,14 @@ function LeetCodeMate(props) {
 
     useEffect(async () => {
 	const initLeetCodeMateSettings =  await acquire.LeetCodeEditorSettings();
+	console.log(initLeetCodeMateSettings);
 	setSettingLeetCodeMate(initLeetCodeMateSettings);
+	let event = new CustomEvent('EDITOR_CONFIG_EVENT', {detail: {
+	    action: "SET",
+	    data: initLeetCodeMateSettings
+	}});
+	window.dispatchEvent(event);
+
 	console.log("[loaded] leetcodemate settings");
     }, []);
     
@@ -314,6 +321,11 @@ function LeetCodeMate(props) {
     useEffect(async () => {
 	if (settingsLeetCodeMate != null) {
 	    setReady({...ready, loadedLeetCodeMateSettings : true});
+	    let event = new CustomEvent('EDITOR_CONFIG_EVENT', {detail: {
+		action: "SET",
+		data: settingsLeetCodeMate
+	    }});
+	    window.dispatchEvent(event);
 	    console.log("[loaded flag on] leetcodemate settings");
 	}
     }, [settingsLeetCodeMate]);
@@ -397,7 +409,7 @@ function LeetCodeMate(props) {
     const handleLeetCodeMateSettingsChange = async (e) => {
 	const newState = (() => {
 	    const option = e.target.name;
-	    if (option === 'autoCloseBrackets' || option === 'blinkingCursor') {
+	    if (option === 'autoCloseBrackets' || option === 'blinkingCursor' || option === 'hide') {
 		const newEditConfig = {...settingsLeetCodeMate};
 		newEditConfig.editor[option] = e.target.checked;
 		return newEditConfig
@@ -407,6 +419,7 @@ function LeetCodeMate(props) {
 		newEditConfig.keybinding[option] = e.target.value;
 		return newEditConfig;
 	    }
+
 	    return state;
 	})();
 	setSettingLeetCodeMate(newState);
@@ -434,6 +447,14 @@ function LeetCodeMate(props) {
 		}
 		else {
 		    updateTaskInfo();
+		    
+		    if (!CN) {
+			let event = new CustomEvent('EDITOR_CONFIG_EVENT', {detail: {
+			    action: "SET",
+			    data: settingsLeetCodeMate
+			}});
+			window.dispatchEvent(event);
+		    }
 		    console.log("[background msg] updated task info");
 		    return;
 		}
@@ -540,18 +561,21 @@ function LeetCodeMate(props) {
 	    setOpen(true);
 	}
 
+	const newState = {
+	    submission: 1200,
+	    testinput:1500,
+	    editor: 1000,
+	    editor_lang_select: 1300,
+	    editor_settings: 1400
+	};
+	setzIndex(newState);
+	
 	if (openMonaco) {
 	    setSubmit('mate-editor')
-	    saveMateEditor();	  
+	    saveMateEditor();
+
 	    handleMonacoSubmit();
-	    const newState = {
-		submission: 1200,
-		testinput:1500,
-		editor: 1000,
-		editor_lang_select: 1300,
-		editor_settings: 1400
-	    };
-	    setzIndex(newState);
+
 	    return;
 	}
 	else {
@@ -616,7 +640,7 @@ function LeetCodeMate(props) {
 		return;
 	    }
 	    else {
-		if (e.target.className.toLowerCase().match("codemirror") != null && e.path.some(x => x.id == 'mate-editor') == false) {
+		if (String(e.target.className).toLowerCase().match("codemirror") != null && e.path.some(x => x.id == 'mate-editor') == false) {
 		    if (submitPortal != 'leetcode-editor') {
 			if (focusMateEditor) {
 			    setFocusMateEditor(false);
@@ -1092,7 +1116,7 @@ function LeetCodeMate(props) {
 	});
     };
     
-    if (checkReady() == false || taskInfo == null) {
+    if (checkReady() == false || taskInfo == null || settingsLeetCodeMate == null) {
 	return null;
     }
 

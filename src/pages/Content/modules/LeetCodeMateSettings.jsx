@@ -189,7 +189,8 @@ export default function LeetCodeMateSettings(props) {
 	    // TODO: load config from google storage
 	}
     }, []);
-    
+
+   
 
     const mainContent = () => {
 	return (
@@ -202,12 +203,16 @@ export default function LeetCodeMateSettings(props) {
 		    </FormLabel>
 		    <Box>
 			<Box mt = {-2}>
-			    <OptionTrueFalse id = {ID()} name = "autoCloseBrackets" displayName = "Auto Close Brackets"n
+			    <OptionTrueFalse id = {ID()} name = "autoCloseBrackets" displayName = "Auto Close Brackets"
 					     onChange = { props.onChange } checked = { props.settings.editor.autoCloseBrackets }/>
 			</Box>
 			<Box mt = {-5}>
 			    <OptionTrueFalse id = { ID()} name = "blinkingCursor" displayName = "Blinking Cursor"
 					     onChange = { props.onChange } checked = { props.settings.editor.blinkingCursor }/>
+			</Box>
+			<Box mt = {-5}>
+			    <OptionTrueFalse id = { ID()} name = "hide" displayName = "Disable Completely"
+					     onChange = { props.onChange } checked = { props.settings.editor.hide }/>
 			</Box>
 		    </Box>
 		</FormGroup>
