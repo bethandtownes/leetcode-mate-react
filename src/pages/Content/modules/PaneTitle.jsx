@@ -3,17 +3,18 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import HashLoader from "react-spinners/HashLoader";
 import Box from '@material-ui/core/Box';
 
-import {Typography} from '@material-ui/core/';
+import {Typography, IconButton} from '@material-ui/core/';
 import { T } from "../../../lib/typings.js";
 import BuildIcon from '@material-ui/icons/Build';
 import Alert from '@material-ui/lab/Alert';
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
+import CancelIcon from '@material-ui/icons/Cancel';
 
 
 const timerProps = {
-  isPlaying: true,
-  size: 40,
-  strokeWidth: 3
+    isPlaying: true,
+    size: 40,
+    strokeWidth: 3
 };
 
 const renderTime = (time) => {
@@ -65,8 +66,8 @@ export default function PaneTitle(props) {
 		|| state.result_status == T.result.time_limit_exceeded
 		|| state.result_status == T.result.wrong_answer
 		|| state.result_status == T.result.memory_limit_exceeded) {
-		const A = state.total_correct.toString();
-		const B = state.total_testcases.toString();
+		const A = state.total_correct ? state.total_correct.toString() : "";
+		const B = state.total_testcases ? state.total_testcases.toString() : "";
 		return state.result_status + " (" + A + "/" + B + ")";
 	    }
 	    return state.result_status;
@@ -116,16 +117,18 @@ export default function PaneTitle(props) {
 		style={{ cursor: 'move' , backgroundColor: makeBackgroundColor(),  width: "800"}}
 		id="submitpanelc"
 	    >
+
 		<Box display = "flex" flexDirection = "row">
-		    <Typography variant="h6" style = {{color: "black"}}>
+		    <Typography variant="h6" style = {{color: "black", marginTop: "2px"}}>
 			{renderStatus()}
 		    </Typography>
-		    <p/>
-		    <Box ml={2} mt={2}>
-			<HashLoader size = {25} loading = {props.loading} style = {{marginLeft: "20px"}}/>
-		    </Box>
-		    <p/>
 		    <ModeIcon />
+		    <div style={{flex: '1 0 0'}} />
+		    <Box>
+			<IconButton id = "matepaneclosebutton"  size = 'small' >
+			    <CancelIcon id = "matepaneclose" style = {{color:"black", marginTop: "4px", marginLeft: "auto"}}/>
+			</IconButton>
+		    </Box>
 		</Box>
 
 	    </DialogTitle>  

@@ -48,74 +48,80 @@ const PaperComponent = (props: PaperProps) => {
 }
 
 
-const initialState = {
-    result_status: null,
-    input: "",
-    output: "",
-    expected: "",
-    status_runtime: null,
-    status_memory: null,
-    runtime_percentile: null,
-    memory_percentile: null,
-    msg_compile_error: "init",
-    msg_runtime_error: null,
-    msg_debug: null,
-    total_correct: null,
-    total_testcases: null
-};
+export function Submission(props) {
+    const mode = props.mode;
+    const judge = props.judge;
+    const state = props.state;
+    // sizes should be local
 
-function reducer(state, action) {
-    switch (action.type) {
-	case T.action.update: {
-	    return action.payload;
-	}
-	case T.action.update_input: {
-	    return {
-		result_status: state.result_status,
-		input: action.payload,
-		output: state.output,
-		expected: state.expected,
-		status_runtime: state.status_runtime,
-		status_memory: state.status_memory,
-		runtime_percentile: state.runtime_percentile,
-		memory_percentile: state.memory_percentile,
-		msg_compile_error: state.msg_compile_error,
-		msg_runtime_error: state.msg_runtime_error,
-		msg_debug: state.msg_debug,
-		total_correct: state.total_correct,
-		total_testcases: state.total_testcases
-	    };
-	}
-        case T.action.run_default_case : {
-	    return ;
-	}
-	case T.action.reinitialize: {
-	    return initialState;
-	}
-        default: {
-	    return state;
-        }
-    }
-}
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    width: '50%',
-    '& > * + *': {
-      marginTop: theme.spacing(2),
-    },
-  },
-}));
-
-const theme = createMuiTheme({
-    palette: {
- 	action: {
- 	    disabled: '#bdbdbd'
- 	}
-    }
-});
-
-export function SubmissionPane(props) {
+    const [barPos, setBarPos] = React.useState(220);
+    const barRef = React.useRef();
     
     
+    
+    const MiddleContent = () => {
+	if ((mode == T.mode.submit && judge == true) || (state.result_status == T.result.accepted && mode == T.mode.submit)) {
+	    return (
+		<ContentViewSubmitOrAccepted loading = { judge }
+		                             sizes= {sizes}
+		                             submit = {submitPortal}
+					     state = { state }
+					     mode = { mode }
+		/>
+	    );
+	}
+	else {
+	    return (
+		<ContentViewDefault loading = { judge } state = { state } mode = { mode }
+		                    barPos = { barPos } barRef = {barRef}
+				    submit = {submitPortal}
+		                    zIndex = { props.zIndex.testinput }
+		                    sizes = { sizes }
+		                    containerRef = {containerRef}
+		                    stdoutRef = {props.stdoutRef}
+		                    inputCursor = {props.inputCursor }
+		                    inputRef = { props.textRef } failed = { props.failed }
+		                    tabID = { value } handleTabChange = { props.handleChange }
+	        />
+	    );
+	}
+    }
+    
+    return (
+	<>
+	    <Dialog
+		id={"submission_pane"}
+		open={props.open}
+		hideBackdrop = {true}
+		disableAutoFocus = {true}
+		disableEnforceFocus
+		style={{ zIndex: props.zIndex, pointerEvents: 'none'}}  
+		disableBackdropClick = {true}
+		onClose={props.handleClose}
+		maxWidth={false}
+		PaperComponent={PaperComponent}
+		PaperProps={{ onStop: props.onStop, onStart: props.onStart, position: pos, onClick: props.handleClickSubmission, style: {backgroundColor: 'rgba(0,0,0,0.6)', pointerEvents: 'auto'}}}
+		aria-labelledby="draggable-dialog-title"
+	    >
+		<div  style={{ overflow: "hidden"}}>
+		    {resizeListener}
+		    <Resizable
+			size = {{width:props.getW(), height: props.getH() }}
+			minHeight = {props.getMinH()}
+			minWidth = {props.getMinW()}
+			onResizeStop ={ props.onResizeStop }
+		    >
+			<>
+			    <MiddleContent size = {size} />
+			    <Box mb={0.5}>
+				<DialogActions>
+				    <Actions />
+				</DialogActions>
+			    </Box>
+			</>
+		    </Resizable>
+		</div>
+	    </Dialog>
+	</>
+    );
 };

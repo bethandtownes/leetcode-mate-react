@@ -9,7 +9,7 @@ export default function ConventViewSubmitOrAccepted(props) {
     return (
 
 	    <>
-		<PaneTitle submit = {props.submit} state = { props.state } loading = { props.loading } mode = { props.mode }/>
+		<PaneTitle submit = {props.submit} state = { props.state } loading = { props.loading } mode = { props.mode } onClose = { props.onClose }/>
 		<Divider />
 		<DialogContent style = {{height: props.sizes.height - 115}}>
 		    <Box display = "flex" flexDirection = "column" style = {{height: "100%", alignItems: "stretch"}}>

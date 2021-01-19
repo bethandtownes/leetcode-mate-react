@@ -1,5 +1,6 @@
 import React from 'react';
 import Button from '@material-ui/core/Button';
+import {IconButton} from '@material-ui/core'
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import Paper, { PaperProps } from '@material-ui/core/Paper';
@@ -29,14 +30,14 @@ import LeetCodeMateSettings from "./LeetCodeMateSettings.jsx";
 import { MATE_EDITOR_LANGUAGE } from "./MonacoEditor.jsx";
 import ReactResizeDetector from 'react-resize-detector';
 import { useResizeDetector } from 'react-resize-detector';
-
+import HashLoader from "react-spinners/HashLoader";
 import useResizeAware from 'react-resize-aware';
 
-
-/* const CustomComponent = () => {
- *   return <div ref={ref}>{`${width}x${height}`}</div>;
- * }; */
-
+import BuildIcon from '@material-ui/icons/Build';
+import DeveloperModeIcon from '@material-ui/icons/DeveloperMode';
+import FullscreenIcon from '@material-ui/icons/Fullscreen';
+import SettingsIcon from '@material-ui/icons/Settings';
+import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
 function checkmod(e, mod) {
     if (mod == "Enter") {
 	return e.key == "Enter";
@@ -106,6 +107,14 @@ const initialState = {
     total_testcases: null
 };
 
+
+
+const initialState2 = {
+    judge: false
+};
+
+
+
 function reducer(state, action) {
     switch (action.type) {
 	case T.action.update: {
@@ -141,12 +150,12 @@ function reducer(state, action) {
 }
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    width: '50%',
-    '& > * + *': {
-      marginTop: theme.spacing(2),
+    root: {
+	width: '50%',
+	'& > * + *': {
+	    marginTop: theme.spacing(2),
+	},
     },
-  },
 }));
 
 const theme = createMuiTheme({
@@ -161,7 +170,6 @@ const theme = createMuiTheme({
 function LeetCodeMate(props) {
     const [resizeListener, sizes] = useResizeAware();
     const [submitPortal, setSubmit] = React.useState('leetcode-editor');
-
     const [open, setOpen] = React.useState(false);
     const [openSetting, setOpenSetting] = React.useState(false);
     const [mode, setMode] = React.useState(null);
@@ -200,7 +208,6 @@ function LeetCodeMate(props) {
     const expectedRef = React.useRef();
 
 
-
     const [focus, setFocus] = React.useState({
 	on: false,
 	component: undefined
@@ -224,19 +231,25 @@ function LeetCodeMate(props) {
 	return;
     };
 
-
-    
     const onStart = (e, data) => {
-	    const newState = {
-		submission: 1200,
-		testinput:1500,
-		editor: 1000,
-		editor_lang_select: 1300,
-		editor_settings: 1400
-	    };
-	    setzIndex(newState);
-	    setPos({x: data.lastX, y: data.lastY});
-
+	if (e.target != undefined && e.target.viewportElement != undefined && e.target.viewportElement.id == "matepaneclose") {
+	    handleClose();
+	    return;
+	}
+	if (e.target != undefined && e.target.id == "matepaneclosebutton") {
+	    handleClose();
+	    return;
+	}
+	
+	const newState = {
+	    submission: 1200,
+	    testinput:1500,
+	    editor: 1000,
+	    editor_lang_select: 1300,
+	    editor_settings: 1400
+	};
+	setzIndex(newState);
+	setPos({x: data.lastX, y: data.lastY});
 	return;
     };
 
@@ -251,8 +264,6 @@ function LeetCodeMate(props) {
     
     
     const [settingsLeetCodeMate, setSettingLeetCodeMate] = React.useState(null);
-
-
     
     const [zIndexSubmission, setzIndexSubmission] = React.useState(1);
 
@@ -264,9 +275,6 @@ function LeetCodeMate(props) {
 	editor_settings:1400
     });
 
-
-
-    
     useEffect(async () => {
 	const update = () => {
 	    saveInput();
@@ -388,7 +396,6 @@ function LeetCodeMate(props) {
 	});
     };
 
-
     const [state, dispatch] = useReducer(reducer, initialState);
 
     
@@ -416,7 +423,7 @@ function LeetCodeMate(props) {
     });
 
 
-   
+    
 
     useEffect(async() => { updateTaskInfo(); }, []);
     
@@ -427,12 +434,12 @@ function LeetCodeMate(props) {
     }, [failed]);
 
 
-     const focusInput = () => {
-       if (textRef.current != null || textRef.current != undefined) {
-	   textRef.current.focus();
-	   textRef.current.setSelectionRange(cursors.input[0], cursors.input[1]);
-       }
-      };
+    const focusInput = () => {
+	if (textRef.current != null || textRef.current != undefined) {
+	    textRef.current.focus();
+	    textRef.current.setSelectionRange(cursors.input[0], cursors.input[1]);
+	}
+    };
 
 
 
@@ -470,18 +477,17 @@ function LeetCodeMate(props) {
 	    return;
 	}
 	else {
-	    /* dispatch({ type: T.action.update_input, payload: textRef.current.value }); */
-	    saveInput();
-	    saveMateEditor();
-	    setBarPos(barRef.current.clientWidth);
-	    const newState = {
-		submission: 1200,
-		testinput:1500,
-		editor: 1000,
-		editor_lang_select: 1300,
-		editor_settings: 1400
-	    };
-	    setzIndex(newState);
+	    if (zIndex.submission < zIndex.editor) return;
+	    withSave(() => {
+		const newState = {
+		    submission: 1200,
+		    testinput:1500,
+		    editor: 1000,
+		    editor_lang_select: 1300,
+		    editor_settings: 1400
+		};
+		setzIndex(newState);
+	    })();
 	}
 	
     }, [focus]);
@@ -585,10 +591,23 @@ function LeetCodeMate(props) {
 
     useEffect(() => {
 	const test = (e) => {
-	    console.log('clicked');
-	    console.log(e.target.className);
-	    /* console.log(e.path[3].id); */
-	    console.log(e.path.some(x => x.id ==='mate-editor'))
+	    if (e.target == undefined || e.target.className == undefined) {
+		return;
+	    }
+	    else {
+		console.log(e.target.className.toLowerCase());
+		if (e.target.className.toLowerCase().match("codemirror") != null && e.path.some(x => x.id == 'mate-editor') == false) {
+		    console.log(e.path);
+		    console.log(submitPortal);
+		    if (submitPortal != 'leetcode-editor') {
+			console.log('setting');
+			if (focusMateEditor) {
+			    setFocusMateEditor(false);
+			}
+			setSubmit('leetcode-editor');
+		    }
+		}
+	    }
         };
 	
 	window.addEventListener('click', test);
@@ -606,8 +625,6 @@ function LeetCodeMate(props) {
 	    const bindKey = (keys, fn) => { if (triggers(e, keys)) fn(); }
 	    bindKey(keybinding.toggleSubmissionPane, withSave(toggleSubmissionPane));
 	    bindKey(keybinding.toggleMateEditor, withSave(toggleMonaco));
-
-	    /* bindKey(keybinding.toggleMateEditor, ()=> { if (openMonaco) saveMateEditor();  saveInput(); setOpenMonaco(!openMonaco); }); */
 	    bindKey(keybinding.submit, handleSubmit);
 	    bindKey(keybinding.test, handleTest);
 	};
@@ -669,6 +686,7 @@ function LeetCodeMate(props) {
         setValue(newValue);
 	dispatch({ type: T.action.update_input, payload: textRef.current.value });
     };
+
 
 
     const updateMessagePaneTabStatus = (res) => {
@@ -774,18 +792,18 @@ function LeetCodeMate(props) {
 	    updateMessagePaneTabStatus(res);
 	};
 	
-	const handleButtonClose = () => {
-	    if (open) {
-		if (!judge && state.result_status != T.result.accepted) {
-		    dispatch({type: T.action.update_input, payload: textRef.current.value});
-		}
-		setOpen(false);
-	    }
-	};
+	/* const handleButtonClose = () => {
+	   if (open) {
+	   if (!judge && state.result_status != T.result.accepted) {
+	   dispatch({type: T.action.update_input, payload: textRef.current.value});
+	   }
+	   setOpen(false);
+	   }
+	   }; */
 
 	const handleMini = () => {
 	    if (mini == false) {
-		setW(700);
+		setW(565);
 		setH(300);
 		setBarPos(150);
 		setMini(true);
@@ -800,10 +818,14 @@ function LeetCodeMate(props) {
 
 	const renderMini = () => {
 	    if (mini == true) {
-		return "Unmini";
+		return (
+		    <FullscreenIcon/>
+		);
 	    }
 	    else {
-		return "Mini";
+		return (
+		    <FullscreenExitIcon/>
+		);
 	    }
 	}
 
@@ -823,43 +845,96 @@ function LeetCodeMate(props) {
 	    setOpenMonaco(!openMonaco);
 	}
 
+	const ModeIcon = () => {
+	    if (mode == T.mode.test) {
+		return <BuildIcon style = {{color:"white"}}/>;
+	    }
+	    else {
+		return null;
+	    }
+	}
+
+	const JudgeLoader = () => {
+	    if (judge) {
+		return (
+		    <Box ml = {3} mt = {2}>
+		    	<HashLoader size = {25} color = "yellow" loading = {judge} />
+		    </Box>
+		);
+	    }
+	    return null;
+	}
+
+	const handleButtonClose = () => {
+	    setOpen(false);
+	}
+	
+	const EditorMode = () => {
+	    return (
+		// hack
+		<Box mt = {mode == T.mode.test ? 0.25 : 0}>
+		    <Typography variant = 'subtitle1' style= {{color: "white", align: 'left'}}>
+			{(() => {
+			    if (submitPortal == "leetcode-editor") {
+				return mini ? "L" : submitPortal;
+			    }
+			    if (submitPortal == "mate-editor") {
+				return mini ? "M" : submitPortal;
+			    }
+			})()}
+		    </Typography>
+		</Box>
+	    );
+	};
+
         return (
             <>
 		<ThemeProvider theme={theme}>
-		    <Box ml = {2}>
-		    <Typography variant = 'subtitle2' style= {{color: "white", align: 'left'}}>
-			{submitPortal}
-		    </Typography>
+		    <Box display= "flex" flexDirection="row" ml = {2}>
+			<EditorMode />
+			<Box ml = {1.5} display = "flex" flexDirection = "row" >
+			    <Box ml = {0}>
+				<Button 
+   				    variant = "contained"
+				    size = "small"
+				    onClick =  { handleMateEditor }
+				    color="primary">
+				    <DeveloperModeIcon fontSize = 'default'/>
+				</Button>
+			    </Box>
+			    <Box ml = {1}>
+				<Button 
+   				    variant = "contained"
+				    size = "small"
+				    onClick =  { handleSetting }
+				    color="primary">
+				    <SettingsIcon fontSize = 'default'/>
+				</Button>
+			    </Box>
+			    <Box ml = {1}>
+				<Button 
+   				    variant = "contained"
+				    size = "small"
+				    onClick =  { handleMini }
+				    color="primary">
+				    {renderMini()}
+				</Button>
+			    </Box>
+			</Box>
+			<JudgeLoader />
+			<Box ml = {2} mt = {0.4}>
+			    <ModeIcon />
+			</Box>
 		    </Box>
 		    <div style={{flex: '1 0 0'}} />
 
-		    <Button 
-   			variant = "contained"
-			size = "small"
-			onClick =  { handleMateEditor }
-			color="primary">
-			Editor
-		    </Button>
-		    <Button 
-   			variant = "contained"
-			size = "small"
-			onClick =  { handleSetting }
-			color="primary">
-			Setting
-		    </Button>
-		    <Button 
-   			variant = "contained"
-			size = "small"
-			onClick =  { handleMini }
-			color="primary">
-			{renderMini()}
-		    </Button>
+		    
 		    <Button ref = { runDefaultButtonRef }
-   			    variant = "contained"
-			    size = "small"
-			    onClick =  { handleRunDefault }
-			    disabled = { judge || failed } color="primary">
-			Run Default
+   			variant = "contained"
+			size = "small"
+			onClick =  { handleRunDefault }
+			disabled = { judge || failed } color="primary">
+			{ mini ? "Default" : "Run Default" }
 		    </Button>
 		    <Button   variant = "contained"
 			      size = "small"
@@ -884,11 +959,12 @@ function LeetCodeMate(props) {
     };
 
 
-    const MiddleContent = () => {
+    const MiddleContent = (_props) => {
 	if ((mode == T.mode.submit && judge == true) || (state.result_status == T.result.accepted && mode == T.mode.submit)) {
 	    return (
 		<ContentViewSubmitOrAccepted loading = { judge }
 		                             sizes= {sizes}
+		                             onClose = { _props.onClose }
 		                             submit = {submitPortal}
 					     state = { state }
 					     mode = { mode }
@@ -901,6 +977,7 @@ function LeetCodeMate(props) {
 		                    barPos = { barPos } barRef = {barRef}
 				    submit = {submitPortal}
 		                    zIndex = { zIndex.testinput }
+				    onClose = { _props.onClose }
 		                    sizes = { sizes }
 		                    containerRef = {containerRef}
 		                    refs = {{stdout: stdoutRef, err: errmsgRef, output: outputRef, expected: expectedRef }}
@@ -912,20 +989,6 @@ function LeetCodeMate(props) {
 	    );
 	}
     }
-
-    const onResizeStopMonaco = (e, dir, ref) => {
-	setHeightMonaco(parseInt(ref.style.height))
-	setWidthMonaco(parseInt(ref.style.width));
-	return false;
-    };
-    
-
-    const onResizeMonac = (e, dir, ref) => {
-	const width = parseInt(ref.style.width);
-	const height = parseInt(ref.style.height);
-	monacoRef.current.editor.setSize(width, height - 90);
-	return false;
-    };
 
 
     const handleCodeChange = ((editor, data, value) => { });
@@ -997,7 +1060,7 @@ function LeetCodeMate(props) {
 	    };
 	    setzIndex(newState);
 	}
-
+	console.log(e);
 	if (focus.on) return;
 	saveInput();
 	saveMateEditor();
@@ -1014,6 +1077,9 @@ function LeetCodeMate(props) {
 
 
     const getH = () => {
+	if (mode == T.mode.test) {
+	    return H;
+	}
 	if (judge || state.result_status == T.result.accepted) {
 	    return 250;
 	}
@@ -1032,7 +1098,10 @@ function LeetCodeMate(props) {
 	}
     };
 
-     const getW = () => {
+    const getW = () => {
+	if (mode == T.mode.test) {
+	    return W;
+	}
 	if (judge || state.result_status == T.result.accepted) {
 	    return 800;
 	}
@@ -1047,7 +1116,7 @@ function LeetCodeMate(props) {
 	    return 800;
 	}
 	else {
-	    return 620;
+	    return 565;
 	}
     };
 
@@ -1065,7 +1134,7 @@ function LeetCodeMate(props) {
 			      disableEnforceFocus
 			      style={{ zIndex: zIndex.submission, pointerEvents: 'none'}}  
 			      disableBackdropClick = {true}
-			      onClose={handleClose}
+			      onClose= {withSave(handleClose)}
 			      maxWidth={false}
 			      PaperComponent={PaperComponent}
 			      PaperProps={{ onStop: withSave(onStop), onStart: withSave(onStart), position: pos, onClick: handleClickSubmission, style: {backgroundColor: 'rgba(0,0,0,0.6)', pointerEvents: 'auto'}}}
@@ -1079,12 +1148,11 @@ function LeetCodeMate(props) {
 				      minWidth = {getMinW()}
 				      onResizeStop ={ XX }
 				  >
-				      <MiddleContent />
-				      <Box mb={0.5}>
-					  <DialogActions>
-					      <Actions />
-					  </DialogActions>
-				      </Box>
+				      <MiddleContent onClose = {handleClose}/>
+
+				      <DialogActions>
+					  <Actions />
+				      </DialogActions>
 				  </Resizable>
 			      </div>
 			  </Dialog>
@@ -1138,10 +1206,11 @@ function LeetCodeMate(props) {
 			                code = { codeMateEditor }
 					handleChange = { handleEditorSettingChange } 
 					inputRef = { monacoRef }
-					handleClose = {() => {
+					handleClose = {withSave(() => {
+					    setSubmit('leetcode-editor');
 					    saveMateEditor();
 					    setOpenMonaco(false);
-					}}
+					})}
 			                theme = { theme }
 			  />
 		      </>

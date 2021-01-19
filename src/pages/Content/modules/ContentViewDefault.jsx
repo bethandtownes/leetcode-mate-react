@@ -35,18 +35,6 @@ export const ContentViewDefault = (props) => {
 	}
     };
 
-    const percentageHfix = () => {
-	if (props.W <= 700) {
-	    return "90%";
-	}
-	if (props.W < 650) {
-	    return "95%";
-	}
-	else {
-	    return "98%";
-	}
-    };
-
 
     const H = props.sizes.height - 115;
     
@@ -55,7 +43,8 @@ export const ContentViewDefault = (props) => {
 	
 		<>
 		    <PaneTitle state = { props.state } loading = { props.loading }
-			       mode = { props.mode } failed = { props.failed } />
+			       mode = { props.mode } failed = { props.failed }
+		               onClose = { props.onClose }/>
 		    <Divider />
 
 			<Container style = {{height: H, width:"100%"}}
