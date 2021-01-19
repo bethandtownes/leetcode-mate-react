@@ -371,6 +371,21 @@ function LeetCodeMate(props) {
 		const p = await acquire.TaskInfoCN();
 		setProblemSlug(p);
 		const r = await acquire.QuestionDetailStatsCN(p.question_title_slug);
+		if (taskInfo != null && r.data.question.title != taskInfo.data.question.title) {
+		    const matched_item = r.data.question.codeSnippets.find(x => {
+			return x.langSlug === MATE_EDITOR_LANGUAGE[settingsMateEditor.mode].leetcode_slug;
+		    });
+		    setCodeMateEditor(matched_item.code);
+		}
+		if (taskInfo == null) {
+		    const conf = await acquire.MateEditorSettings();	
+		    const matched_item = r.data.question.codeSnippets.find(x => {
+
+
+			return x.langSlug === MATE_EDITOR_LANGUAGE[conf.mode].leetcode_slug;
+		    });
+		    setCodeMateEditor(matched_item.code);
+		}
 		const inputCase = r.data.question.sampleTestCase;
 		setDefaultCase(inputCase);
 		setTaskInfo(r);
@@ -414,7 +429,7 @@ function LeetCodeMate(props) {
 	const handleUrlChange = (request, sender, sendResponse) => {
 	    if (request.message === 'HANDLE_URL_CHANGE') {
 		const newUrl = request.url;
-		if (newUrl.match("leetcode.com/problems") == null && newUrl.match("leetcode-cn.com/problem") == null) {
+		if (newUrl.match("leetcode.com/problems") == null && newUrl.match("leetcode-cn.com/problems") == null) {
 		    return;
 		}
 		else {
