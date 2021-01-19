@@ -561,6 +561,7 @@ function LeetCodeMate(props) {
 	    setOpen(true);
 	}
 
+	saveMateEditor();
 	const newState = {
 	    submission: 1200,
 	    testinput:1500,
@@ -572,7 +573,6 @@ function LeetCodeMate(props) {
 	
 	if (openMonaco) {
 	    setSubmit('mate-editor')
-	    saveMateEditor();
 
 	    handleMonacoSubmit();
 
@@ -668,6 +668,11 @@ function LeetCodeMate(props) {
 	    bindKey(keybinding.toggleMateEditor, withSave(toggleMonaco));
 	    bindKey(keybinding.submit, handleSubmit);
 	    bindKey(keybinding.test, handleTest);
+	    if (e.key == "Escape") {
+		withSave(() => {
+		    handleClose();
+		})();
+	    }
 	};
 	window.addEventListener('keydown', toggle);
 	return () => { window.removeEventListener('keydown', toggle); }
@@ -998,7 +1003,6 @@ function LeetCodeMate(props) {
 
     
     const XX = (e, d, ref) => {
-	console.log(containerRef);
 	setH(parseInt(ref.style.height))
 	setW(parseInt(ref.style.width));
     };
@@ -1105,7 +1109,6 @@ function LeetCodeMate(props) {
 	    };
 	    setzIndex(newState);
 	}
-	console.log(e);
 	if (focus.on) return;
 	saveInput();
 	saveMateEditor();

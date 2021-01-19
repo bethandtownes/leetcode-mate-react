@@ -66,8 +66,8 @@ export default function PaneTitle(props) {
 		|| state.result_status == T.result.time_limit_exceeded
 		|| state.result_status == T.result.wrong_answer
 		|| state.result_status == T.result.memory_limit_exceeded) {
-		const A = state.total_correct ? state.total_correct.toString() : "";
-		const B = state.total_testcases ? state.total_testcases.toString() : "";
+		const A = state.total_correct ? state.total_correct.toString() : "0";
+		const B = state.total_testcases ? state.total_testcases.toString() : "0";
 		return state.result_status + " (" + A + "/" + B + ")";
 	    }
 	    return state.result_status;
@@ -122,7 +122,6 @@ export default function PaneTitle(props) {
 		    <Typography variant="h6" style = {{color: "black", marginTop: "2px"}}>
 			{renderStatus()}
 		    </Typography>
-		    <ModeIcon />
 		    <div style={{flex: '1 0 0'}} />
 		    <Box>
 			<IconButton id = "matepaneclosebutton"  size = 'small' >
