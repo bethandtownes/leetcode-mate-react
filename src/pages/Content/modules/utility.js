@@ -13,3 +13,19 @@ export const ID = function () {
   // after the decimal.
   return '_' + Math.random().toString(36).substr(2, 9);
 };
+
+
+export function withValidRef(ref, fn) {
+    return (...args) => {
+	if ( ref == null || ref == undefined || ref.current == null || ref.current == undefined) {
+	    return;
+	}
+	else {
+	    fn(...args);
+	}
+    };
+	
+}
+
+
+

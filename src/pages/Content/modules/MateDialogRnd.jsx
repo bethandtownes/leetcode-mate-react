@@ -31,7 +31,7 @@ const DraggablePaperComponent = (props) => {
 	    onStop = {(e, data) => { props.onStop(e, data) }}
 	    position = { props.position }
 	    handle = { '#draggable' + props.id.toString() }
-
+            bounds = {props.bounds}
 	    cancel={'[class*="MuiDialogContent-root"]'}
 	>
             <Paper {...paperProps} />

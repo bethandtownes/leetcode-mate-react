@@ -24,6 +24,7 @@ import { ID } from "./utility.js"
 import { useMountedState, useMeasure} from 'react-use';
 import { MateDialogRND } from './MateDialogRnd.jsx';
 
+import { withValidRef } from "./utility.js";
 
 
 const MATE_EDITOR_LANGUAGE = {
@@ -113,7 +114,7 @@ function MateEditor(props) {
 	<CodeMirror
 	    id = "mate"
             ref = { props.inputRef }
-            value = { props.code }
+            value = { props.state.editor.value }
 	    options={ props.settings }
 	    editorDidMount ={(editor) => {
 		editor.setSize(props.W, props.H - 90);
@@ -124,7 +125,9 @@ function MateEditor(props) {
 		if (props.focus) {
 		    editor.focus();
 		}
+
 		editor.setCursor(props.cursor);
+		
 		editor.refresh();
 	    }}
             onChange = {props.onChange}
@@ -148,31 +151,41 @@ const theme = createMuiTheme({
 });
 
 
+function thunk(fn) {
+    return () => {
+	fn();
+    };
+}
+
+
+
+
+
 export const MonacoDialog = (props) => {
     const [openSetting, setOpenSetting] = React.useState(false);
-    const [task, setTask] = React.useState(props.task);
-    const [code, setCode] = React.useState("");
-
     const inputRef = props.inputRef;
     const [pos, setPos] = React.useState({x: 0, y:0})
-    const [drag, setDrag] = React.useState(false);
     const [widthMonaco, setWidthMonaco] = React.useState(800);
     const [heightMonaco, setHeightMonaco] = React.useState(1000);
-    /* const [cursorPos, setCursorPos] = React.useState({line: 1, ch: 1, sticky: null}); */
-    const [cursor, setCursor] = React.useState({line: 1, ch: 1, sticky: null});
+    const cursor = props.cursor;
+    const setCursor = props.setCursor;
+    const dispatch = props.dispatch;
 
-    
+
+
+
 
     const onStop = (e, data) => {
+	withValidRef(inputRef, () =>  dispatch.global({type: 'SAVE_MATE',
+						       ref: inputRef,
+						       pos: {x:data.lastX, y:data.lastY}}))();
 	setPos({x: data.lastX, y: data.lastY});
 	return;
     };
 
     
     const onStart = (e, data) => {
-	setCursor(inputRef.current.editor.getCursor());
-	props.save();
-	setPos({x: data.lastX, y: data.lastY});
+	withValidRef(inputRef, () =>  dispatch.global({type: 'SAVE_MATE', ref: inputRef}))();
 	return;
     };
 
@@ -182,43 +195,33 @@ export const MonacoDialog = (props) => {
 	    const matched_item = props.task.data.question.codeSnippets.find(x => {
 		return x.langSlug === MATE_EDITOR_LANGUAGE[props.editorSettings.mode].leetcode_slug;
 	    });
+	    
 	    if (matched_item != undefined && matched_item != null) {
-		props.inputRef.current.editor.setValue(matched_item.code);
-		props.save();
+		withValidRef(inputRef, () =>  dispatch.global({type: 'RESET_MATE', ref: inputRef.current, value: matched_item.code}))();
 	    }
 
 	}
     };
 
-    const handleClick = () => {
-	setCursor(inputRef.current.editor.getCursor());
-
-	/* const zIndex = props.zIndexPair.zIndex;
-	   props.saveInput(); */
-	props.onClick();
-	props.save();
-	/* const curMaxzIndex = Object.entries(zIndex).map(([x, y])=> y).reduce((x, y)=> Math.max(x, y), 0);
-	   props.zIndexPair.setzIndex({...zIndex, editor: curMaxzIndex + 500}); */
-    };
     
     const handleSetting = () => {
 	setOpenSetting(true);
-    }
+    };
+
 
 
     const onResizeStop = (e, dir, ref) => {
 	setHeightMonaco(parseInt(ref.style.height))
 	setWidthMonaco(parseInt(ref.style.width));
-	setDrag(false);
 	return false;
     };
     
 
     const onResize = (e, dir, ref) => {
+	console.log('called');
 	const width = parseInt(ref.style.width);
 	const height = parseInt(ref.style.height);
 	inputRef.current.editor.setSize(width, height - 90);
-	props.save();
 	return false;
     };
 
@@ -226,8 +229,8 @@ export const MonacoDialog = (props) => {
 	return (
 	    <>
 		<div id = "mate-editor">
- 		    <MateEditor code = { props.code }  onChange = { props.onCodeChange } W = {widthMonaco} H = {heightMonaco} HRatio = { props.HRatio }
-				cursor = { cursor }
+ 		    <MateEditor code = { props.stateGlobal.editor.value }  onChange = { props.onCodeChange } W = {widthMonaco} H = {heightMonaco} HRatio = { props.HRatio }                           state = { props.stateGlobal}
+				cursor = { props.stateGlobal.editor.cursor }
 				settings = {props.editorSettings}
                                 focus = { props.focus }
 				inputRef = {props.inputRef} />
@@ -281,7 +284,7 @@ export const MonacoDialog = (props) => {
 			       minWidth = {600} minHeight = {800}
 		               onStart = {onStart}
 			       MainComponent = {MainComponent} ActionComponent = {ActionComponent}
-		               onClick = {handleClick}
+		               onClick = {props.onClick}
 		               zIndex = {props.zIndexPair.zIndex.editor}
 			       title = {props.task.data.question.questionFrontendId + "." + props.task.data.question.title}
 			       onClose = {props.handleClose} open = {props.open} id = {props.id} onStop = {onStop} position = {pos}

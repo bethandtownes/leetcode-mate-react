@@ -19,6 +19,8 @@
 * Use `Ctrl + Enter` to submit current code and display submission result
 * Use `Alt + Enter` to test run default test cases and run test cases (Mac users use `Cmd + Enter`)
 * Use `Alt + i` to toggle LeetCode Mate UI (Mac users use `Cmd +i`)
+* Use `Alt + k` to toggle LeetCode Mate Editor (Mac users use `Cmd +k`)
+
 * To use it in LeetCode-CN, please disable the default `ctrl-enter` shortcuts.
 
 
