@@ -22,7 +22,8 @@
     },
     "permissions": [
 	"storage",
-	"tabs"
+	"tabs",
+	"unlimitedStorage"
     ],
     "web_accessible_resources": [
 	"page_script.js",

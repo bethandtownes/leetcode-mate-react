@@ -2,7 +2,7 @@ export const Test = () => {console.log("backlcevents loaded")};
 
 chrome.runtime.onInstalled.addListener(function () {
     
-
+    console.log("installed");
     const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
 
     if (isMac) {
@@ -63,6 +63,36 @@ chrome.runtime.onInstalled.addListener(function () {
     }, function() {
 	console.log("Initialized mate editor settings");
     });
+
+    const TOTAL_PROBLEM_CAP = 2500;
+    
+    for (let i = 1; i <= 2500; ++i) {
+	const pid = 'p' + i.toString();
+	chrome.storage.local.set({
+	    [pid]: JSON.stringify({
+		code: {
+		    cpp: "",
+		    java: "",
+		    python3: "",
+		    javascript: "",
+		    typescript: ""
+		},
+		marked: {
+		    cpp: [],
+		    java: [],
+		    python3: [],
+		    javascript: [],
+		    typescript: []
+		},
+		failed_case: []
+	    })
+	}, function() {
+	    if (i % 200 == 0) {
+		console.log("initialized problem files: [" + i.toString() + "/" + TOTAL_PROBLEM_CAP.toString() +"]" );
+	    }
+	});
+    }
+    
 });
 
 

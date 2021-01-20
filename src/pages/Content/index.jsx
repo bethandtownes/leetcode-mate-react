@@ -1,6 +1,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+
+import {readSession} from "../../lib/sessions.jsx"
+
+async function T() {
+    const p = await readSession(1);
+    console.log(p);
+    
+}
+
+
+T();
+
 const viewport = document.getElementById('app');
 const app = document.createElement('div');
 

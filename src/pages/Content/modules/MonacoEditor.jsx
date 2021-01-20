@@ -27,6 +27,9 @@ import { MateDialogRND } from './MateDialogRnd.jsx';
 import { withValidRef } from "./utility.js";
 
 
+
+
+
 const MATE_EDITOR_LANGUAGE = {
     "text/x-c++src": {
 	leetcode_slug: 'cpp',
@@ -218,7 +221,6 @@ export const MonacoDialog = (props) => {
     
 
     const onResize = (e, dir, ref) => {
-	console.log('called');
 	const width = parseInt(ref.style.width);
 	const height = parseInt(ref.style.height);
 	inputRef.current.editor.setSize(width, height - 90);
