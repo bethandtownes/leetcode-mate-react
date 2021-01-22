@@ -262,6 +262,20 @@ function LeetCodeMate(props) {
 	    focus: {
 		submission: false,
 		monaco: false
+	    },
+	    sizes: {
+		editor: {
+		    W: 600,
+		    H: 800
+		}
+	    },
+	    postion: {
+		editor: {
+		    x: 0, y: 0
+		},
+		submission: {
+		    x: 0, y: 0
+		}
 	    }
 	}
     });
@@ -1237,6 +1251,7 @@ function LeetCodeMate(props) {
 			                task = { taskInfo }
 			                onClick = {(e) => {					  
 					    dispatchGlobal({type: 'SAVE_MATE', ref: monacoRef});
+					    dispatch({ type: T.action.update_input, payload: textRef.current.value });
 					    setState1({
 						...state1,
 						layout: {

@@ -92,7 +92,7 @@ const MATE_MONACO_THEME = [];
 import 'codemirror/lib/codemirror.css'
 import 'codemirror/theme/material-darker.css'; MATE_MONACO_THEME.push('material-darker');
 import 'codemirror/theme/monokai.css'; MATE_MONACO_THEME.push('monokai');
-import 'codemirror/theme/monokai-mate.css'; MATE_MONACO_THEME.push('monokai-mate');
+//import 'codemirror/theme/monokai-mate.css'; MATE_MONACO_THEME.push('monokai-mate');
 import 'codemirror/theme/darcula.css'; MATE_MONACO_THEME.push('darcula');
 import 'codemirror/theme/material.css'; MATE_MONACO_THEME.push('material');
 import 'codemirror/theme/eclipse.css'; MATE_MONACO_THEME.push('eclipse');
@@ -135,11 +135,7 @@ function MateEditor(props) {
 		    editor.focus();
 		}
 		    
-
-
-		
 		editor.setCursor(props.cursor);
-
 		
 		if (props.state.editor.selection != undefined) {
 		    editor.doc.setSelection(props.state.editor.selection.anchor, props.state.editor.selection.head);
