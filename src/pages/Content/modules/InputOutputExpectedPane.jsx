@@ -28,7 +28,7 @@ export const InputOutputExpectedPane = (props) => {
 		readOnly = { false }
 		rows = {20}
 		variant = "filled"
-		style = {{zIndex: props.zIndex, width:"100%", height:"34%", backgroundColor: 'rgba(255,255,255,0.8)', overflow: 'auto'}}
+		style = {{width:"100%", height:"34%", backgroundColor: 'rgba(255,255,255,0.8)', overflow: 'auto'}}
 	    >
 	    </TextField>
 	    <Divider/>

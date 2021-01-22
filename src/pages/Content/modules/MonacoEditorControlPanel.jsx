@@ -75,7 +75,7 @@ export default function MonacoControlPanel(props) {
 		    id= {'mateeditor-language-select' + ID().toString()}
 		    onChange = { props.handleChange }
 		    value={ props.settings.mode }
-		    style= {{ zIndex:props.zIndex.editor_lang_select, backgroundColor: "white" }}
+		    style= {{ backgroundColor: "white" }}
 		    label="mate-monaco-mode"
 		    input={ <BootstrapInput id = {ID() } /> }
 		    name = {"mode"} 

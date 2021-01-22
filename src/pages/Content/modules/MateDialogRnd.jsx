@@ -34,7 +34,7 @@ const DraggablePaperComponent = (props) => {
             bounds = {props.bounds}
 	    cancel={'[class*="MuiDialogContent-root"]'}
 	>
-            <Paper {...paperProps} />
+            <Paper style = {{zIndex:props.zindex}} {...paperProps} />
 	</Draggable>
 
     )
@@ -43,18 +43,19 @@ const DraggablePaperComponent = (props) => {
 
 
 export const MateDialogRND = (props) => {
+    console.log(props);
     return (
 	<Dialog
 	    open={props.open}
  	    hideBackdrop = {true}
  	    disableAutoFocus = {true}
  	    disableEnforceFocus
- 	    style={{ zIndex: props.zIndex, pointerEvents: 'none'}}  
+ 	    style={{zindex: props.zindex, pointerEvents: 'none'}}  
  	    disableBackdropClick = {true}
  	    onClose={props.handleClose}
  	    maxWidth={false}
  	    PaperComponent={ DraggablePaperComponent }
- 	    PaperProps={{ onStart: props.onStart, onClick: props.onClick, id: props.id, position: props.position, onStop: props.onStop,  style: {backgroundColor: 'rgba(0,0,0,0.9)', pointerEvents: 'auto'}}}
+ 	    PaperProps={{ zindex: props.zindex, onStart: props.onStart, onClick: props.onClick, id: props.id, position: props.position, onStop: props.onStop,  style: {backgroundColor: 'rgba(0,0,0,0.8)', pointerEvents: 'auto'}}}
  	    aria-labelledby="draggable-dialog-title"
 	>
 	    <div style={{ overflow: "hidden"}}>

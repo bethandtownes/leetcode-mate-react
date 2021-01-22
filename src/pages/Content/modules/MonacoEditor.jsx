@@ -26,6 +26,7 @@ import { MateDialogRND } from './MateDialogRnd.jsx';
 
 import { withValidRef } from "./utility.js";
 
+import {readSession} from "../../../lib/sessions.jsx";
 
 
 
@@ -113,23 +114,47 @@ require('codemirror/addon/selection/active-line.js')
 
 
 function MateEditor(props) {
+    
     return (
 	<CodeMirror
 	    id = "mate"
             ref = { props.inputRef }
             value = { props.state.editor.value }
 	    options={ props.settings }
-	    editorDidMount ={(editor) => {
+	    editorDidMount ={ async (editor) => {
 		editor.setSize(props.W, props.H - 90);
 		editor.addKeyMap({"Ctrl-/": 'toggleComment'});
 		editor.getWrapperElement().style['font-size'] = props.settings.fontsize;
 		editor.getWrapperElement().style['line-height'] = (parseInt(props.settings.fontsize) + 5).toString() + "px";
 
-		if (props.focus) {
+		{/* if (props.focus) {
+		    editor.focus();
+		    } */}
+
+		if (props.state1.layout.focus.monaco) {
 		    editor.focus();
 		}
+		    
 
+
+		
 		editor.setCursor(props.cursor);
+
+		
+		if (props.state.editor.selection != undefined) {
+		    editor.doc.setSelection(props.state.editor.selection.anchor, props.state.editor.selection.head);
+		}
+		editor.scrollTo(props.state.editor.scrollx, props.state.editor.scrolly);
+
+		if (props.init == false) {
+		    if (props.task == null || props.task == undefined) {
+			return;
+		    }
+		    const session = await readSession(props.task.data.question.questionId);
+		    const lang = MATE_EDITOR_LANGUAGE[editor.getOption("mode")].leetcode_slug;
+		    props.dispatch.global({type: 'RESET_MATE', ref: props.inputRef, value: session.code[lang]});
+		    props.setInit(true);
+		}
 		
 		editor.refresh();
 	    }}
@@ -154,11 +179,6 @@ const theme = createMuiTheme({
 });
 
 
-function thunk(fn) {
-    return () => {
-	fn();
-    };
-}
 
 
 
@@ -173,24 +193,74 @@ export const MonacoDialog = (props) => {
     const cursor = props.cursor;
     const setCursor = props.setCursor;
     const dispatch = props.dispatch;
+    const [init, setInit] = React.useState(false);
 
 
 
+    React.useEffect(async () => {	
+	setTimeout(async () => {
+	    while (true) {		
+		const saved = await new Promise((resolve, fail) => {
+		    setTimeout(() => {
+			if (inputRef != null && inputRef.current != undefined) {
+			    chrome.runtime.sendMessage({action: "SESSION_UPDATE_CODE", payload: {
+				code: inputRef.current.editor.getValue(),
+				lang: MATE_EDITOR_LANGUAGE[inputRef.current.editor.getOption("mode")].leetcode_slug,
+				pid: props.task.data.question.questionId
+			    }}, async function(response) {
+				resolve(response.status);
+			    });
+			}
+			else {
+			    resolve("[session] no mate editor found");
+			}
+		    }, 5000);
+		});
+		console.log(saved);
+	    }
+	}, 10000);
+    }, []);
 
 
     const onStop = (e, data) => {
-	withValidRef(inputRef, () =>  dispatch.global({type: 'SAVE_MATE',
-						       ref: inputRef,
-						       pos: {x:data.lastX, y:data.lastY}}))();
+	withValidRef(inputRef, () =>  {
+	    dispatch.global({type: 'SAVE_MATE',
+			     ref: inputRef,
+			     pos: {x:data.lastX, y:data.lastY}})
+	    
+	})();
 	setPos({x: data.lastX, y: data.lastY});
 	return;
     };
 
     
     const onStart = (e, data) => {
+	console.log('here2');
+	let elems = document.getElementsByClassName('react-draggable');
+	for(let i = 0; i < elems.length; i++) {
+	    elems[i].style.zIndex = 1;
+	    e.currentTarget.style.zIndex = 10000;
+	} 
 	withValidRef(inputRef, () =>  dispatch.global({type: 'SAVE_MATE', ref: inputRef}))();
 	return;
     };
+
+    
+    const onResizeStop = (e, dir, ref) => {
+	setHeightMonaco(parseInt(ref.style.height))
+	setWidthMonaco(parseInt(ref.style.width));
+	return false;
+    };
+
+    
+    const onResize = (e, dir, ref) => {
+	const width = parseInt(ref.style.width);
+	const height = parseInt(ref.style.height);
+	inputRef.current.editor.setSize(width, height - 90);
+	return false;
+    };
+
+    
 
     const handleReset = () => {
 	console.log('[mate editor] reset');
@@ -213,32 +283,35 @@ export const MonacoDialog = (props) => {
 
 
 
-    const onResizeStop = (e, dir, ref) => {
-	setHeightMonaco(parseInt(ref.style.height))
-	setWidthMonaco(parseInt(ref.style.width));
-	return false;
-    };
-    
-
-    const onResize = (e, dir, ref) => {
-	const width = parseInt(ref.style.width);
-	const height = parseInt(ref.style.height);
-	inputRef.current.editor.setSize(width, height - 90);
-	return false;
-    };
-
     const MainComponent = () => {
 	return (
 	    <>
 		<div id = "mate-editor">
  		    <MateEditor code = { props.stateGlobal.editor.value }  onChange = { props.onCodeChange } W = {widthMonaco} H = {heightMonaco} HRatio = { props.HRatio }                           state = { props.stateGlobal}
+		                init = {init} setInit = {(x) => setInit(x)}
 				cursor = { props.stateGlobal.editor.cursor }
 				settings = {props.editorSettings}
                                 focus = { props.focus }
+		                task = { props.task}
+		                state1 = {props.state1}
+		                dispatch = {props.dispatch}
 				inputRef = {props.inputRef} />
 		</div>
 	    </>
 	);
+    };
+
+
+    const handleLoadSaved = async () => {
+	if (props.task == null || props.task == undefined) {
+	    console.log('no task');
+	    return;
+	}
+	withValidRef(inputRef, async () => {
+	    const session = await readSession(props.task.data.question.questionId);
+	    const lang = MATE_EDITOR_LANGUAGE[props.editorSettings.mode].leetcode_slug;
+	    dispatch.global({type: 'RESET_MATE', ref: inputRef, value: session.code[lang]});
+	})();
     };
     
 
@@ -250,11 +323,14 @@ export const MonacoDialog = (props) => {
 		    <ThemeProvider theme={props.theme}>
 			<MonacoControlPanel
 			    id = "control-panel-monaco"
-			    zIndex = { props.zIndexPair.zIndex }
+			    setInit = { (x) => {setInit(x)}}
 			    editorRef = { props.inputRef }
 			    settings = { props.editorSettings }
 			    handleChange = { props.handleChange }
 			/>
+			<Button variant = "contained"  size = "small" onClick = { handleLoadSaved } color="primary">
+ 			    Load Saved
+ 			</Button>
  			<Button variant = "contained"  size = "small" onClick = { handleSetting } color="primary">
  			    Settings
  			</Button>
@@ -285,9 +361,9 @@ export const MonacoDialog = (props) => {
 		<MateDialogRND W = {widthMonaco} H = {heightMonaco} onResize = {onResize} onResizeStop = {onResizeStop}
 			       minWidth = {600} minHeight = {800}
 		               onStart = {onStart}
+		               zindex = {props.state1.layout.zindex.monaco}
 			       MainComponent = {MainComponent} ActionComponent = {ActionComponent}
 		               onClick = {props.onClick}
-		               zIndex = {props.zIndexPair.zIndex.editor}
 			       title = {props.task.data.question.questionFrontendId + "." + props.task.data.question.title}
 			       onClose = {props.handleClose} open = {props.open} id = {props.id} onStop = {onStop} position = {pos}
 		/>
@@ -296,7 +372,6 @@ export const MonacoDialog = (props) => {
 	    <>
 		<MateEditorConfig open = { openSetting } onClose = {() => { setOpenSetting(false); }}
 				  config = {props.editorSettings} onChange = { props.handleChange }
-		                  zIndex = {props.zIndexPair.zIndex.editor_settings}
 		/>
 	    </>
 	    </>

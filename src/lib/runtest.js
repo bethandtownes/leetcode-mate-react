@@ -46,3 +46,50 @@ async function makeSubmitRequest(task, submitURL) {
         body: JSON.stringify(task)
     });
 };
+
+
+
+
+export async function runtestN(testInput, task, code = undefined, lang = undefined, time = 0, maxTry = 10) {
+    console.log(testInput);
+    console.log("try: " + time);
+    if (code == undefined) {
+	code = await acquire.EditorValue();
+    }
+
+    if (lang == undefined) {
+	lang = acquire.ProgrammingLanguage();
+    }
+
+
+    
+    const data = {
+	data_input: testInput,
+	lang: lang,
+	question_id: task.data.question.questionId,
+	typed_code: code
+    };
+
+    console.log(data);
+    
+    const submitURL = "/problems/" + task.data.question.titleSlug + "/interpret_solution/";
+    
+    return makeSubmitRequest(data, submitURL).then(res => {
+	return res.json();
+    }).catch((e) => {
+	console.log(e);
+	throw new EvalError();
+    }).then( res => {
+	console.log(res);
+	return acquire.SubmissionDetail(res['interpret_id']);
+    }).then( res => {
+	return UtilSubmissionPane.makeTestDisplayState(res);
+    }).catch((e) => {
+	if (time == maxTry) {
+	    return "unfinished";
+	}
+	return new Promise((resolve, fail) => {
+	    setTimeout(() => resolve(runtestN(testInput, task, code, lang, time + 1)), 800);
+	});
+    });
+};

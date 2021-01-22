@@ -21,7 +21,10 @@ function reducer(state, action) {
 		    ...state,
 		    editor: {
 			cursor: ref.editor.getCursor(),
-		        value: ref.editor.getValue()
+		        value: ref.editor.getValue(),
+			selection: {anchor: ref.editor.doc.sel.ranges[0].anchor, head: ref.editor.doc.sel.ranges[0].head},
+			scrollx: ref.editor.getScrollInfo().left,
+			scrolly: ref.editor.getScrollInfo().top
 		    }
 		};
 	    }
@@ -61,7 +64,10 @@ const init = {
     editor: {
 	position: {x: 0, y: 0},
 	cursor: {line: 1, ch: 1, sticky: null},
-	value: ""
+	value: "",
+	selection: undefined,
+	scrollx: 0,
+	scrolly: 0
     },
 };
 

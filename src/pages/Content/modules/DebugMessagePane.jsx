@@ -41,13 +41,7 @@ function a11yProps(index) {
     };
 }
 
-export function DebugMessagePane(props) {
-
-
-
-    
-
-    
+export function DebugMessagePane(props) {   
     const renderErrorMsg = () => {
 	let state = props.state;
 	switch (state.result_status) {

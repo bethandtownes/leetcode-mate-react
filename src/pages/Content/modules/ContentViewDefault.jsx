@@ -39,8 +39,6 @@ export const ContentViewDefault = (props) => {
     const H = props.sizes.height - 115;
     
     return (
-
-	
 		<>
 		    <PaneTitle state = { props.state } loading = { props.loading }
 			       mode = { props.mode } failed = { props.failed }

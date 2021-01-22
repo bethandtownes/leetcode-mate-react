@@ -160,7 +160,6 @@ export default function MateEditorConfig(props) {
                mainContent = { mainContent() }
                dialogActions = { null }
                W = {500} minW = {500}
-               zIndex = {props.zIndex}
                resizable = {false}
                open = { props.open } onClose = { props.onClose } 
     />
