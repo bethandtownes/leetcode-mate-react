@@ -114,6 +114,7 @@ export function TestCaseInfo(props) {
 		<TabPanel value={layout.lower.tabId} index={0}
                           style = {{height: props.H, width:"100%", backgroundColor:"rgba(255, 255, 255, 0)"}}>
 		    <textarea   value = {makeStdout()}
+		                readOnly
 			        style = {{fontSize:"10pt",
 					  fontColor:"white",
 					  width:"100%", height:"100%", backgroundColor: 'rgba(255,255,255,0)', overflow: 'auto'}}
@@ -123,6 +124,7 @@ export function TestCaseInfo(props) {
 		<TabPanel value={layout.lower.tabId} index={1}
                           style = {{height: props.H, width:"100%"}}>
 		    <textarea   value = {makeErrorMessage()}
+		                readOnly
 			        style = {{fontSize:"10pt",   color: 'rgb(233, 30, 99)',
 					  backgroundColor: 'rgba(252, 228, 236, 0.9)',
 				          width:"100%", height:"100%", overflow: 'auto'}}

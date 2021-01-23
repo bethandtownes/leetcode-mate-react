@@ -22,7 +22,7 @@ export const InputOutputExpectedPane = (props) => {
 		id="input_text_area"
 		key = {"input_text_area_key"}
 		label = { renderLabel() }
-	        defaultValue = { props.state.input }
+	        defaultValue = { props.state1.inputbox.value }
 		inputRef = { props.inputRef }
 		multiline = { true }
 		readOnly = { false }

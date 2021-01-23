@@ -124,7 +124,6 @@ export default function TestCaseList(props) {
 		...layout,
 		edit: (layout.edit[index] = !edit, layout.edit)
 	    });
-	    console.log('here');
 	};
 
 	const handleSave = async () => {
@@ -149,9 +148,7 @@ export default function TestCaseList(props) {
 		    resolve(response.status);
 		})
 	    });
-	    console.log(status);
 	    mainUpdate.session();
-	    console.log('here');
 	};
 
 
@@ -187,6 +184,10 @@ export default function TestCaseList(props) {
 	}
 
 
+	const handleRun = () => {
+	    props.fnPack.handleRunChunk(index, index);
+	};
+	
 	const makeRunButton = () => {
 	    if (caseJuding) {
 		return (
@@ -197,10 +198,9 @@ export default function TestCaseList(props) {
 		
 	    }
 	    else {
-		console.log(state);
 		return (
 		    <Box key = {ID()} ml = {1} mt = {1.6} >
-			<Button key = {ID()} size= "small" variant= "contained" color="primary">
+			<Button key = {ID()} size= "small" onClick = {handleRun} variant= "contained" color="primary">
 			    Run
 			</Button>
 		    </Box>
@@ -214,7 +214,7 @@ export default function TestCaseList(props) {
 		return "";
 	    }
 	    
-	    if (caseState.result_status == "Test Didn't Pass") {
+	    if (caseState.result_status == "Test Didn't Pass" || caseState.result_status == "Test Passed" ) {
 		return caseState.output[0];
 	    }
 	    else {

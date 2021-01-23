@@ -92,7 +92,7 @@ const MATE_MONACO_THEME = [];
 import 'codemirror/lib/codemirror.css'
 import 'codemirror/theme/material-darker.css'; MATE_MONACO_THEME.push('material-darker');
 import 'codemirror/theme/monokai.css'; MATE_MONACO_THEME.push('monokai');
-//import 'codemirror/theme/monokai-mate.css'; MATE_MONACO_THEME.push('monokai-mate');
+import 'codemirror/theme/monokai-mate.css'; MATE_MONACO_THEME.push('monokai-mate');
 import 'codemirror/theme/darcula.css'; MATE_MONACO_THEME.push('darcula');
 import 'codemirror/theme/material.css'; MATE_MONACO_THEME.push('material');
 import 'codemirror/theme/eclipse.css'; MATE_MONACO_THEME.push('eclipse');
@@ -177,9 +177,6 @@ const theme = createMuiTheme({
 
 
 
-
-
-
 export const MonacoDialog = (props) => {
     const [openSetting, setOpenSetting] = React.useState(false);
     const inputRef = props.inputRef;
@@ -219,25 +216,22 @@ export const MonacoDialog = (props) => {
 
 
     const onStop = (e, data) => {
-	withValidRef(inputRef, () =>  {
-	    dispatch.global({type: 'SAVE_MATE',
-			     ref: inputRef,
-			     pos: {x:data.lastX, y:data.lastY}})
-	    
-	})();
-	setPos({x: data.lastX, y: data.lastY});
-	return;
+
+	if (pos.x == data.lastX && pos.y == data.lastY) {
+	    console.log('monaco stop: no rerender');
+	    return;
+	}
+	else {
+	    console.log('monaco stop: rerender');
+	    setPos({x: data.lastX, y: data.lastY});
+	    return;
+	}
     };
 
     
     const onStart = (e, data) => {
-	console.log('here2');
-	let elems = document.getElementsByClassName('react-draggable');
-	for(let i = 0; i < elems.length; i++) {
-	    elems[i].style.zIndex = 1;
-	    e.currentTarget.style.zIndex = 10000;
-	} 
-	withValidRef(inputRef, () =>  dispatch.global({type: 'SAVE_MATE', ref: inputRef}))();
+	/* console.log(e); */
+	props.onClick(e, false);
 	return;
     };
 
@@ -259,7 +253,6 @@ export const MonacoDialog = (props) => {
     
 
     const handleReset = () => {
-	console.log('[mate editor] reset');
 	if (props.inputRef.current != undefined || props.inputRef.current != null) {
 	    const matched_item = props.task.data.question.codeSnippets.find(x => {
 		return x.langSlug === MATE_EDITOR_LANGUAGE[props.editorSettings.mode].leetcode_slug;
@@ -276,7 +269,6 @@ export const MonacoDialog = (props) => {
     const handleSetting = () => {
 	setOpenSetting(true);
     };
-
 
 
     const MainComponent = () => {
@@ -335,6 +327,9 @@ export const MonacoDialog = (props) => {
  			</Button>
 			<Button variant = "contained"  size = "small" onClick = { props.handleTest } color="primary">
  			    Test
+ 			</Button>
+			<Button variant = "contained"  size = "small" onClick = { props.handleTestAll } color="primary">
+ 			    Test All
  			</Button> 
 			<Button variant = "contained"  size = "small" onClick = { props.handleSubmit } color="primary">
  			    Submit

@@ -21,6 +21,8 @@ import { ID } from "./utility.js"
 
 
 
+const DEBUG_MODE = false;
+
 
 const DraggablePaperComponent = (props) => {
     const paperProps = Object.fromEntries(Object.entries(props)
@@ -43,7 +45,11 @@ const DraggablePaperComponent = (props) => {
 
 
 export const MateDialogRND = (props) => {
-    console.log(props);
+    if (DEBUG_MODE) {
+	console.log('[debug(MateDialogRND)]: '+  'render with: ');
+	console.log(props);
+    }
+    
     return (
 	<Dialog
 	    open={props.open}
@@ -75,7 +81,7 @@ export const MateDialogRND = (props) => {
  			>
 			    <Box display = "flex" p = {1} >
 				<Box p = {1} flexGrow={1} ml = {-3} mt = {-3} >
-				    <Typography variant="subtitle2" style = {{color: "white"}}>
+				    <Typography id = "drag-title" variant="subtitle2" style = {{color: "white"}}>
 					{props.title}
 				    </Typography>
 				</Box>

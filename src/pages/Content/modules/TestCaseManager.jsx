@@ -1,4 +1,3 @@
-
 import Button from '@material-ui/core/Button'
 import Dialog from '@material-ui/core/Dialog'
 import DialogActions from '@material-ui/core/DialogActions'
@@ -29,13 +28,6 @@ import TestCaseList from "./TestCaseLists.jsx"
 import {runtestN} from "../../../lib/runtest.js";
 import {CollapseSections} from "./CollapsableSections.jsx";
 import { TestCaseInfo } from "./TestCaseInfoPanel.jsx"
-
-
-
-
-
-// use default theme
-// const theme = createMuiTheme();
 
 
 export const TestCaseManager = (props) => {
@@ -73,6 +65,8 @@ export const TestCaseManager = (props) => {
 	judging: session.failed_case.map(x => false),
 	result_status: session.failed_case.map(x => undefined)
     });
+
+
     
     const topSecRef = React.useRef();
     const refContainer = React.useRef();
@@ -84,7 +78,6 @@ export const TestCaseManager = (props) => {
     const task = props.task;
 
 
-    // address the scroll position
     React.useEffect(() => {
 	if (refTopWin.current != undefined) {
 	    refTopWin.current.scrollTop = layout.topScrollTop;
@@ -127,14 +120,12 @@ export const TestCaseManager = (props) => {
 
     };
 
-
     const Action = () => {
 	return (
 	    <Typography >
 		Test
 	    </Typography>
 	);
-
     };
 
 
@@ -148,9 +139,141 @@ export const TestCaseManager = (props) => {
     }
 
 
+
+
+
+
+    const handleRunAll =  async () => {
+	const status = await handleRunChunk(0, state.judging.length - 1);
+    };
+    
+
+    const handleRunChunk = async (start, end) => {
+
+	const inrange = (i) => {
+	    return start <= i && i <= end;
+	};
+
+	setState({
+	    judging: state.judging.map((x, i) => inrange(i) ? true : x),
+	    result_status: state.result_status.map((x, i) => inrange(i) ? undefined: x)
+	});
+
+
+	const chuckData = session.failed_case
+				 .filter((x, i) => inrange(i))
+				 .map(x => x.split(">SPLIT1@2@3SPLIT<"))
+	                         .map(x => x[0])
+	                         .map(x => x.trim())
+	                         .join('\n');
+
+	const chuckExpected = session.failed_case
+				     .filter((x, i) => inrange(i))
+				     .map(x => x.split(">SPLIT1@2@3SPLIT<"))
+				     .map(x => x[1])
+				     .map(x => x.trim());
+
+	const result = await runtestN(chuckData, task);
+
+	const makeCompare = (s1, s2) => {
+	    if (s1 != s2) {
+		return "Test Didn't Pass";
+	    }
+	    else {
+		return "Test Passed";
+	    }
+	};
+
+	let processedResult = state.result_status.map((x, i) => inrange(i) ? undefined: x)
+
+	/* let processedResult= Array(state.result_status.length).fill(undefined); */
+	
+	if (result.result_status == "Compile Error") {
+	    for (let i = start; i <= end; ++i) {
+		processedResult[i] = {
+		    result_status: "Compile Error",
+		    expected: [],
+		    output: [],
+		    msg_compile_error: result.msg_compile_error,
+		    msg_debug: result.msg_debug,
+		    msg_runtime_error: result.msg_runtime_error
+		}
+	    }
+	}
+	else if (result.result_status == "Runtime Error") {
+	    const n = result.output.length;
+	    for (let i = start; i < start + n; ++i) {
+		processedResult[i] = {
+		    result_status: makeCompare(chuckExpected[i], result.output[i]),
+		    expected: [chuckExpected[i]],
+		    output: [result.output[i]],
+		    msg_compile_error: result.msg_compile_error,
+		    msg_debug: result.msg_debug,
+		    msg_runtime_error: result.msg_runtime_error
+		}
+	    }
+	    processedResult[start + n] = {
+		result_status: "Runtime Error",
+		expected: [],
+		output: [],
+		msg_compile_error: result.msg_compile_error,
+		msg_debug: result.msg_debug,
+		msg_runtime_error: result.msg_runtime_error
+	    }
+	}
+	else if (result.result_status == "Test Didn't Pass" || result.result_status == "Test Passed") {
+	    for (let i = start; i <= end; ++i) {
+	        processedResult[i] = {
+		    result_status: makeCompare(chuckExpected[i], result.output[i]),
+		    expected: [chuckExpected[i]],
+		    output: [result.output[i]],
+		    msg_compile_error: result.msg_compile_error,
+		    msg_debug: result.msg_debug,
+		    msg_runtime_error: result.msg_runtime_error
+		}
+	    }
+	}
+	setState({
+	    judging: state.judging.map((x, i) => inrange(i) ? false : x),
+	    result_status: processedResult
+	});
+	return true;
+    };
+
+
     const fnPack = {
-	getTopScroll: () => getTopScroll()
-    }
+	getTopScroll: () => getTopScroll(),
+	handleRunChunk: handleRunChunk
+    };
+
+
+    const handleAdd = async() => {
+	const status = await new Promise((resolve, fail) => {
+	    chrome.runtime.sendMessage({action: "SESSION_INSERT_TESTCASE", payload: {
+		pid: mainFn.questionID(),
+	    }}, async function(response) {
+		resolve(response.status);
+	    })
+	});
+	mainUpdate.session();
+    };
+    
+    const ActionComponent = () => {
+	return (
+	    <>
+		<DialogActions style = {{height: "55px"}}>
+		    <ThemeProvider theme={props.theme}>
+			<Button variant = "contained"  size = "small" onClick = { handleAdd } color="primary">
+ 			    Add
+ 			</Button>
+			<Button variant = "contained"  size = "small" onClick = { handleRunAll } color="primary">
+ 			    RunAll
+ 			</Button>
+		    </ThemeProvider>
+ 		</DialogActions>
+	    </>
+	);
+    };
 
 
 
@@ -160,6 +283,7 @@ export const TestCaseManager = (props) => {
 	return (
 	    <TestCaseList mainUpdate = {props.mainUpdate} mainFn = {props.mainFn} layout = {layout}
 	                  refTopWin = {refTopWin}
+	    	          fnPack = { fnPack }
 	                  id = {ID()}
 			  W = {layout.size.W} H = {_props.H}  state = { state }
 			  session = {props.session} update = {_props.update} />
@@ -180,7 +304,7 @@ export const TestCaseManager = (props) => {
 	);
     }
 
-   
+    
 
     const MainComponent = () => {
 	return (
@@ -190,64 +314,6 @@ export const TestCaseManager = (props) => {
 				  layout: x => setLayout(x),				  
 			      }}
 	    />
-	);
-    };
-
-
-    const handleRunAll = async() => {
-	setState({
-	    judging: state.judging.map(x => true),
-	    result_status: state.result_status.map(x => undefined)
-	});
-	forceUpdate();
-	
-	await Promise.all(session.failed_case.map(async (x, index) => {
-	    const casedata = x.split(">SPLIT1@2@3SPLIT<");
-	    const n = await runtestN(casedata[0], task);
-	    setState({
-		judging: (state.judging[index] = false, state.judging),
-		result_status: (state.result_status[index] = n, state.result_status)
-	    });
-	    forceUpdate();
-	}));
-
-    };
-
-
-    const handleRunAllBulk = async() => {
-	const combinedCases = session.failed_cases.join('\n');
-	const result = await runtestN(combinedCases, task);
-	console.log(result);
-    };
-
-    const handleAdd = async() => {
-	const status = await new Promise((resolve, fail) => {
-	    chrome.runtime.sendMessage({action: "SESSION_INSERT_TESTCASE", payload: {
-		pid: mainFn.questionID(),
-	    }}, async function(response) {
-		resolve(response.status);
-	    })
-	});
-	mainUpdate.session();
-    };
-	
-	const ActionComponent = () => {
-	return (
-	    <>
-		<DialogActions style = {{height: "55px"}}>
-		    <ThemeProvider theme={props.theme}>
-			<Button variant = "contained"  size = "small" onClick = { handleAdd } color="primary">
- 			    Add
- 			</Button>
-			<Button variant = "contained"  size = "small" onClick = { handleRunAll } color="primary">
- 			    RunAll(Parallel)
- 			</Button>
-			<Button variant = "contained"  size = "small" onClick = { handleRunAllBulk } color="primary">
- 			    RunAll
- 			</Button>
-		    </ThemeProvider>
- 		</DialogActions>
-	    </>
 	);
     };
 

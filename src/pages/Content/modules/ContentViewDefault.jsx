@@ -57,6 +57,7 @@ export const ContentViewDefault = (props) => {
 				innerRef = {props.barRef}
 			    >
 				<InputOutputExpectedPane  zIndex = {props.zIndex}
+				                          state1 = { props.state1}
 							  state = {props.state} inputRef = { props.inputRef }
 							  mode = { props.mode } inputCursor = {props.inputCursor} refs = {props.refs}/>
 			    </Section>
