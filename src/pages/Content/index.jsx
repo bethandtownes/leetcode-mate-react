@@ -27,6 +27,7 @@ import { injectJSListener } from "../../lib/utils.jsx";
 injectJSListener();
 
 
+
 ReactDOM.render(
-	<LeetCodeMate />, document.getElementById('root')
+    <LeetCodeMate />, document.getElementById('root')
 );

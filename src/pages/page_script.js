@@ -75,6 +75,20 @@ window.addEventListener("EDITOR_CONFIG_EVENT", function(event) {
 	editorConfig = event.detail.data.editor;
 	setEditor();
     }
+    if (event.detail.action == "ENFORCE") {
+	const editor = document.querySelector(".CodeMirror").CodeMirror;
+	const conf = event.detail.data.editor;
+
+	if (editor == undefined || editor == null) return;
+	if (editor.getOption("autoCloseBrackets") != conf.autoCloseBrackets) {
+	    console.log('reset bracket');
+	    editor.setOption("autoCloseBrackets", conf.autoCloseBrackets);
+	}
+	if (editor.getOption("cursorBlinkRate") > 0 && conf.blinkingCursor == false) {
+	    console.log('reset cursor');
+	    editor.setOption("cursorBlinkRate", 0);
+	}
+    }
 }, false);
 
 window.addEventListener("EDITOR_GRAB", function test() {
