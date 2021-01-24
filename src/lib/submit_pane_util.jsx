@@ -227,7 +227,7 @@ export const makeDisplayState = async (prevState, submitResult) => {
 	    const B = submitResult.total_testcases.toString();
 	    return {
 		result_status: ResultType.time_limit_exceeded,
-		input: submitResult.input,
+		input: submitResult.last_testcase,
 		output: submitResult.code_output,
 		expected: submitResult.expected_output,
 		msg_compile_error: null,
