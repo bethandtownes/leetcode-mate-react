@@ -65,7 +65,8 @@ export default function PaneTitle(props) {
 	    if (state.result_status == T.result.runtime_error
 		|| state.result_status == T.result.time_limit_exceeded
 		|| state.result_status == T.result.wrong_answer
-		|| state.result_status == T.result.memory_limit_exceeded) {
+		|| state.result_status == T.result.memory_limit_exceeded
+	        || state.result_status == "Output Limit Exceeded") {
 		const A = state.total_correct ? state.total_correct.toString() : "0";
 		const B = state.total_testcases ? state.total_testcases.toString() : "0";
 		return state.result_status + " (" + A + "/" + B + ")";

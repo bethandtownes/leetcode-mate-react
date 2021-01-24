@@ -1183,8 +1183,10 @@ function LeetCodeMate(props) {
 	    clearinput();
 	    setMode(T.mode.submit);
 	    setJudge(true);
-	    
+
 	    const res = CN == true ? await submitCN(state, problemSlug) : await submit(state, problemSlug);
+	    console.log('got result: ');
+	    console.log(res);
 	    setinput(res.input? res.input : "");
 	    updateTestCase(res);
 	    if (res == null) {

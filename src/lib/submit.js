@@ -33,6 +33,7 @@ export async function submit(prevState, task, code = undefined, lang = undefined
     }).then( res => {
 	return UtilSubmissionPane.makeDisplayState(prevState, res);
     }).catch((e) => {
+	console.log(e);
 	if (e instanceof EvalError) {
 	    
 	    return null;

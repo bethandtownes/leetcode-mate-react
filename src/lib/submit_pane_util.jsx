@@ -57,6 +57,17 @@ export const makeTestDisplayStateCN = async (expected_p, result_p) => {
 		msg_debug: acquire.DebugPrint(T.task_type.run_testcase, result)
 	    };
 	}
+	case 'Output Limit Exceeded': {
+	    return {
+		result_status: "Output Limit Exceeded",
+		input: null,
+		output:  result.code_answer,
+		expected: expected.code_answer,
+		msg_compile_error: null,
+		msg_runtime_error: null,
+		msg_debug: acquire.DebugPrint(T.task_type.run_testcase, result)
+	    };
+	}
 	case 'Memory Limit Exceeded': {
 	    return {
 		result_status: T.result.memory_limit_exceeded,
@@ -120,7 +131,17 @@ export const makeTestDisplayState = async (result) => {
 		msg_compile_error: null,
 		msg_runtime_error: null,
 		msg_debug: acquire.DebugPrint(T.task_type.run_testcase, result)
-		
+	    };
+	}
+	case 'Output Limit Exceeded': {
+	    return {
+		result_status: "Output Limit Exceeded",
+		input: null,
+		output:  result.code_answer,
+		expected: result.expected_code_answer,
+		msg_compile_error: null,
+		msg_runtime_error: null,
+		msg_debug: acquire.DebugPrint(T.task_type.run_testcase, result)
 	    };
 	}
 	case 'Memory Limit Exceeded': {
@@ -152,6 +173,8 @@ export const makeTestDisplayState = async (result) => {
 }
 
 export const makeDisplayState = async (prevState, submitResult) => {
+    console.log(submitResult);
+    console.log(prevState);
     switch (submitResult.status_msg) {
 	case 'Compile Error': {
 	    return {
@@ -218,6 +241,19 @@ export const makeDisplayState = async (prevState, submitResult) => {
 		msg_compile_error: null,
 		msg_runtime_error: null,
 		msg_debug: null,
+		total_correct: submitResult.total_correct,
+		total_testcases: submitResult.total_testcases
+	    };
+	}
+	case 'Output Limit Exceeded': {
+	    return {
+		result_status: "Output Limit Exceeded",
+		input: submitResult.last_testcase,
+		output: submitResult.code_output,
+		expected: submitResult.expected_output,
+		msg_compile_error: null,
+		msg_runtime_error: null,
+		msg_debug: submitResult.std_output,
 		total_correct: submitResult.total_correct,
 		total_testcases: submitResult.total_testcases
 	    };
