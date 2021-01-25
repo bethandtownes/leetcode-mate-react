@@ -843,6 +843,38 @@
         "question_id": 100092,
         "question_title": "Deep Dark Fraction"
     },
+    "the-number-of-employees-which-report-to-each-employee": {
+        "question_id": 1882,
+        "question_title": "The Number of Employees Which Report to Each Employee"
+    },
+    "find-followers-count": {
+        "question_id": 1877,
+        "question_title": "Find Followers Count"
+    },
+    "checking-existence-of-edge-length-limited-paths-ii": {
+        "question_id": 1865,
+        "question_title": "Checking Existence of Edge Length Limited Paths II"
+    },
+    "count-apples-and-oranges": {
+        "question_id": 1862,
+        "question_title": "Count Apples and Oranges"
+    },
+    "building-boxes": {
+        "question_id": 1861,
+        "question_title": "Building Boxes"
+    },
+    "find-kth-largest-xor-coordinate-value": {
+        "question_id": 1860,
+        "question_title": "Find Kth Largest XOR Coordinate Value"
+    },
+    "change-minimum-characters-to-satisfy-one-of-three-conditions": {
+        "question_id": 1859,
+        "question_title": "Change Minimum Characters to Satisfy One of Three Conditions"
+    },
+    "latest-time-by-replacing-hidden-digits": {
+        "question_id": 1858,
+        "question_title": "Latest Time by Replacing Hidden Digits"
+    },
     "biggest-window-between-visits": {
         "question_id": 1852,
         "question_title": "Biggest Window Between Visits"
@@ -851,9 +883,25 @@
         "question_id": 1847,
         "question_title": "Largest Subarray Length K"
     },
+    "largest-submatrix-with-rearrangements": {
+        "question_id": 1845,
+        "question_title": "Largest Submatrix With Rearrangements"
+    },
+    "number-of-rectangles-that-can-form-the-largest-square": {
+        "question_id": 1843,
+        "question_title": "Number Of Rectangles That Can Form The Largest Square"
+    },
     "number-of-calls-between-two-persons": {
         "question_id": 1842,
         "question_title": "Number of Calls Between Two Persons"
+    },
+    "minimize-hamming-distance-after-swap-operations": {
+        "question_id": 1840,
+        "question_title": "Minimize Hamming Distance After Swap Operations"
+    },
+    "decode-xored-array": {
+        "question_id": 1839,
+        "question_title": "Decode XORed Array"
     },
     "number-of-distinct-substrings-in-a-string": {
         "question_id": 1838,
@@ -862,6 +910,22 @@
     "daily-leads-and-partners": {
         "question_id": 1837,
         "question_title": "Daily Leads and Partners"
+    },
+    "count-ways-to-make-array-with-product": {
+        "question_id": 1836,
+        "question_title": "Count Ways to Make Array With Product"
+    },
+    "decode-xored-permutation": {
+        "question_id": 1835,
+        "question_title": "Decode XORed Permutation"
+    },
+    "minimum-number-of-people-to-teach": {
+        "question_id": 1834,
+        "question_title": "Minimum Number of People to Teach"
+    },
+    "find-the-highest-altitude": {
+        "question_id": 1833,
+        "question_title": "Find the Highest Altitude"
     },
     "minimum-operations-to-make-a-subsequence": {
         "question_id": 1832,
@@ -891,6 +955,10 @@
         "question_id": 1826,
         "question_title": "Maximum XOR With an Element From Array"
     },
+    "find-minimum-time-to-finish-all-jobs": {
+        "question_id": 1825,
+        "question_title": "Find Minimum Time to Finish All Jobs"
+    },
     "maximum-number-of-eaten-apples": {
         "question_id": 1824,
         "question_title": "Maximum Number of Eaten Apples"
@@ -906,6 +974,22 @@
     "products-worth-over-invoices": {
         "question_id": 1821,
         "question_title": "Product's Worth Over Invoices"
+    },
+    "number-of-ways-to-reconstruct-a-tree": {
+        "question_id": 1820,
+        "question_title": "Number Of Ways To Reconstruct A Tree"
+    },
+    "construct-the-lexicographically-largest-valid-sequence": {
+        "question_id": 1819,
+        "question_title": "Construct the Lexicographically Largest Valid Sequence"
+    },
+    "maximum-score-from-removing-substrings": {
+        "question_id": 1818,
+        "question_title": "Maximum Score From Removing Substrings"
+    },
+    "calculate-money-in-leetcode-bank": {
+        "question_id": 1817,
+        "question_title": "Calculate Money in Leetcode Bank"
     },
     "lowest-common-ancestor-of-a-binary-tree-iv": {
         "question_id": 1816,
@@ -1258,6 +1342,10 @@
     "fancy-sequence": {
         "question_id": 1728,
         "question_title": "Fancy Sequence"
+    },
+    "cat-and-mouse-ii": {
+        "question_id": 1727,
+        "question_title": "Cat and Mouse II"
     },
     "coordinate-with-maximum-network-quality": {
         "question_id": 1726,
@@ -2550,6 +2638,10 @@
     "first-unique-number": {
         "question_id": 1366,
         "question_title": "First Unique Number"
+    },
+    "tuple-with-same-product": {
+        "question_id": 1364,
+        "question_title": "Tuple with Same Product"
     },
     "airplane-seat-assignment-probability": {
         "question_id": 1362,
@@ -5559,6 +5651,10 @@
         "question_id": 551,
         "question_title": "Student Attendance Record I"
     },
+    "shortest-path-to-get-food": {
+        "question_id": 550,
+        "question_title": "Shortest Path to Get Food"
+    },
     "binary-tree-longest-consecutive-sequence-ii": {
         "question_id": 549,
         "question_title": "Binary Tree Longest Consecutive Sequence II"
@@ -5638,6 +5734,10 @@
     "minesweeper": {
         "question_id": 529,
         "question_title": "Minesweeper"
+    },
+    "swapping-nodes-in-a-linked-list": {
+        "question_id": 528,
+        "question_title": "Swapping Nodes in a Linked List"
     },
     "word-abbreviation": {
         "question_id": 527,

@@ -113,6 +113,7 @@ async function QuestionID(slug) {
 }
 
 async function QuestionIDCN(slug) {
+    console.log('bere');
     var cache = chrome.runtime.getURL("./cache_cn.json");
     return fetch(cache,
 	  {method: "GET",
@@ -224,7 +225,7 @@ export const TaskInfo = async () =>{
     const elmHref = elm.getElementsByTagName('a')[0].href;
     const regex = /(?<=problems\/)(.*)?(?=\/)/g;    
     const slug = elmHref.match(regex)[0];
-    const id = await QuestionIDCN(slug);
+    const id = await QuestionID(slug);
     return {
 	question_id : id,
 	question_title_slug: slug
