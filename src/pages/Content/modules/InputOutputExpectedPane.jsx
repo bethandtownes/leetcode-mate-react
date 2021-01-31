@@ -4,6 +4,18 @@ import { Divider, Box, TextField } from '@material-ui/core';
 import { valueOr } from "./utility.js";
 import { T } from "../../../lib/typings.js";
 
+
+
+
+function truncate(s, by) {
+    if (s.length < by) {
+	return s;
+    }
+    else {
+	return s.substring(0, by) + "...";
+    }
+}
+
 export const InputOutputExpectedPane = (props) => {
     
     const renderLabel = () => {
@@ -22,7 +34,7 @@ export const InputOutputExpectedPane = (props) => {
 		id="input_text_area"
 		key = {"input_text_area_key"}
 		label = { renderLabel() }
-	        defaultValue = { props.state1.inputbox.value }
+	        defaultValue = { truncate(props.state1.inputbox.value, 1000) }
 		inputRef = { props.inputRef }
 		multiline = { true }
 		readOnly = { false }

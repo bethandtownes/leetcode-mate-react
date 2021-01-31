@@ -11,6 +11,8 @@ export async function runtest(testInput, task, code = undefined, lang = undefine
     if (lang == undefined) {
 	lang = acquire.ProgrammingLanguage();
     }
+
+    console.log(task);
     
     const data = {
 	data_input: testInput,
@@ -18,7 +20,7 @@ export async function runtest(testInput, task, code = undefined, lang = undefine
 	question_id: task.question_id,
 	typed_code: code
     };
-    const submitURL = "/problems/" + task.question_slug + "/interpret_solution/";
+    const submitURL = "/problems/" + task.question_title_slug + "/interpret_solution/";
     
     return makeSubmitRequest(data, submitURL).then(res => {
 	return res.json();

@@ -100,6 +100,7 @@ export async function LeetCodeEditorSettings() {
 
 async function QuestionID(slug) {
     var cache = chrome.runtime.getURL("./cache.json");
+    console.log(slug);
     DEBUG("loading question_id from slug")
     return fetch(cache,
 	  {method: "GET",
@@ -109,7 +110,9 @@ async function QuestionID(slug) {
 	 }).then(res => {
 	     DEBUG(res);
 	     return res[slug].question_id;
-	 });
+	 }).catch((res) => {
+	     return undefined;
+	 });;
 }
 
 async function QuestionIDCN(slug) {

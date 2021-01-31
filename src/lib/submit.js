@@ -10,6 +10,7 @@ import { isCN } from "./acquire.js";
 
 
 export async function submit(prevState, task, code = undefined, lang = undefined) {
+    console.log(task);
     if (code == undefined) {
 	code = await acquire.EditorValue();
     }
@@ -22,7 +23,7 @@ export async function submit(prevState, task, code = undefined, lang = undefined
 	question_id: task.question_id,
 	typed_code: code
     };
-    const submitURL = "/problems/" + task.question_slug + "/submit/";
+    const submitURL = "/problems/" + task.question_title_slug + "/submit/";
     
     return makeSubmitRequest(data, submitURL).then(res => {
 	return res.json();
@@ -43,7 +44,6 @@ export async function submit(prevState, task, code = undefined, lang = undefined
 	}
     });
 }
-
 
 
 

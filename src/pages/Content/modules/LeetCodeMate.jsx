@@ -487,8 +487,15 @@ function LeetCodeMate(props) {
 	    if (CN == false) {
 		console.log('[status] updating task info');
 		const p = await acquire.TaskInfo();
-		setProblemSlug(p);
+		/* setProblemSlug(p); */
 		const r = await acquire.QuestionDetailStats(p.question_title_slug);
+		console.log(r);
+		if (p.id == undefined) {
+		    p.question_id = r.data.question.questionId;
+		}
+		console.log(p);
+		setProblemSlug(p);
+		
 		if (taskInfo != null && r.data.question.title != taskInfo.data.question.title) {
 		    const matched_item = r.data.question.codeSnippets.find(x => {
 			return x.langSlug === MATE_EDITOR_LANGUAGE[settingsMateEditor.mode].leetcode_slug;
@@ -514,8 +521,13 @@ function LeetCodeMate(props) {
 	    }
 	    else {
 		const p = await acquire.TaskInfoCN();
-		setProblemSlug(p);
+		/* setProblemSlug(p); */
 		const r = await acquire.QuestionDetailStatsCN(p.question_title_slug);
+		if (p.id == undefined) {
+		    p.question_id = r.data.question.questionId;
+		}
+		setProblemSlug(p);
+		console.log(p);
 		if (taskInfo != null && r.data.question.title != taskInfo.data.question.title) {
 		    const matched_item = r.data.question.codeSnippets.find(x => {
 			return x.langSlug === MATE_EDITOR_LANGUAGE[settingsMateEditor.mode].leetcode_slug;
